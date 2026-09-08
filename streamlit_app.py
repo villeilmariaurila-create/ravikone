@@ -1,13 +1,21 @@
 import streamlit as st
 import requests
 import pandas as pd
+from datetime import date, datetime
 
 st.set_page_config(page_title="1 € V4 - Ravityökalu", layout="wide")
 
 st.title("🏇 Pohjoismaiset Ravit — 1,00 € V4 Automaattityökalu")
 st.caption("Automaattinen lähtölistojen haku, kerroinanalyysi ja 1,00 € V4-yhdistelmägeneraattori")
 
-# --- 1. DATAN HAKU VEIKKAUS API:STA ---
+# --- 1. PÄIVÄMÄÄRÄN JA RAVIRADAN VALINTA ---
+col_date, col_select = st.columns([1, 2])
+
+with col_date:
+    selected_date = st.date_input("Valitse päivämäärä:", date.today())
+
+date_str = selected_date.strftime("%Y-%m-%d")
+
 @st.cache_data(ttl=30)
 def fetch_json(url):
     headers = {
@@ -22,35 +30,36 @@ def fetch_json(url):
         pass
     return None
 
-# Haetaan päivän ravikortit
-cards_data = fetch_json("https://www.veikkaus.fi/api/toto-info/v1/cards/today")
+# Haetaan valitun päivämäärän kaikki ravikortit Veikkaukselta
+cards_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/date/{date_str}")
+if not cards_data or not cards_data.get("cards"):
+    # Jos päivämäärähaku ei palauta, kokeillaan yleistä tänään-rajapintaa
+    cards_data = fetch_json("https://www.veikkaus.fi/api/toto-info/v1/cards/today")
+
 cards = cards_data.get("cards", []) if cards_data else []
 
-selected_card = None
-if cards:
-    card_options = {f"{c.get('trackName', 'Ravit')} ({c.get('country', 'SE')}) - Card ID: {c.get('cardId')}": c for c in cards}
-    
-    # Etsitään oletuksena Hagmyren
-    default_idx = 0
-    for idx, (label, card) in enumerate(card_options.items()):
-        if "hagmyren" in card.get("trackName", "").lower():
-            default_idx = idx
-            break
-
-    selected_label = st.selectbox("Valitse ravit / rata:", list(card_options.keys()), index=default_idx)
-    selected_card = card_options[selected_label]
-
-if not selected_card:
-    st.warning("Ei ravipäiviä saatavilla juuri nyt.")
+if not cards:
+    st.warning(f"Ei ravipäiviä tai kertoimia saatavilla valitulle päivälle ({date_str}). Kokeile toista päivämäärää kalenterista.")
     st.stop()
 
+card_options = {}
+for c in cards:
+    track = c.get("trackName", "Tuntematon rada")
+    country = c.get("country", "")
+    card_id = c.get("cardId")
+    label = f"{track} ({country}) — Kortti ID: {card_id}"
+    card_options[label] = c
+
+with col_select:
+    selected_label = st.selectbox("Valitse ravit / rada:", list(card_options.keys()))
+
+selected_card = card_options[selected_label]
 card_id = selected_card.get("cardId")
 
-# Haetaan valitun radan lähtölistat ja hevostiedot
+# --- 2. LÄHTÖLISTOJEN JA KERTOIMIEN HAKU ---
 card_detail = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/{card_id}")
 races = card_detail.get("races", []) if card_detail else []
 
-# Haetaan voittajakertoimet
 odds_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/odds/v1/card/{card_id}/VOITTAJA")
 odds_by_race = {}
 if odds_data and "odds" in odds_data:
@@ -60,11 +69,10 @@ if odds_data and "odds" in odds_data:
             odds_by_race[r_num] = {}
         for runner_odds in item.get("runnerOdds", []):
             runner_num = runner_odds.get("runnerNumber")
-            # Kertoimet ovat API:ssa sentteinä (esim 244 = 2.44)
             raw_odds = runner_odds.get("odds", 0) / 100.0
             odds_by_race[r_num][runner_num] = raw_odds
 
-# --- 2. PISTEYTYSALGORITMI ---
+# --- 3. LASKENTA ALGORITMI ---
 def calculate_scores(runners, odds_map):
     data = []
     total_pts_sum = 0
@@ -100,14 +108,14 @@ def calculate_scores(runners, odds_map):
     
     return df.sort_values(by="Pisteet", ascending=False).reset_index(drop=True)
 
-# --- 3. LÄHTÖJEN TULOSTUS ---
-st.subheader(f"🎯 {selected_card.get('trackName')} — V4 / Lähtökohtaiset Kertoimet")
+# --- 4. TULOSTUS KÄYTTÖLIITTYMÄÄN ---
+st.subheader(f"🎯 {selected_card.get('trackName')} — Lähtökohtaiset Kertoimet ja Analyysi")
 
 v4_ranks = {}
 col1, col2 = st.columns(2)
 
-# Näytetään 4 ensimmäistä lähtöä
-target_races = [r for r in races if r.get("raceNumber") in [1, 2, 3, 4]]
+# Näytetään 4 ensimmäistä lähtöä (tai V4-lähdöt)
+target_races = races[:4]
 
 for idx, race in enumerate(target_races, start=1):
     r_num = race.get("raceNumber")
@@ -134,7 +142,7 @@ for idx, race in enumerate(target_races, start=1):
             use_container_width=True
         )
 
-# --- 4. 1,00 € V4 -PELIKUPONKI ---
+# --- 5. 1,00 € V4 -GENERAATTORI ---
 st.markdown("---")
 st.subheader("💡 Mallin ehdottama 1,00 € V4 -Päärivi")
 
