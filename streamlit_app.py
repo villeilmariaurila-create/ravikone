@@ -2,17 +2,14 @@ import streamlit as st
 import requests
 import pandas as pd
 
-st.set_page_config(page_title="1 € V4 - Travverktyg", layout="wide")
+st.set_page_config(page_title="1 € V4 - Ravityökalu", layout="wide")
 
-st.title("🏇 Finlands Trav — 1,00 € V4 Automatiserat Verktyg")
-st.caption("Automatisk hämtning av startlistor, oddsanalys och 1,00 € V4-kombinationsgenerator")
+st.title("🏇 Pohjoismaiset Ravit — 1,00 € V4 Automaattityökalu")
+st.caption("Automaattinen lähtölistojen haku, kerroinanalyysi ja 1,00 € V4-yhdistelmägeneraattori")
 
-# --- 1. DATAHÄMTNING FRÅN VEIKKAUS API (12.9.2026) ---
-TARGET_DATE = "2026-09-12"
-
-@st.cache_data(ttl=60)
-def get_veikkaus_races(date_str):
-    url = f"https://www.veikkaus.fi/api/toto-info/v1/cards/date/{date_str}"
+# --- 1. DATAN HAKU VEIKKAUS API:STA ---
+@st.cache_data(ttl=30)
+def fetch_json(url):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
         "Accept": "application/json"
@@ -20,95 +17,108 @@ def get_veikkaus_races(date_str):
     try:
         res = requests.get(url, headers=headers, timeout=5)
         if res.status_code == 200:
-            return res.json().get("cards", [])
-    except Exception as e:
+            return res.json()
+    except Exception:
         pass
-    return []
+    return None
 
-cards = get_veikkaus_races(TARGET_DATE)
+# Haetaan päivän ravikortit
+cards_data = fetch_json("https://www.veikkaus.fi/api/toto-info/v1/cards/today")
+cards = cards_data.get("cards", []) if cards_data else []
 
+selected_card = None
 if cards:
-    card_options = {f"{c.get('trackName', 'Trav')} ({c.get('country', 'FI')}) - Kort-ID: {c.get('cardId')}": c for c in cards}
-    selected_card_label = st.selectbox("Välj travbana / tävling (12.9.2026):", list(card_options.keys()))
-    selected_card = card_options[selected_card_label]
-else:
-    st.info(f"ℹ️ Inga aktiva odds tillgängliga för lördagen {TARGET_DATE} ännu. Visar modelldata för analys och V4-generatorn.")
-    selected_card = {"trackName": "Lördagstrav (Modell)", "cardId": "20260912"}
+    card_options = {f"{c.get('trackName', 'Ravit')} ({c.get('country', 'SE')}) - Card ID: {c.get('cardId')}": c for c in cards}
+    
+    # Etsitään oletuksena Hagmyren
+    default_idx = 0
+    for idx, (label, card) in enumerate(card_options.items()):
+        if "hagmyren" in card.get("trackName", "").lower():
+            default_idx = idx
+            break
 
-# --- 2. BEARBETNING AV POÄNG OCH ODDS ---
-def calculate_horse_scores(runners, odds_dict):
+    selected_label = st.selectbox("Valitse ravit / rata:", list(card_options.keys()), index=default_idx)
+    selected_card = card_options[selected_label]
+
+if not selected_card:
+    st.warning("Ei ravipäiviä saatavilla juuri nyt.")
+    st.stop()
+
+card_id = selected_card.get("cardId")
+
+# Haetaan valitun radan lähtölistat ja hevostiedot
+card_detail = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/{card_id}")
+races = card_detail.get("races", []) if card_detail else []
+
+# Haetaan voittajakertoimet
+odds_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/odds/v1/card/{card_id}/VOITTAJA")
+odds_by_race = {}
+if odds_data and "odds" in odds_data:
+    for item in odds_data.get("odds", []):
+        r_num = item.get("raceNumber")
+        if r_num not in odds_by_race:
+            odds_by_race[r_num] = {}
+        for runner_odds in item.get("runnerOdds", []):
+            runner_num = runner_odds.get("runnerNumber")
+            # Kertoimet ovat API:ssa sentteinä (esim 244 = 2.44)
+            raw_odds = runner_odds.get("odds", 0) / 100.0
+            odds_by_race[r_num][runner_num] = raw_odds
+
+# --- 2. PISTEYTYSALGORITMI ---
+def calculate_scores(runners, odds_map):
     data = []
     total_pts_sum = 0
     
     for r in runners:
         num = r.get("startNumber")
-        name = r.get("horseName", f"Häst {num}")
-        driver = r.get("driver", {}).get("fullName", "Okänd")
+        name = r.get("horseName", f"Hevonen {num}")
+        driver = r.get("driver", {}).get("fullName", "Tuntematon")
         post = r.get("postPosition", num)
         
-        odds = odds_dict.get(num, 0.0)
+        odds = odds_map.get(num, 0.0)
         
         base_score = 30 if odds == 0 else max(5, min(48, int(50 - (odds * 1.5))))
         track_score = 8 if post in [2, 3, 4, 5] else (5 if post == 1 else (-5 if post in [7, 8] else 0))
         driver_score = 5
-        form_score = 0
         
-        tot_pts = max(1, base_score + track_score + driver_score + form_score)
+        tot_pts = max(1, base_score + track_score + driver_score)
         total_pts_sum += tot_pts
         
         data.append({
-            "Spår": num,
-            "Häst": name,
-            "Kusk": driver,
-            "Odds": odds,
-            "Poäng": tot_pts
+            "Rata": num,
+            "Hevonen": name,
+            "Ohjastaja": driver,
+            "Kerroin": odds,
+            "Pisteet": tot_pts
         })
     
     df = pd.DataFrame(data)
-    if total_pts_sum > 0:
-        df["Sannolikhet %"] = (df["Poäng"] / total_pts_sum) * 100
-        df["Gränsodds"] = df["Sannolikhet %"].apply(lambda x: 100 / x if x > 0 else 0)
-        df["EV"] = df.apply(lambda row: (row["Odds"] * (row["Sannolikhet %"] / 100)) if row["Odds"] > 0 else 0, axis=1)
+    if not df.empty and total_pts_sum > 0:
+        df["Todennäköisyys %"] = (df["Pisteet"] / total_pts_sum) * 100
+        df["Rajakerroin"] = df["Todennäköisyys %"].apply(lambda x: 100 / x if x > 0 else 0)
+        df["EV"] = df.apply(lambda row: (row["Kerroin"] * (row["Todennäköisyys %"] / 100)) if row["Kerroin"] > 0 else 0, axis=1)
     
-    return df.sort_values(by="Poäng", ascending=False).reset_index(drop=True)
+    return df.sort_values(by="Pisteet", ascending=False).reset_index(drop=True)
 
-# --- 3. V4-AVDELNINGAR OCH TABLES ---
-st.subheader("🎯 V4-Avdelningar och Odds (Lördag 12.9.2026)")
+# --- 3. LÄHTÖJEN TULOSTUS ---
+st.subheader(f"🎯 {selected_card.get('trackName')} — V4 / Lähtökohtaiset Kertoimet")
 
 v4_ranks = {}
 col1, col2 = st.columns(2)
 
-sample_runners_list = [
-    [{"startNumber": 1, "horseName": "Riksu's Xpress", "driver": {"fullName": "T. Toiviainen"}, "postPosition": 1},
-     {"startNumber": 2, "horseName": "Silence Shotgun", "driver": {"fullName": "N. Riekkinen"}, "postPosition": 2},
-     {"startNumber": 3, "horseName": "Ricky Ale", "driver": {"fullName": "T. Pakkanen"}, "postPosition": 3},
-     {"startNumber": 6, "horseName": "Djalovaner", "driver": {"fullName": "J. Ruotsalainen"}, "postPosition": 6}],
+# Näytetään 4 ensimmäistä lähtöä
+target_races = [r for r in races if r.get("raceNumber") in [1, 2, 3, 4]]
+
+for idx, race in enumerate(target_races, start=1):
+    r_num = race.get("raceNumber")
+    runners = race.get("runners", [])
+    r_odds = odds_by_race.get(r_num, {})
     
-    [{"startNumber": 1, "horseName": "Zeta Crown", "driver": {"fullName": "H. Bollström"}, "postPosition": 1},
-     {"startNumber": 4, "horseName": "Stonecapes Superb", "driver": {"fullName": "A. Teivainen"}, "postPosition": 4},
-     {"startNumber": 5, "horseName": "Main Stage", "driver": {"fullName": "S. Raitala"}, "postPosition": 5}],
-
-    [{"startNumber": 2, "horseName": "Make It Rain", "driver": {"fullName": "J. Torvinen"}, "postPosition": 2},
-     {"startNumber": 3, "horseName": "Consalvo", "driver": {"fullName": "E. Holopainen"}, "postPosition": 3},
-     {"startNumber": 7, "horseName": "MAS Capacity", "driver": {"fullName": "I. Nurmonen"}, "postPosition": 7}],
-
-    [{"startNumber": 1, "horseName": "Amazing Player", "driver": {"fullName": "P. Korpi"}, "postPosition": 1},
-     {"startNumber": 6, "horseName": "BWT Highway Star", "driver": {"fullName": "O. Koivunen"}, "postPosition": 6},
-     {"startNumber": 8, "horseName": "Run For Royalty", "driver": {"fullName": "J. Utala"}, "postPosition": 8}]
-]
-
-sample_odds_list = [
-    {1: 7.01, 2: 21.73, 3: 3.88, 6: 2.23},
-    {1: 4.50, 4: 1.85, 5: 6.20},
-    {2: 2.10, 3: 8.50, 7: 3.90},
-    {1: 3.40, 6: 5.10, 8: 1.95}
-]
-
-for leg in range(1, 5):
-    with (col1 if leg <= 2 else col2):
-        st.markdown(f"### V4-{leg} (Lopp {leg})")
-        df_leg = calculate_horse_scores(sample_runners_list[leg-1], sample_odds_list[leg-1])
-        v4_ranks[f"V4-{leg}"] = df_leg
+    df_leg = calculate_scores(runners, r_odds)
+    v4_ranks[f"V4-{idx}"] = df_leg
+    
+    with (col1 if idx <= 2 else col2):
+        st.markdown(f"### Lähtö {r_num} ({race.get('distance', '')} m)")
         
         def highlight_ev(val):
             color = '#d4edda' if val > 1.0 else ''
@@ -116,36 +126,25 @@ for leg in range(1, 5):
 
         st.dataframe(
             df_leg.style.format({
-                "Odds": "{:.2f}",
-                "Sannolikhet %": "{:.1f}%",
-                "Gränsodds": "{:.2f}",
+                "Kerroin": "{:.2f}",
+                "Todennäköisyys %": "{:.1f}%",
+                "Rajakerroin": "{:.2f}",
                 "EV": "{:.2f}"
             }).map(highlight_ev, subset=['EV']),
             use_container_width=True
         )
 
-# --- 4. V4 SYSTEM & REKOMMENDATIONER ---
+# --- 4. 1,00 € V4 -PELIKUPONKI ---
 st.markdown("---")
-st.subheader("💡 Modellens rekommenderade 1,00 € V4-kombinationer")
+st.subheader("💡 Mallin ehdottama 1,00 € V4 -Päärivi")
 
 comb_data = []
 for r_name, r_df in v4_ranks.items():
-    top1 = r_df.iloc[0]["Häst"] if len(r_df) > 0 else "-"
-    top2 = r_df.iloc[1]["Häst"] if len(r_df) > 1 else "-"
-    comb_data.append({"Avdelning": r_name, "RANK 1 (Favorit)": top1, "RANK 2 (Utmanare)": top2})
+    if not r_df.empty:
+        top1 = r_df.iloc[0]["Hevonen"]
+        top2 = r_df.iloc[1]["Hevonen"] if len(r_df) > 1 else "-"
+    else:
+        top1, top2 = "-", "-"
+    comb_data.append({"Kohde": r_name, "RANK 1 (Suosikki)": top1, "RANK 2 (Haastaja)": top2})
 
 st.table(pd.DataFrame(comb_data))
-
-st.markdown("#### Föreslagen Huvudrad (1,00 € / rad)")
-c1_r1 = v4_ranks["V4-1"].iloc[0]
-c2_r1 = v4_ranks["V4-2"].iloc[0]
-c3_r1 = v4_ranks["V4-3"].iloc[0]
-c4_r1 = v4_ranks["V4-4"].iloc[0]
-
-prob_main = (c1_r1["Sannolikhet %"] * c2_r1["Sannolikhet %"] * c3_r1["Sannolikhet %"] * c4_r1["Sannolikhet %"]) / 1000000
-
-rows = [
-    {"Rad": "Huvudrad (Rank 1 - Favoriter)", "V4-1": c1_r1["Häst"], "V4-2": c2_r1["Häst"], "V4-3": c3_r1["Häst"], "V4-4": c4_r1["Häst"], "Vinstchans": f"{prob_main:.2f}%", "Pris": "1,00 €"},
-]
-
-st.dataframe(pd.DataFrame(rows), use_container_width=True)
