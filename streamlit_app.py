@@ -21,45 +21,39 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- 1. PÄIVÄMÄÄRÄN JA RADOJEN HAKU ---
+# --- 1. APUFUNKTIOT APIN LUKUUN ---
+@st.cache_data(ttl=60)
+def fetch_veikkaus_json(url):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "X-Requested-With": "XMLHttpRequest",
+        "Referer": "https://www.veikkaus.fi/fi/toto"
+    }
+    try:
+        res = requests.get(url, headers=headers, timeout=10)
+        if res.status_code == 200:
+            return res.json()
+    except Exception as e:
+        st.error(f"Virhe yhteydessä Veikkaukseen: {e}")
+    return None
+
+# --- 2. PÄIVÄMÄÄRÄN JA RADOJEN HAKU ---
 col_date, col_select, col_filter = st.columns([1, 2, 1.5])
 
 with col_date:
     selected_date = st.date_input("Valitse päivämäärä:", date.today())
 
-# Veikkauksen API hyväksyy muodon YYYYMMDD sekä YYYY-MM-DD
-date_str_nodash = selected_date.strftime("%Y%m%d")
-date_str_dash = selected_date.strftime("%Y-%m-%d")
+date_str = selected_date.strftime("%Y-%m-%d")
 
-@st.cache_data(ttl=120)
-def fetch_json(url):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "application/json"
-    }
-    try:
-        res = requests.get(url, headers=headers, timeout=8)
-        if res.status_code == 200:
-            return res.json()
-    except Exception:
-        pass
-    return None
+# Haetaan päivän ravipaikat/kortit
+cards_data = fetch_veikkaus_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/date/{date_str}")
+cards = cards_data.get("cards", []) if isinstance(cards_data, dict) else []
 
-# Haetaan kortit useammalla eri API-osoitevaihtoehdolla
-cards = []
-cards_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/date/{date_str_nodash}")
-if isinstance(cards_data, dict) and cards_data.get("cards"):
-    cards = cards_data.get("cards", [])
-
-if not cards:
-    cards_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/date/{date_str_dash}")
-    if isinstance(cards_data, dict) and cards_data.get("cards"):
-        cards = cards_data.get("cards", [])
-
+# Jos tietyltä päivältä ei löydy, kokeillaan yleistä tänään-rajapintaa
 if not cards and selected_date == date.today():
-    today_cards = fetch_json("https://www.veikkaus.fi/api/toto-info/v1/cards/today")
-    if isinstance(today_cards, dict):
-        cards = today_cards.get("cards", [])
+    today_data = fetch_veikkaus_json("https://www.veikkaus.fi/api/toto-info/v1/cards/today")
+    cards = today_data.get("cards", []) if isinstance(today_data, dict) else []
 
 card_options = {}
 if cards:
@@ -85,16 +79,16 @@ with col_filter:
     )
 
 if not selected_card:
-    st.info("💡 Kokeile valita kalenterista tämä päivä tai tuleva päivä, jolle lähtölistat on jo julkaistu.")
+    st.info("💡 Jos valitsemallesi päivälle ei löydy ravikohteita, valitse kalenterista seuraava aktiivinen ravipäivä.")
     st.stop()
 
 card_id = selected_card.get("cardId")
 
-# --- 2. LÄHTÖLISTOJEN JA KERTOIMIEN HAKU ---
-card_detail = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/{card_id}")
+# --- 3. LÄHTÖLISTOJEN JA KERTOIMIEN HAKU ---
+card_detail = fetch_veikkaus_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/{card_id}")
 races = card_detail.get("races", []) if isinstance(card_detail, dict) else []
 
-odds_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/odds/v1/card/{card_id}/VOITTAJA")
+odds_data = fetch_veikkaus_json(f"https://www.veikkaus.fi/api/toto-info/v1/odds/v1/card/{card_id}/VOITTAJA")
 odds_by_race = {}
 if isinstance(odds_data, dict) and "odds" in odds_data:
     for item in odds_data.get("odds", []):
@@ -105,7 +99,7 @@ if isinstance(odds_data, dict) and "odds" in odds_data:
             runner_num = runner_odds.get("runnerNumber")
             odds_by_race[r_num][runner_num] = runner_odds.get("odds", 0) / 100.0
 
-# --- 3. PISTEYTYSALGORITMI ---
+# --- 4. PISTEYTYSALGORITMI ---
 def calculate_scores(runners, odds_map):
     data = []
     total_pts_sum = 0
@@ -122,7 +116,7 @@ def calculate_scores(runners, odds_map):
         post = r.get("postPosition", num)
         odds = odds_map.get(num, 0.0)
         
-        # Sovittu pisteytyslogiikka
+        # Pisteytyslogiikka
         base_score = 30 if odds == 0 else max(5, min(48, int(50 - (odds * 1.5))))
         track_score = 8 if post in [2, 3, 4, 5] else (5 if post == 1 else (-5 if post in [7, 8] else 0))
         driver_score = 5
@@ -158,7 +152,6 @@ for race in races:
     df_leg = calculate_scores(runners, r_odds)
     all_ranks[f"Lähtö {r_num}"] = df_leg
     
-    # Poimitaan parhaat pelikohteet (EV > 1.00 ja Kerroin > 0)
     if not df_leg.empty:
         value_rows = df_leg[(df_leg["EV"] > 1.00) & (df_leg["Kerroin"] > 0)].copy()
         for _, row in value_rows.iterrows():
@@ -172,7 +165,7 @@ for race in races:
                 "EV": row["EV"]
             })
 
-# --- 4. REAALIAIKAISET PARHAAT PELIKOHTEET -LAATIKKO ---
+# --- 5. REAALIAIKAISET PARHAAT PELIKOHTEET -LAATIKKO ---
 st.markdown("---")
 st.subheader("🔥 Reaaliaikaiset Parhaat Pelikohteet (Odotusarvo EV > 1.00)")
 
@@ -195,7 +188,7 @@ else:
 
 st.markdown("---")
 
-# --- 5. SUODATETUT LÄHDÖT ---
+# --- 6. SUODATETUT LÄHDÖT ---
 filtered_races = []
 for r in races:
     r_num = r.get("raceNumber")
@@ -208,7 +201,7 @@ for r in races:
     elif filter_option.startswith("Lähtö ") and r_num == int(filter_option.split(" ")[1]):
         filtered_races.append(r)
 
-# --- 6. TULOSTUS KÄYTTÖLIITTYMÄÄN ---
+# --- 7. TULOSTUS KÄYTTÖLIITTYMÄÄN ---
 st.subheader(f"🎯 {selected_card.get('trackName')} — {filter_option}")
 
 cols = st.columns(2 if len(filtered_races) > 1 else 1)
@@ -239,7 +232,7 @@ for idx, race in enumerate(filtered_races, start=1):
             use_container_width=True
         )
 
-# --- 7. 1,00 € V4-GENERAATTORI ---
+# --- 8. 1,00 € V4-GENERAATTORI ---
 st.markdown("---")
 st.subheader("💡 Mallin ehdottama 1,00 € V4 -Päärivi (Lähdöt 1–4)")
 
