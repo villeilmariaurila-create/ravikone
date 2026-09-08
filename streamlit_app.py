@@ -4,51 +4,54 @@ import pandas as pd
 from datetime import date
 
 st.set_page_config(page_title="Köysikujalla", layout="wide")
-st.title("🏇 Köysikujalla — ATG Ravit, Live-kertoimet & Duo")
+st.title("🏇 Köysikujalla — ATG Ravit & Live-kertoimet")
 
 @st.cache_data(ttl=30)
 def fetch_atg_json(url):
     try:
-        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept": "application/json"
+        }
+        res = requests.get(url, headers=headers, timeout=10)
         if res.status_code == 200:
             return res.json()
-    except Exception:
-        pass
+    except Exception as e:
+        st.error(f"Virhe haettaessa dataa: {e}")
     return None
 
 selected_date = st.date_input("Valitse päivämäärä:", date.today())
 date_str = selected_date.strftime("%Y-%m-%d")
 
-url = f"https://api.atg.se/services/racinginfo/v1/products?date={date_str}"
+# Käytetään suoraan päiväkalenterin rajapintaa, joka palauttaa kyseisen päivän radat ja lähdöt
+url = f"https://www.atg.se/services/racinginfo/v1/calendar/day/{date_str}"
 data = fetch_atg_json(url)
 
 track_options = {}
 
 if data and isinstance(data, dict):
-    games = data.get("games", {})
-    for game_key, game_val in games.items():
-        races = game_val.get("races", [])
-        for r in races:
-            track_info = r.get("track", {})
-            t_name = track_info.get("name", "Tuntematon rata")
-            t_id = track_info.get("id")
-            if t_id:
-                label = f"{t_name} ({game_key.upper()})"
-                if label not in track_options:
-                    track_options[label] = {
-                        "game": game_key.upper(),
-                        "races": races
-                    }
+    # Kalenteri palauttaa radat "tracks"-listassa
+    tracks = data.get("tracks", [])
+    for t in tracks:
+        t_name = t.get("name", "Tuntematon rata")
+        t_id = t.get("id")
+        races = t.get("races", [])
+        if t_id and races:
+            label = f"{t_name} ({len(races)} lähtöä)"
+            track_options[label] = {
+                "track_id": t_id,
+                "races": races
+            }
 
 col1, col2 = st.columns([2, 2])
 
 with col1:
     if track_options:
-        selected_label = st.selectbox("Valitse rata / pelimuoto:", list(track_options.keys()))
+        selected_label = st.selectbox("Valitse rata:", list(track_options.keys()))
         selected_data = track_options[selected_label]
     else:
-        st.selectbox("Valitse rata / pelimuoto:", ["Ei pelejä / ravitietoja tälle päivälle"])
-        selected_data = {"game": "", "races": []}
+        st.selectbox("Valitse rata:", ["Ei raveja tälle päivälle"])
+        selected_data = {"track_id": None, "races": []}
 
 races_list = selected_data.get("races", [])
 
@@ -59,9 +62,8 @@ with col2:
 st.markdown("---")
 
 if not races_list:
-    st.warning(f"Valitsemallesi päivälle ({selected_date.strftime('%d.%m.%Y')}) ei löytynyt virallisia lähtölistoja tai pelejä ATG:n rajapinnasta.")
+    st.warning(f"Valitsemallesi päivälle ({selected_date.strftime('%d.%m.%Y')}) ei löytynyt ratoja tai lähtölistoja ATG:n kalenterista.")
 else:
-    # Lasketaan kaikkien lähtöjen pisteytykset valmiiksi Duo-suositusta ja näyttöä varten
     race_rankings = {}
 
     for race in races_list:
@@ -102,7 +104,7 @@ else:
             df = df.sort_values(by="Pisteet", ascending=False).reset_index(drop=True)
             race_rankings[r_num] = df
 
-    # --- PÄIVÄN DUO -SUOSITUS (Oletuksena kaksi viimeistä lähtöä tai lähdöt 1 & 2 jos vähemmän) ---
+    # --- PÄIVÄN DUO -SUOSITUS ---
     sorted_race_nums = sorted(race_rankings.keys())
     if len(sorted_race_nums) >= 2:
         duo_race1 = sorted_race_nums[-2]
@@ -154,4 +156,4 @@ else:
                 use_container_width=True
             )
         else:
-            st.info("Ei lähtökohtaisia osallistujatietoja saatavilla tälle lähdölle.")
+            st.info("Ei osallistujatietoja saatavilla tälle lähdölle.")
