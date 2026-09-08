@@ -1,15 +1,18 @@
 import streamlit as st
 import pandas as pd
 import re
+import os
+from datetime import datetime
 
 st.set_page_config(page_title="Hagmyren 12.9.2026", layout="wide")
-st.title("🏇 Hagmyren (12.9.2026) — V85 Ravianalyysi (Lähdöt 1–8)")
+st.title("🏇 Hagmyren (12.9.2026) — V85 Ravianalyysi & Seuranta")
 
 st.markdown("""
 **Ohje:** 
 1. Syötä jokaiseen 8 lähtöön **hevoset ja vihjeet** ensimmäiseen kenttään.
 2. Syötä Veikkauksen **peliprosentit (%)** omiin kenttiinsä.
-3. Ohjelma vertailee mallin arvioita markkinaan, näyttää siistit taulukot ilman turhia rivinumeroita ja nostaa parhaat arvohevokset esille!
+3. Ohjelma vertailee mallin arvioita markkinaan ja nostaa esille parhaat arvohevokset.
+4. Voit tallentaa päivän parhaat valinnat seurantatiedostoon!
 """)
 
 race_tabs = st.tabs([f"Lähtö {i}" for i in range(1, 9)])
@@ -70,6 +73,7 @@ for i in range(1, 9):
         
         if runners:
             df = pd.DataFrame(runners)
+            # Pisteytyskaava (voit muokata tätä tarvittaessa)
             df["Pisteet"] = [max(10, 50 - (idx * 6)) for idx in range(len(df))]
             
             total_pts = df["Pisteet"].sum()
@@ -80,7 +84,6 @@ for i in range(1, 9):
             race_data_results[i] = df
             
             st.markdown(f"**Lähdön {i} Vertailutaulukko (Malli vs Markkina):**")
-            # Piilotetaan Pandas-indeksi kokonaan pois `.to_html()` tai Streamlitin asetuksella
             st.dataframe(df, use_container_width=True, hide_index=True)
         else:
             st.info(f'Tarkista lähdön {i} syöte.')
@@ -96,12 +99,44 @@ for r_num, df in race_data_results.items():
             "Lähtö": r_num, 
             "Hevonen": top["Hevonen"], 
             "Rata": top["Rata"],
+            "Peliprosentti %": top["Peliprosentit %"],
+            "Mallin arvio %": round(top["Mallin To %"], 1),
             "Etu%": round(top["Etu-indeksi"], 1)
         })
 
 if v85_top_bets:
     summary_df = pd.DataFrame(v85_top_bets)
     st.dataframe(summary_df, use_container_width=True, hide_index=True)
+    
+    # --- TALLENNUSNAPPI SEURANTAAN ---
+    st.subheader("📁 Tulosten seuranta")
+    if st.button("💾 Tallenna tämän kierroksen parhaat vedot seurantaan"):
+        history_file = "v85_seuranta_historia.csv"
+        
+        # Lisätään päivämäärä mukaan rivitietoihin
+        save_df = summary_df.copy()
+        save_df.insert(0, "Pvm", datetime.now().strftime("%Y-%m-%d"))
+        save_df["Tulos (Osuma=1, Huti=0)"] = "" # Valmis sarake myöhempää tuloksen merkkausta varten
+        
+        # Jos tiedosto on olemassa, lisätään tiedot vanhan jatkoksi, muuten luodaan uusi
+        if os.path.exists(history_file):
+            old_df = pd.read_csv(history_file)
+            combined_df = pd.concat([old_df, save_df], ignore_index=True)
+            combined_df.to_csv(history_file, index=False)
+        else:
+            save_df.to_csv(history_file, index=False)
+            
+        st.success(f"Valinnat tallennettu onnistuneesti tiedostoon '{history_file}'!")
+
+    # Mahdollisuus ladata seurantatiedosto CSV:nä koneelle
+    if os.path.exists("v85_seuranta_historia.csv"):
+        with open("v85_seuranta_historia.csv", "rb") as f:
+            st.download_button(
+                label="📥 Lataa koko seurantatiedosto (CSV)",
+                data=f,
+                file_name="v85_seuranta_historia.csv",
+                mime="text/csv"
+            )
 else:
     st.info("Ei vielä dataa V85-lähdöille.")
 
@@ -126,4 +161,4 @@ if len(active_races) >= 2:
         with col2:
             st.info(f"**Duo Kohde 2 (Lähtö {d2})**\n\n🐎 **{top2['Hevonen']}** (Rata {top2['Rata']})\n\nPeliprosentti: {top2['Peliprosentit %']}% | Mallin arvio: {top2['Mallin To %']:.1f}%\n\n*Vihje:* {top2['Lisätiedot / Vihje']}")
 else:
-    st.warning("Syötä tietoja vähintään kahteen viimeiseen lähtöön Duo-suositusta varten.")
+    st.warning("Syötä tietoja vähintään kahteen viimeiseen lähtöön Päivän Duo -suositustasoa varten.")
