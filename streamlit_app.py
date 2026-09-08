@@ -248,4 +248,3 @@ for leg_num in range(1, 5):
     comb_data.append({"Kohde": f"V4-{leg_num} (Lähtö {leg_num})", "RANK 1 (Suosikki)": top1, "RANK 2 (Haastaja)": top2})
 
 st.table(pd.DataFrame(comb_data))
-
