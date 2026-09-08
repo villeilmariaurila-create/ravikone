@@ -1,11 +1,11 @@
 import streamlit as st
 import requests
 import pandas as pd
-from datetime import date, datetime
+from datetime import date
 
-st.set_page_config(page_title="1 € V4 - Ravityökalu", layout="wide")
+st.set_page_config(page_title="Köysikujalla", layout="wide")
 
-st.title("🏇 Pohjoismaiset Ravit — 1,00 € V4 Automaattityökalu")
+st.title("🏇 Köysikujalla")
 st.caption("Automaattinen lähtölistojen haku, kerroinanalyysi ja 1,00 € V4-yhdistelmägeneraattori")
 
 # --- 1. PÄIVÄMÄÄRÄN JA RAVIRADAN VALINTA ---
@@ -16,53 +16,60 @@ with col_date:
 
 date_str = selected_date.strftime("%Y-%m-%d")
 
-@st.cache_data(ttl=30)
+@st.cache_data(ttl=60)
 def fetch_json(url):
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-        "Accept": "application/json"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "fi-FI,fi;q=0.9,en;q=0.8"
     }
     try:
-        res = requests.get(url, headers=headers, timeout=5)
+        res = requests.get(url, headers=headers, timeout=8)
         if res.status_code == 200:
             return res.json()
     except Exception:
         pass
     return None
 
-# Haetaan valitun päivämäärän kaikki ravikortit Veikkaukselta
+# Haetaan valitun päivän kertoimet ja kortit
 cards_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/date/{date_str}")
-if not cards_data or not cards_data.get("cards"):
-    # Jos päivämäärähaku ei palauta, kokeillaan yleistä tänään-rajapintaa
-    cards_data = fetch_json("https://www.veikkaus.fi/api/toto-info/v1/cards/today")
-
-cards = cards_data.get("cards", []) if cards_data else []
+cards = cards_data.get("cards", []) if isinstance(cards_data, dict) else []
 
 if not cards:
-    st.warning(f"Ei ravipäiviä tai kertoimia saatavilla valitulle päivälle ({date_str}). Kokeile toista päivämäärää kalenterista.")
-    st.stop()
+    # Yritetään vaihtoehtoista rajapintaa
+    cards_data = fetch_json("https://www.veikkaus.fi/api/toto-info/v1/cards/today")
+    cards = cards_data.get("cards", []) if isinstance(cards_data, dict) else []
 
 card_options = {}
-for c in cards:
-    track = c.get("trackName", "Tuntematon rada")
-    country = c.get("country", "")
-    card_id = c.get("cardId")
-    label = f"{track} ({country}) — Kortti ID: {card_id}"
-    card_options[label] = c
+if cards:
+    for c in cards:
+        track = c.get("trackName", "Tuntematon rada")
+        country = c.get("country", "")
+        card_id = c.get("cardId")
+        label = f"{track} ({country}) — Kortti ID: {card_id}"
+        card_options[label] = c
 
 with col_select:
-    selected_label = st.selectbox("Valitse ravit / rada:", list(card_options.keys()))
+    if card_options:
+        selected_label = st.selectbox("Valitse ravit / rada:", list(card_options.keys()))
+        selected_card = card_options[selected_label]
+    else:
+        st.warning(f"Ei aktiivisia ravikohteita saatavilla päivälle {date_str}.")
+        selected_card = None
 
-selected_card = card_options[selected_label]
+if not selected_card:
+    st.info("💡 Vinkki: Jos hevosia ei löydy automaattisesti, Veikkaus ei ole vielä avannut kyseisen päivän kertoimia rajapintaan.")
+    st.stop()
+
 card_id = selected_card.get("cardId")
 
 # --- 2. LÄHTÖLISTOJEN JA KERTOIMIEN HAKU ---
 card_detail = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/{card_id}")
-races = card_detail.get("races", []) if card_detail else []
+races = card_detail.get("races", []) if isinstance(card_detail, dict) else []
 
 odds_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/odds/v1/card/{card_id}/VOITTAJA")
 odds_by_race = {}
-if odds_data and "odds" in odds_data:
+if isinstance(odds_data, dict) and "odds" in odds_data:
     for item in odds_data.get("odds", []):
         r_num = item.get("raceNumber")
         if r_num not in odds_by_race:
@@ -72,7 +79,7 @@ if odds_data and "odds" in odds_data:
             raw_odds = runner_odds.get("odds", 0) / 100.0
             odds_by_race[r_num][runner_num] = raw_odds
 
-# --- 3. LASKENTA ALGORITMI ---
+# --- 3. PISTEYTYSALGORITMI (SOVITTU LOGIIKKA) ---
 def calculate_scores(runners, odds_map):
     data = []
     total_pts_sum = 0
@@ -114,7 +121,6 @@ st.subheader(f"🎯 {selected_card.get('trackName')} — Lähtökohtaiset Kertoi
 v4_ranks = {}
 col1, col2 = st.columns(2)
 
-# Näytetään 4 ensimmäistä lähtöä (tai V4-lähdöt)
 target_races = races[:4]
 
 for idx, race in enumerate(target_races, start=1):
