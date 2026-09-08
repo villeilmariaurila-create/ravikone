@@ -21,22 +21,23 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- 1. APUFUNKTIOT ATG- / VEIKKAUS-HAKUIHIN ---
-@st.cache_data(ttl=120)
+# --- 1. HAETAAN VEIKKAUKSEN TOTO-RAJAPINNAT ---
+@st.cache_data(ttl=60)
 def fetch_json(url):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Accept": "application/json"
+        "Accept": "application/json, text/plain, */*",
+        "X-Requested-With": "XMLHttpRequest",
+        "Referer": "https://www.veikkaus.fi/fi/toto"
     }
     try:
-        res = requests.get(url, headers=headers, timeout=8)
+        res = requests.get(url, headers=headers, timeout=10)
         if res.status_code == 200:
             return res.json()
     except Exception:
         pass
     return None
 
-# --- 2. VALIKOT ---
 col_date, col_select, col_filter = st.columns([1, 2, 1.5])
 
 with col_date:
@@ -44,14 +45,19 @@ with col_date:
 
 date_str = selected_date.strftime("%Y-%m-%d")
 
-# Kokeillaan hakea Veikkaukselta tai ATG:lta
+# Haetaan kortit/ravit Veikkaukselta
+cards = []
 cards_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/date/{date_str}")
-cards = cards_data.get("cards", []) if isinstance(cards_data, dict) else []
+if isinstance(cards_data, dict) and cards_data.get("cards"):
+    cards = cards_data.get("cards", [])
 
-card_options = {
-    "🇸🇪 Ruotsi Mallinnus / Demo (Lähdöt 1–13)": "MOCK_SE"
-}
+# Jos valitulle päivälle ei löydy suoraan, haetaan yleisellä today-rajapinnalla
+if not cards:
+    today_cards = fetch_json("https://www.veikkaus.fi/api/toto-info/v1/cards/today")
+    if isinstance(today_cards, dict):
+        cards = today_cards.get("cards", [])
 
+card_options = {}
 if cards:
     for c in cards:
         track = c.get("trackName", "Tuntematon rada")
@@ -61,8 +67,12 @@ if cards:
         card_options[label] = c
 
 with col_select:
-    selected_label = st.selectbox("Valitse ravit / rada:", list(card_options.keys()))
-    selected_card = card_options[selected_label]
+    if card_options:
+        selected_label = st.selectbox("Valitse ravit / rada:", list(card_options.keys()))
+        selected_card = card_options[selected_label]
+    else:
+        st.warning(f"Ei aktiivisia ravikohteita saatavilla päivälle {selected_date.strftime('%d.%m.%Y')}.")
+        selected_card = None
 
 with col_filter:
     filter_option = st.selectbox(
@@ -70,17 +80,49 @@ with col_filter:
         ["Kaikki lähdöt", "V4 (Lähdöt 1–4)", "V85 / V86 (Lähdöt 5–12)"] + [f"Lähtö {i}" for i in range(1, 14)]
     )
 
-# --- 3. PISTEYTYSALGORITMI ---
+if not selected_card:
+    st.info("💡 Huom! Varmista, että kalenterissa on valittuna tämä päivä tai tuleva aktiivinen ravipäivä.")
+    st.stop()
+
+card_id = selected_card.get("cardId")
+
+# --- 2. LÄHTÖLISTOJEN JA KERTOIMIEN HAKU ---
+card_detail = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/{card_id}")
+races = card_detail.get("races", []) if isinstance(card_detail, dict) else []
+
+odds_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/odds/v1/card/{card_id}/VOITTAJA")
+odds_by_race = {}
+if isinstance(odds_data, dict) and "odds" in odds_data:
+    for item in odds_data.get("odds", []):
+        r_num = item.get("raceNumber")
+        if r_num not in odds_by_race:
+            odds_by_race[r_num] = {}
+        for runner_odds in item.get("runnerOdds", []):
+            runner_num = runner_odds.get("runnerNumber")
+            odds_by_race[r_num][runner_num] = runner_odds.get("odds", 0) / 100.0
+
+# --- 3. PISTEYTYS JA NIMITIETOJEN PURKU ---
 def calculate_scores(runners, odds_map):
     data = []
     total_pts_sum = 0
     
     for r in runners:
         num = r.get("startNumber")
-        name = r.get("horseName", f"Hevonen {num}")
         
+        # Puratetaan oikea hevosen nimi
+        horse_name = r.get("horseName") or r.get("name") or f"Hevonen {num}"
+        
+        # Puratetaan ohjastajan nimi
         driver_info = r.get("driver", {})
-        driver_name = driver_info.get("fullName") if isinstance(driver_info, dict) else "Tuntematon"
+        if isinstance(driver_info, dict):
+            driver_name = driver_info.get("fullName")
+            if not driver_name:
+                first = driver_info.get("firstName", "")
+                last = driver_info.get("lastName", "")
+                driver_name = f"{first} {last}".strip()
+        else:
+            driver_name = ""
+            
         if not driver_name:
             driver_name = "Tuntematon"
             
@@ -96,7 +138,7 @@ def calculate_scores(runners, odds_map):
         
         data.append({
             "Rata": num,
-            "Hevonen": name,
+            "Hevonen": horse_name,
             "Ohjastaja": driver_name,
             "Kerroin": odds,
             "Pisteet": tot_pts
@@ -110,67 +152,14 @@ def calculate_scores(runners, odds_map):
     
     return df.sort_values(by="Pisteet", ascending=False).reset_index(drop=True)
 
-# Generoidaan tarvittaessa Ruotsin malli 1-13
-def get_mock_races():
-    mock_races = []
-    for r in range(1, 14):
-        runners = []
-        odds_map = {}
-        for idx in range(1, 11):
-            runners.append({
-                "startNumber": idx,
-                "horseName": f"Ruotsi Hevonen {r}-{idx}",
-                "driver": {"fullName": f"Kuski {idx}"},
-                "postPosition": idx
-            })
-            odds_map[idx] = round(1.8 + (idx * 1.5), 2)
-        mock_races.append({
-            "raceNumber": r,
-            "distance": 2140 if r % 2 == 0 else 1640,
-            "runners": runners,
-            "odds": odds_map
-        })
-    return mock_races
-
-# --- 4. DATAN LATAUS ---
-if selected_card == "MOCK_SE":
-    races_data = get_mock_races()
-    track_name = "Ruotsi Mallinnus (Hagmyren / Solvalla)"
-else:
-    card_id = selected_card.get("cardId")
-    card_detail = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/{card_id}")
-    raw_races = card_detail.get("races", []) if isinstance(card_detail, dict) else []
-    
-    odds_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/odds/v1/card/{card_id}/VOITTAJA")
-    odds_by_race = {}
-    if isinstance(odds_data, dict) and "odds" in odds_data:
-        for item in odds_data.get("odds", []):
-            r_num = item.get("raceNumber")
-            if r_num not in odds_by_race:
-                odds_by_race[r_num] = {}
-            for runner_odds in item.get("runnerOdds", []):
-                runner_num = runner_odds.get("runnerNumber")
-                odds_by_race[r_num][runner_num] = runner_odds.get("odds", 0) / 100.0
-                
-    races_data = []
-    for r in raw_races:
-        r_num = r.get("raceNumber")
-        races_data.append({
-            "raceNumber": r_num,
-            "distance": r.get("distance", 2140),
-            "runners": r.get("runners", []),
-            "odds": odds_by_race.get(r_num, {})
-        })
-    track_name = selected_card.get("trackName", "Ravit")
-
-# --- 5. LASKENTA & PARHAAT PELIKOHTEET -LAATIKKO ---
+# Lasketan pisteytykset ja kerätään parhaat pelikohteet
 all_ranks = {}
 best_value_bets = []
 
-for race in races_data:
-    r_num = race["raceNumber"]
-    runners = race["runners"]
-    r_odds = race["odds"]
+for race in races:
+    r_num = race.get("raceNumber")
+    runners = race.get("runners", [])
+    r_odds = odds_by_race.get(r_num, {})
     
     df_leg = calculate_scores(runners, r_odds)
     all_ranks[f"Lähtö {r_num}"] = df_leg
@@ -188,11 +177,13 @@ for race in races_data:
                 "EV": row["EV"]
             })
 
+# --- 4. REAALIAIKAISET PARHAAT PELIKOHTEET -LAATIKKO ---
 st.markdown("---")
 st.subheader("🔥 Reaaliaikaiset Parhaat Pelikohteet (Odotusarvo EV > 1.00)")
 
 if best_value_bets:
     df_value = pd.DataFrame(best_value_bets).sort_values(by="EV", ascending=False).reset_index(drop=True)
+    
     def highlight_ev(val):
         return 'background-color: #d4edda; font-weight: bold;'
 
@@ -205,14 +196,14 @@ if best_value_bets:
         use_container_width=True
     )
 else:
-    st.info("Ei kohteita, joiden odotusarvo ylittää 1.00 tällä hetkellä.")
+    st.info("Ei kohteita, joiden odotusarvo ylittää 1.00 tällä hetkellä tälle radalle.")
 
 st.markdown("---")
 
-# --- 6. NÄYTTÖ ---
+# --- 5. LÄHTÖJEN SUODATUS JA NÄYTTÖ ---
 filtered_races = []
-for r in races_data:
-    r_num = r["raceNumber"]
+for r in races:
+    r_num = r.get("raceNumber")
     if filter_option == "Kaikki lähdöt":
         filtered_races.append(r)
     elif filter_option == "V4 (Lähdöt 1–4)" and 1 <= r_num <= 4:
@@ -222,11 +213,12 @@ for r in races_data:
     elif filter_option.startswith("Lähtö ") and r_num == int(filter_option.split(" ")[1]):
         filtered_races.append(r)
 
-st.subheader(f"🎯 {track_name} — {filter_option}")
+st.subheader(f"🎯 {selected_card.get('trackName')} — {filter_option}")
+
 cols = st.columns(2 if len(filtered_races) > 1 else 1)
 
 for idx, race in enumerate(filtered_races, start=1):
-    r_num = race["raceNumber"]
+    r_num = race.get("raceNumber")
     df_leg = all_ranks.get(f"Lähtö {r_num}", pd.DataFrame())
     
     col_target = cols[0] if len(filtered_races) == 1 else (cols[0] if idx % 2 != 0 else cols[1])
@@ -235,9 +227,9 @@ for idx, race in enumerate(filtered_races, start=1):
         v4_tag = " [V4-kohde]" if 1 <= r_num <= 4 else ""
         v85_tag = " [V85/V86-kohde]" if 5 <= r_num <= 12 else ""
         
-        st.markdown(f"### Lähtö {r_num} ({race['distance']} m){v4_tag}{v85_tag}")
+        st.markdown(f"### Lähtö {r_num} ({race.get('distance', 2140)} m){v4_tag}{v85_tag}")
         
-        def highlight_df_ev(val):
+        def highlight_ev(val):
             color = '#d4edda' if val > 1.0 else ''
             return f'background-color: {color}'
 
@@ -247,11 +239,11 @@ for idx, race in enumerate(filtered_races, start=1):
                 "Todennäköisyys %": "{:.1f}%",
                 "Rajakerroin": "{:.2f}",
                 "EV": "{:.2f}"
-            }).map(highlight_df_ev, subset=['EV']),
+            }).map(highlight_ev, subset=['EV']),
             use_container_width=True
         )
 
-# --- 7. V4-GENERAATTORI ---
+# --- 6. 1,00 € V4-GENERAATTORI ---
 st.markdown("---")
 st.subheader("💡 Mallin ehdottama 1,00 € V4 -Päärivi (Lähdöt 1–4)")
 
