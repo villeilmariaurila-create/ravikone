@@ -1,4 +1,3 @@
-
 import streamlit as st
 import requests
 import pandas as pd
@@ -8,7 +7,7 @@ import time
 st.set_page_config(page_title="Köysikujalla", layout="wide")
 
 st.title("🏇 Köysikujalla")
-st.caption("Automaattinen lähtölistojen haku, kerroinanalyysi ja 1,00 € V4/V85-yhdistelmägeneraattori")
+st.caption("Maailmassa on monta ihmeellistä asiaa")
 
 # --- Automaattinen sivun päivitys 2 minuutin (120 s) välein ---
 st.empty()
@@ -98,7 +97,7 @@ if isinstance(odds_data, dict) and "odds" in odds_data:
             runner_num = runner_odds.get("runnerNumber")
             odds_by_race[r_num][runner_num] = runner_odds.get("odds", 0) / 100.0
 
-# --- 3. PISTEYTYSALGORITMI (MUKANA KAIKKI PISTEYTYKSET) ---
+# --- 3. PISTEYTYSALGORITMI ---
 def calculate_scores(runners, odds_map):
     data = []
     total_pts_sum = 0
@@ -115,11 +114,8 @@ def calculate_scores(runners, odds_map):
         post = r.get("postPosition", num)
         odds = odds_map.get(num, 0.0)
         
-        # 1. Peruspisteet kertoimesta
         base_score = 30 if odds == 0 else max(5, min(48, int(50 - (odds * 1.5))))
-        # 2. Lähtöratapisteet
         track_score = 8 if post in [2, 3, 4, 5] else (5 if post == 1 else (-5 if post in [7, 8] else 0))
-        # 3. Ohjastajapisteet
         driver_score = 5
         
         tot_pts = max(1, base_score + track_score + driver_score)
@@ -207,3 +203,4 @@ for leg_num in range(1, 5):
     comb_data.append({"Kohde": f"V4-{leg_num} (Lähtö {leg_num})", "RANK 1 (Suosikki)": top1, "RANK 2 (Haastaja)": top2})
 
 st.table(pd.DataFrame(comb_data))
+
