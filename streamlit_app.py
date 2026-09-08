@@ -1,4 +1,3 @@
-Python
 import streamlit as st
 import requests
 import pandas as pd
@@ -106,7 +105,7 @@ for leg in range(1, 5):
                 "Todennäköisyys %": "{:.1f}%",
                 "Rajakerroin": "{:.2f}",
                 "EV": "{:.2f}"
-            }).applymap(highlight_ev, subset=['EV']),
+            }).map(highlight_ev, subset=['EV']),
             use_container_width=True
         )
 
