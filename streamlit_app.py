@@ -77,7 +77,7 @@ for i in range(1, 13):
             
             total_pts = df["Pisteet"].sum()
             df["Mallin To %"] = (df["Pisteet"] / total_pts) * 100
-            df["Etu-indeksi (Malli - Peliprosentti)"] = df["Mallin To %"] - df["Peliprosentti %"]
+            df["Etu-indeksi"] = df["Mallin To %"] - df["Peliprosentti %"]
             
             df = df.sort_values(by="Etu-indeksi", ascending=False).reset_index(drop=True)
             race_data_results[i] = df
@@ -90,7 +90,6 @@ for i in range(1, 13):
 st.markdown("---")
 st.header("📊 V4 & V85 Yhteenveto & Parhaat Arvokohteet")
 
-# Jaetaan tulokset pelien mukaan
 v4_results = {k: v for k, v in race_data_results.items() if k <= 4}
 v85_results = {k: v for k, v in race_data_results.items() if k > 4}
 
@@ -100,9 +99,9 @@ with col_v4:
     st.subheader("📌 V4 Peli-ikkuna (Lähdöt 1–4)")
     v4_top_bets = []
     for r_num, df in v4_results.items():
-        if not df.empty:
+        if not df.empty and "Etu-indeksi" in df.columns:
             top = df.iloc[0]
-            v4_top_bets.append({"Lähtö": r_num, "Hevonen": top["Hevonen"], "Etu%": top["Etu-indeksi (Malli - Peliprosentti)"]})
+            v4_top_bets.append({"Lähtö": r_num, "Hevonen": top["Hevonen"], "Etu%": top["Etu-indeksi"]})
     if v4_top_bets:
         st.dataframe(pd.DataFrame(v4_top_bets), use_container_width=True)
     else:
@@ -112,9 +111,9 @@ with col_v85:
     st.subheader("🔥 V85 Peli-ikkuna (Lähdöt 5–12)")
     v85_top_bets = []
     for r_num, df in v85_results.items():
-        if not df.empty:
+        if not df.empty and "Etu-indeksi" in df.columns:
             top = df.iloc[0]
-            v85_top_bets.append({"Lähtö": r_num, "Hevonen": top["Hevonen"], "Etu%": top["Etu-indeksi (Malli - Peliprosentti)"]})
+            v85_top_bets.append({"Lähtö": r_num, "Hevonen": top["Hevonen"], "Etu%": top["Etu-indeksi"]})
     if v85_top_bets:
         st.dataframe(pd.DataFrame(v85_top_bets), use_container_width=True)
     else:
@@ -129,8 +128,8 @@ if len(active_races) >= 2:
     st.subheader(f"🎯 Päivän Duo -suositus (Lähdöt {d1} & {d2})")
     
     col1, col2 = st.columns(2)
-    df1 = race_data_results[d1]
-    df2 = race_data_results[d2]
+    df1 = race_data_results.get(d1, pd.DataFrame())
+    df2 = race_data_results.get(d2, pd.DataFrame())
     
     if not df1.empty and not df2.empty:
         top1 = df1.iloc[0]
