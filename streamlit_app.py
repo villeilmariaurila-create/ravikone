@@ -3,13 +3,13 @@ import pandas as pd
 import re
 
 st.set_page_config(page_title="Hagmyren 12.9.2026", layout="wide")
-st.title("🏇 Hagmyren (12.9.2026) — Lähtölistat, Vihjeet, V4 & V85 Analyysi")
+st.title("🏇 Hagmyren (12.9.2026) — V4 (Lähtö 1-4) & V85 (Lähtö 5-12) Analyysi")
 
 st.markdown("""
 **Ohje:** 
-1. Liitä jokaiseen lähtöön **lähtölistat, ohjastajat ja vihjeet** ensimmäiseen tekstikenttään.
-2. Liitä Veikkauksen **peliprosentit** (esim. `1. 25%`, `2. 10%` tai pelkkänä listana) alempana olevaan prosenttikenttään.
-3. Ohjelma vertailee pisteitä ja peliprosentteja ja nostaa parhaat pelikohteet ja Duo-vihjeet etusivulle!
+1. Syötä jokaiseen lähtöön **hevoset ja vihjeet** ensimmäiseen kenttään.
+2. Syötä Veikkauksen **peliprosentit (%)** omiin kenttiinsä.
+3. Ohjelma näyttää V4- ja V85-pelien omat analyysitaulukot, vertaa mallin arvioita peliprosentteihin ja nostaa parhaat arvohevokset ja Duo-suosituksen esille!
 """)
 
 race_tabs = st.tabs([f"Lähtö {i}" for i in range(1, 13)])
@@ -18,23 +18,22 @@ race_data_results = {}
 for i in range(1, 13):
     with race_tabs[i-1]:
         if i <= 4:
-            st.info(f"📌 **Lähtö {i} kuuluu V4-peliin (Lähdöt 1–4)**")
+            st.info(f"📌 **Lähtö {i} — V4-peli (Kohteet 1–4)**")
         else:
-            st.success(f"🔥 **Lähtö {i} kuuluu V85-peliin (Lähdöt 5–12)**")
+            st.success(f"🔥 **Lähtö {i} — V85-peli (Kohteet {i-4}/8)**")
             
         col_a, col_b = st.columns([1.5, 1])
         
         with col_a:
-            default_list = f"""Liitä tähän lähdön {i} hevoset ja vihjeet:
-1. Hevonen Yksi - Ohjastaja A (Kommentti: Vahva vire)
+            default_list = f"""1. Hevonen Yksi - Ohjastaja A (Kommentti: Vahva vire)
 2. Hevonen Kaksi - Ohjastaja B (Kommentti: Paikka ulkona)"""
             raw_text = st.text_area(f"Lähtö {i} - Listat & Vihjeet:", default_list, height=130, key=f"race_input_{i}")
             
         with col_b:
             default_pct = "1. 30%\n2. 15%\n3. 10%"
-            raw_pct = st.text_area(f"Lähtö {i} - Peliprosentit (%):", default_pct, height=130, key=f"pct_input_{i}")
+            raw_pct = st.text_area(f"Lähtö {i} - Veikkaus Peliprosentit (%):", default_pct, height=130, key=f"pct_input_{i}")
             
-        # Parsitaan peliprosentit talteen sanakirjaan {rata: prosentti}
+        # Parsitaan peliprosentit
         pct_map = {}
         for p_line in raw_pct.strip().split("\n"):
             p_match = re.findall(r'(\d+)[^\d]+(\d+)', p_line)
@@ -60,7 +59,7 @@ for i in range(1, 13):
                     details = right.split("(")[1].replace(")", "").strip() if "(" in right else "Ei lisätietoja"
                     
                     r_num = int(num_part) if num_part.isdigit() else 1
-                    assigned_pct = pct_map.get(r_num, 5.0) # Oletus 5% jos ei löydy
+                    assigned_pct = pct_map.get(r_num, 5.0)
                     
                     runners.append({
                         "Rata": r_num,
@@ -74,45 +73,52 @@ for i in range(1, 13):
         
         if runners:
             df = pd.DataFrame(runners)
-            # Pisteytys listan järjestyksen mukaan
             df["Pisteet"] = [max(10, 50 - (idx * 6)) for idx in range(len(df))]
             
-            # Lasketaan mallin oma arvioitu todennäköisyys
             total_pts = df["Pisteet"].sum()
             df["Mallin To %"] = (df["Pisteet"] / total_pts) * 100
-            
-            # Verrataan mallin todennäköisyyttä peliprosenttiin (Etu / EV-tyyppinen arvio)
-            df["Etu-indeksi"] = df["Mallin To %"] - df["Peliprosentti %"]
+            df["Etu-indeksi (Malli - Peliprosentti)"] = df["Mallin To %"] - df["Peliprosentti %"]
             
             df = df.sort_values(by="Etu-indeksi", ascending=False).reset_index(drop=True)
             race_data_results[i] = df
             
-            st.markdown(f"**Lähdön {i} Analyysi (Pisteet vs Peliprosentit):**")
+            st.markdown(f"**Lähdön {i} Vertailutaulukko (Malli vs Markkina):**")
             st.dataframe(df, use_container_width=True)
         else:
             st.info(f'Tarkista lähdön {i} syöte.')
 
 st.markdown("---")
-st.header("🏆 Parhaat pelikohteet & Päivän Duo -suositus")
+st.header("📊 V4 & V85 Yhteenveto & Parhaat Arvokohteet")
 
-# Poimitaan parhaat pelikohteet (korkein etu-indeksi eri starteista)
-all_value_bets = []
-for r_num, df in race_data_results.items():
-    if not df.empty:
-        top_pick = df.iloc[0]
-        all_value_bets.append({
-            "Lähtö": r_num,
-            "Hevonen": top_pick["Hevonen"],
-            "Rata": top_pick["Rata"],
-            "Etu": top_pick["Etu-indeksi"],
-            "Peliprosentti": top_pick["Peliprosentti %"],
-            "Mallin To%": top_pick["Mallin To %"]
-        })
+# Jaetaan tulokset pelien mukaan
+v4_results = {k: v for k, v in race_data_results.items() if k <= 4}
+v85_results = {k: v for k, v in race_data_results.items() if k > 4}
 
-if all_value_bets:
-    val_df = pd.DataFrame(all_value_bets).sort_values(by="Etu", ascending=False)
-    st.subheader("💡 Parhaat arvohevokset (Mallin arvio ylittää peliprosentit selvästi)")
-    st.dataframe(val_df.head(3), use_container_width=True)
+col_v4, col_v85 = st.columns(2)
+
+with col_v4:
+    st.subheader("📌 V4 Peli-ikkuna (Lähdöt 1–4)")
+    v4_top_bets = []
+    for r_num, df in v4_results.items():
+        if not df.empty:
+            top = df.iloc[0]
+            v4_top_bets.append({"Lähtö": r_num, "Hevonen": top["Hevonen"], "Etu%": top["Etu-indeksi (Malli - Peliprosentti)"]})
+    if v4_top_bets:
+        st.dataframe(pd.DataFrame(v4_top_bets), use_container_width=True)
+    else:
+        st.info("Ei vielä dataa V4-lähdöille.")
+
+with col_v85:
+    st.subheader("🔥 V85 Peli-ikkuna (Lähdöt 5–12)")
+    v85_top_bets = []
+    for r_num, df in v85_results.items():
+        if not df.empty:
+            top = df.iloc[0]
+            v85_top_bets.append({"Lähtö": r_num, "Hevonen": top["Hevonen"], "Etu%": top["Etu-indeksi (Malli - Peliprosentti)"]})
+    if v85_top_bets:
+        st.dataframe(pd.DataFrame(v85_top_bets), use_container_width=True)
+    else:
+        st.info("Ei vielä dataa V85-lähdöille.")
 
 st.markdown("---")
 
