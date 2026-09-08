@@ -4,155 +4,154 @@ import pandas as pd
 from datetime import date
 
 st.set_page_config(page_title="Köysikujalla", layout="wide")
+st.title("🏇 Köysikujalla — ATG Ravit, Live-kertoimet & Duo")
 
-st.title("🏇 Köysikujalla — ATG Ravit & Live-kertoimet")
-st.caption("Aitojen lähtölistojen haku suoraan ATG:n rajapinnasta")
-
-# Automaattinen taustapäivitys 2 minuutin välein
-st.markdown(
-    """
-    <script>
-        setTimeout(function(){
-            window.location.reload(1);
-        }, 120000);
-    </script>
-    """,
-    unsafe_allow_html=True
-)
-
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=30)
 def fetch_atg_json(url):
-    headers = {"User-Agent": "Mozilla/5.0"}
     try:
-        res = requests.get(url, headers=headers, timeout=10)
+        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
         if res.status_code == 200:
             return res.json()
     except Exception:
         pass
     return None
 
-col_date, col_select, col_filter = st.columns([1, 2, 1.5])
-
-with col_date:
-    selected_date = st.date_input("Valitse päivämäärä:", date.today())
-
-date_str = selected_date.strftime("%Y-%m-	") # Korjattu oikeaan muotoon
+selected_date = st.date_input("Valitse päivämäärä:", date.today())
 date_str = selected_date.strftime("%Y-%m-%d")
 
-# Haetaan päivän virallinen kalenteri ATG:ltä
-calendar_data = fetch_atg_json(f"https://api.atg.se/services/racinginfo/v1/calendar/day/{date_str}")
+url = f"https://api.atg.se/services/racinginfo/v1/products?date={date_str}"
+data = fetch_atg_json(url)
 
 track_options = {}
 
-if isinstance(calendar_data, dict) and "tracks" in calendar_data:
-    for t in calendar_data.get("tracks", []):
-        t_name = t.get("name", "Tuntematon rata")
-        t_id = t.get("id")
-        country = t.get("countryCode", "SE")
-        races = t.get("races", [])
-        if t_id:
-            track_options[f"{t_name} ({country})"] = {"track_id": t_id, "races": races}
+if data and isinstance(data, dict):
+    games = data.get("games", {})
+    for game_key, game_val in games.items():
+        races = game_val.get("races", [])
+        for r in races:
+            track_info = r.get("track", {})
+            t_name = track_info.get("name", "Tuntematon rata")
+            t_id = track_info.get("id")
+            if t_id:
+                label = f"{t_name} ({game_key.upper()})"
+                if label not in track_options:
+                    track_options[label] = {
+                        "game": game_key.upper(),
+                        "races": races
+                    }
 
-with col_select:
+col1, col2 = st.columns([2, 2])
+
+with col1:
     if track_options:
-        selected_track_label = st.selectbox("Valitse ravit / rata:", list(track_options.keys()))
-        selected_track_info = track_options[selected_track_label]
+        selected_label = st.selectbox("Valitse rata / pelimuoto:", list(track_options.keys()))
+        selected_data = track_options[selected_label]
     else:
-        st.selectbox("Valitse ravit / rata:", ["Ei raveja tälle päivälle"])
-        selected_track_info = {"track_id": None, "races": []}
+        st.selectbox("Valitse rata / pelimuoto:", ["Ei pelejä / ravitietoja tälle päivälle"])
+        selected_data = {"game": "", "races": []}
 
-with col_filter:
-    filter_option = st.selectbox(
-        "Suodata lähtöjä:",
-        ["Kaikki lähdöt"] + [f"Lähtö {i}" for i in range(1, 15)]
-    )
+races_list = selected_data.get("races", [])
 
-# --- LÄHTÖJEN KÄSITTELY ---
-races_data = []
-raw_races = selected_track_info.get("races", [])
+with col2:
+    available_races = [f"Lähtö {r.get('raceNumber', i+1)}" for i, r in enumerate(races_list)]
+    filter_option = st.selectbox("Suodata lähtöä:", ["Kaikki lähdöt"] + available_races)
 
-if raw_races:
-    for r_idx, r in enumerate(raw_races, start=1):
-        r_num = r.get("raceNumber", r_idx)
-        distance = r.get("distance", 2140)
-        
-        runners = []
-        odds_map = {}
-        starts = r.get("starts", [])
-        
-        for s in starts:
-            s_num = s.get("number", 1)
-            h_name = s.get("horse", {}).get("name", f"Hevonen {s_num}")
-            driver_data = s.get("driver", {})
-            d_name = f"{driver_data.get('firstName', '')} {driver_data.get('lastName', '')}".strip()
-            if not d_name:
-                d_name = "Tuntematon"
-                
-            runners.append({
-                "startNumber": s_num,
-                "horseName": h_name,
-                "driver": {"fullName": d_name},
-                "postPosition": s.get("postPosition", s_num)
-            })
-            
-            win_odds = s.get("odds", {}).get("win")
-            odds_map[s_num] = float(win_odds) / 100.0 if win_odds else 0.0
+st.markdown("---")
 
-        if runners:
-            races_data.append({
-                "raceNumber": r_num,
-                "distance": distance,
-                "runners": runners,
-                "odds": odds_map
-            })
-
-if not races_data:
-    st.warning(f"Valitsemallesi päivälle ({selected_date.strftime('%d.%m.%Y')}) tai radalle ei löytynyt virallisia lähtölistoja ATG:n järjestelmästä.")
+if not races_list:
+    st.warning(f"Valitsemallesi päivälle ({selected_date.strftime('%d.%m.%Y')}) ei löytynyt virallisia lähtölistoja tai pelejä ATG:n rajapinnasta.")
 else:
-    # Laskenta- ja näyttöosuus
-    def calculate_scores(runners, odds_map):
-        data = []
+    # Lasketaan kaikkien lähtöjen pisteytykset valmiiksi Duo-suositusta ja näyttöä varten
+    race_rankings = {}
+
+    for race in races_list:
+        r_num = race.get("raceNumber", 1)
+        runners_data = []
         total_pts_sum = 0
         
-        for r in runners:
-            num = r.get("startNumber")
-            name = r.get("horseName")
-            driver_name = r.get("driver", {}).get("fullName", "Tuntematon")
-            post = r.get("postPosition", num)
-            odds = odds_map.get(num, 0.0)
+        for s in race.get("starts", []):
+            s_num = s.get("number", 1)
+            horse_name = s.get("horse", {}).get("name", f"Hevonen {s_num}")
             
-            base_score = 30 if odds == 0 else max(5, min(48, int(50 - (odds * 1.4))))
-            track_score = 8 if post in [2, 3, 4, 5] else (5 if post == 1 else (-5 if post in [7, 8, 11, 12] else 0))
-            driver_score = 5
+            driver = s.get("driver", {})
+            driver_name = f"{driver.get('firstName', '')} {driver.get('lastName', '')}".strip() or "Tuntematon"
+            post_pos = s.get("postPosition", s_num)
             
-            tot_pts = max(1, base_score + track_score + driver_score)
+            win_odds_raw = s.get("odds", {}).get("win")
+            odds = float(win_odds_raw) / 100.0 if win_odds_raw else 0.0
+            
+            base_score = 30 if odds == 0 else max(5, min(50, int(50 - (odds * 1.2))))
+            track_score = 6 if post_pos in [2, 3, 4, 5] else (3 if post_pos == 1 else -4)
+            tot_pts = max(1, base_score + track_score)
             total_pts_sum += tot_pts
             
-            data.append({
-                "Rata": num,
-                "Hevonen": name,
+            runners_data.append({
+                "Rata": s_num,
+                "Hevonen": horse_name,
                 "Ohjastaja": driver_name,
+                "Paikka": post_pos,
                 "Kerroin": odds,
                 "Pisteet": tot_pts
             })
-        
-        df = pd.DataFrame(data)
+            
+        df = pd.DataFrame(runners_data)
         if not df.empty and total_pts_sum > 0:
             df["Todennäköisyys %"] = (df["Pisteet"] / total_pts_sum) * 100
             df["Rajakerroin"] = df["Todennäköisyys %"].apply(lambda x: 100 / x if x > 0 else 0)
             df["EV"] = df.apply(lambda row: (row["Kerroin"] * (row["Todennäköisyys %"] / 100)) if row["Kerroin"] > 0 else 0, axis=1)
+            df = df.sort_values(by="Pisteet", ascending=False).reset_index(drop=True)
+            race_rankings[r_num] = df
+
+    # --- PÄIVÄN DUO -SUOSITUS (Oletuksena kaksi viimeistä lähtöä tai lähdöt 1 & 2 jos vähemmän) ---
+    sorted_race_nums = sorted(race_rankings.keys())
+    if len(sorted_race_nums) >= 2:
+        duo_race1 = sorted_race_nums[-2]
+        duo_race2 = sorted_race_nums[-1]
         
-        return df.sort_values(by="Pisteet", ascending=False).reset_index(drop=True)
+        df_d1 = race_rankings.get(duo_race1, pd.DataFrame())
+        df_d2 = race_rankings.get(duo_race2, pd.DataFrame())
+        
+        if not df_d1.empty and not df_d2.empty:
+            st.subheader("🎯 Päivän Duo -suositus (Mallin ykkösvalinnat)")
+            d_col1, d_col2 = st.columns(2)
+            
+            with d_col1:
+                top_h1 = df_d1.iloc[0]
+                st.markdown(f"**Duo 1 (Lähtö {duo_race1})**")
+                st.info(f"🐎 **{top_h1['Hevonen']}** (Rata {top_h1['Rata']})\n\nOhjastaja: {top_h1['Ohjastaja']} | Kerroin: {top_h1['Kerroin']:.2f}")
+                
+            with d_col2:
+                top_h2 = df_d2.iloc[0]
+                st.markdown(f"**Duo 2 (Lähtö {duo_race2})**")
+                st.info(f"🐎 **{top_h2['Hevonen']}** (Rata {top_h2['Rata']})\n\nOhjastaja: {top_h2['Ohjastaja']} | Kerroin: {top_h2['Kerroin']:.2f}")
+            st.markdown("---")
 
-    all_ranks = {}
-    for race in races_data:
-        r_num = race["raceNumber"]
-        all_ranks[f"Lähtö {r_num}"] = calculate_scores(race["runners"], race["odds"])
+    # Suodatetaan ja näytetään lähdöt
+    filtered_races = []
+    for r in races_list:
+        r_num = r.get("raceNumber", 1)
+        if filter_option == "Kaikki lähdöt" or filter_option == f"Lähtö {r_num}":
+            filtered_races.append(r)
 
-    filtered_races = [r for r in races_data if filter_option == "Kaikki lähdöt" or r["raceNumber"] == int(filter_option.split(" ")[1])]
-
-    st.subheader(f"🎯 Valitut lähdöt")
     for race in filtered_races:
-        r_num = race["raceNumber"]
-        st.markdown(f"### Lähtö {r_num} ({race['distance']} m)")
-        st.dataframe(all_ranks.get(f"Lähtö {r_num}", pd.DataFrame()), use_container_width=True)
+        r_num = race.get("raceNumber", 1)
+        distance = race.get("distance", 2140)
+        
+        st.subheader(f"Lähtö {r_num} ({distance} m)")
+        df = race_rankings.get(r_num, pd.DataFrame())
+        
+        if not df.empty:
+            def highlight_ev(val):
+                return 'background-color: #d4edda;' if val > 1.0 else ''
+
+            st.dataframe(
+                df.style.format({
+                    "Kerroin": "{:.2f}",
+                    "Todennäköisyys %": "{:.1f}%",
+                    "Rajakerroin": "{:.2f}",
+                    "EV": "{:.2f}"
+                }).map(highlight_ev, subset=['EV']),
+                use_container_width=True
+            )
+        else:
+            st.info("Ei lähtökohtaisia osallistujatietoja saatavilla tälle lähdölle.")
