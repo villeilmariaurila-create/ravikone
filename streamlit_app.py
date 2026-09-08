@@ -2,14 +2,13 @@ import streamlit as st
 import requests
 import pandas as pd
 from datetime import date
-import time
 
 st.set_page_config(page_title="Köysikujalla", layout="wide")
 
 st.title("🏇 Köysikujalla")
 st.caption("Maailmassa on monta ihmeellistä asiaa")
 
-# --- Automaattinen sivun päivitys 2 minuutin (120 s) välein ---
+# Automaattinen sivun päivitys 2 minuutin (120 s) välein
 st.empty()
 st.markdown(
     """
@@ -22,15 +21,16 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- 1. PÄIVÄMÄÄRÄN, RAVIRADAN JA LÄHTÖJEN SUODATUS ---
+# --- 1. PÄIVÄMÄÄRÄN JA RADOJEN HAKU ---
 col_date, col_select, col_filter = st.columns([1, 2, 1.5])
 
 with col_date:
     selected_date = st.date_input("Valitse päivämäärä:", date.today())
 
-date_str = selected_date.strftime("%Y-%m-%d")
+# Veikkauksen API hyväksyy muodon YYYYMMDD sekä YYYY-MM-DD
+date_str_nodash = selected_date.strftime("%Y%m%d")
+date_str_dash = selected_date.strftime("%Y-%m-%d")
 
-# Asetetaan välimuistin pitoajaksi 120 sekuntia (2 minuuttia)
 @st.cache_data(ttl=120)
 def fetch_json(url):
     headers = {
@@ -45,21 +45,29 @@ def fetch_json(url):
         pass
     return None
 
-# Haetaan valitun päivän kortit
-cards_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/date/{date_str}")
-cards = cards_data.get("cards", []) if isinstance(cards_data, dict) else []
+# Haetaan kortit useammalla eri API-osoitevaihtoehdolla
+cards = []
+cards_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/date/{date_str_nodash}")
+if isinstance(cards_data, dict) and cards_data.get("cards"):
+    cards = cards_data.get("cards", [])
 
 if not cards:
+    cards_data = fetch_json(f"https://www.veikkaus.fi/api/toto-info/v1/cards/date/{date_str_dash}")
+    if isinstance(cards_data, dict) and cards_data.get("cards"):
+        cards = cards_data.get("cards", [])
+
+if not cards and selected_date == date.today():
     today_cards = fetch_json("https://www.veikkaus.fi/api/toto-info/v1/cards/today")
-    cards = today_cards.get("cards", []) if isinstance(today_cards, dict) else []
+    if isinstance(today_cards, dict):
+        cards = today_cards.get("cards", [])
 
 card_options = {}
 if cards:
     for c in cards:
         track = c.get("trackName", "Tuntematon rada")
-        country = c.get("country", "")
+        country = c.get("country", "FI")
         card_id = c.get("cardId")
-        label = f"{track} ({country}) — Kortti ID: {card_id}"
+        label = f"{track} ({country}) — Kortti: {card_id}"
         card_options[label] = c
 
 with col_select:
@@ -67,7 +75,7 @@ with col_select:
         selected_label = st.selectbox("Valitse ravit / rada:", list(card_options.keys()))
         selected_card = card_options[selected_label]
     else:
-        st.warning(f"Ei aktiivisia ravikohteita saatavilla päivälle {date_str}.")
+        st.warning(f"Ei aktiivisia ravikohteita saatavilla valitulle päivälle ({selected_date.strftime('%d.%m.%Y')}).")
         selected_card = None
 
 with col_filter:
@@ -77,7 +85,7 @@ with col_filter:
     )
 
 if not selected_card:
-    st.info("💡 Veikkaus ei ole vielä avannut lähtölistoja/kertoimia tälle päivälle.")
+    st.info("💡 Kokeile valita kalenterista tämä päivä tai tuleva päivä, jolle lähtölistat on jo julkaistu.")
     st.stop()
 
 card_id = selected_card.get("cardId")
@@ -114,6 +122,7 @@ def calculate_scores(runners, odds_map):
         post = r.get("postPosition", num)
         odds = odds_map.get(num, 0.0)
         
+        # Sovittu pisteytyslogiikka
         base_score = 30 if odds == 0 else max(5, min(48, int(50 - (odds * 1.5))))
         track_score = 8 if post in [2, 3, 4, 5] else (5 if post == 1 else (-5 if post in [7, 8] else 0))
         driver_score = 5
@@ -137,7 +146,56 @@ def calculate_scores(runners, odds_map):
     
     return df.sort_values(by="Pisteet", ascending=False).reset_index(drop=True)
 
-# --- 4. SUODATETUT LÄHDÖT ---
+# Lasketan pisteytykset kaikille lähdöille
+all_ranks = {}
+best_value_bets = []
+
+for race in races:
+    r_num = race.get("raceNumber")
+    runners = race.get("runners", [])
+    r_odds = odds_by_race.get(r_num, {})
+    
+    df_leg = calculate_scores(runners, r_odds)
+    all_ranks[f"Lähtö {r_num}"] = df_leg
+    
+    # Poimitaan parhaat pelikohteet (EV > 1.00 ja Kerroin > 0)
+    if not df_leg.empty:
+        value_rows = df_leg[(df_leg["EV"] > 1.00) & (df_leg["Kerroin"] > 0)].copy()
+        for _, row in value_rows.iterrows():
+            best_value_bets.append({
+                "Lähtö": f"Lähtö {r_num}",
+                "Rata": row["Rata"],
+                "Hevonen": row["Hevonen"],
+                "Ohjastaja": row["Ohjastaja"],
+                "Kerroin": row["Kerroin"],
+                "Rajakerroin": row["Rajakerroin"],
+                "EV": row["EV"]
+            })
+
+# --- 4. REAALIAIKAISET PARHAAT PELIKOHTEET -LAATIKKO ---
+st.markdown("---")
+st.subheader("🔥 Reaaliaikaiset Parhaat Pelikohteet (Odotusarvo EV > 1.00)")
+
+if best_value_bets:
+    df_value = pd.DataFrame(best_value_bets).sort_values(by="EV", ascending=False).reset_index(drop=True)
+    
+    def highlight_ev(val):
+        return 'background-color: #d4edda; font-weight: bold;'
+
+    st.dataframe(
+        df_value.style.format({
+            "Kerroin": "{:.2f}",
+            "Rajakerroin": "{:.2f}",
+            "EV": "{:.2f}"
+        }).map(highlight_ev, subset=['EV']),
+        use_container_width=True
+    )
+else:
+    st.info("Ei kohteita, joiden odotusarvo ylittää 1.00 tällä hetkellä.")
+
+st.markdown("---")
+
+# --- 5. SUODATETUT LÄHDÖT ---
 filtered_races = []
 for r in races:
     r_num = r.get("raceNumber")
@@ -150,19 +208,14 @@ for r in races:
     elif filter_option.startswith("Lähtö ") and r_num == int(filter_option.split(" ")[1]):
         filtered_races.append(r)
 
-# --- 5. TULOSTUS KÄYTTÖLIITTYMÄÄN ---
+# --- 6. TULOSTUS KÄYTTÖLIITTYMÄÄN ---
 st.subheader(f"🎯 {selected_card.get('trackName')} — {filter_option}")
 
-all_ranks = {}
 cols = st.columns(2 if len(filtered_races) > 1 else 1)
 
 for idx, race in enumerate(filtered_races, start=1):
     r_num = race.get("raceNumber")
-    runners = race.get("runners", [])
-    r_odds = odds_by_race.get(r_num, {})
-    
-    df_leg = calculate_scores(runners, r_odds)
-    all_ranks[f"Lähtö {r_num}"] = df_leg
+    df_leg = all_ranks.get(f"Lähtö {r_num}", pd.DataFrame())
     
     col_target = cols[0] if len(filtered_races) == 1 else (cols[0] if idx % 2 != 0 else cols[1])
     
@@ -186,17 +239,16 @@ for idx, race in enumerate(filtered_races, start=1):
             use_container_width=True
         )
 
-# --- 6. 1,00 € V4-GENERAATTORI ---
+# --- 7. 1,00 € V4-GENERAATTORI ---
 st.markdown("---")
 st.subheader("💡 Mallin ehdottama 1,00 € V4 -Päärivi (Lähdöt 1–4)")
 
 comb_data = []
 for leg_num in range(1, 5):
     key = f"Lähtö {leg_num}"
-    race_obj = next((r for r in races if r.get("raceNumber") == leg_num), None)
-    if race_obj:
-        r_df = calculate_scores(race_obj.get("runners", []), odds_by_race.get(leg_num, {}))
-        top1 = r_df.iloc[0]["Hevonen"] if not r_df.empty else "-"
+    r_df = all_ranks.get(key, pd.DataFrame())
+    if not r_df.empty:
+        top1 = r_df.iloc[0]["Hevonen"]
         top2 = r_df.iloc[1]["Hevonen"] if len(r_df) > 1 else "-"
     else:
         top1, top2 = "-", "-"
