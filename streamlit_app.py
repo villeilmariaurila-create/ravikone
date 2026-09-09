@@ -8,7 +8,7 @@ from typing import List, Dict, Any
 
 ravilahtot: List[Dict[str, Any]] = [
     # --------------------------------------------------------------------------
-    # LÄHTÖ 1 (Malli)
+    # LÄHTÖ 1
     # --------------------------------------------------------------------------
     {
         "lahto": 1,
@@ -22,35 +22,19 @@ ravilahtot: List[Dict[str, Any]] = [
                 "numero": 1,
                 "nimi": "Esimerkki Hevonen 1",
                 "ohjastaja": "Kusk A",
-                "valmentaja": "Valmentaja A",
-                "haastattelu": "Kaikki kunnossa, hyvät saumat keulasta.",
-                "vihjekommentti": "Toimii hienosti matkalla, varma ehdokas.",
-                "tilastot": {
-                    "startit": "20 (5-3-2)",
-                    "voittoprosentti": 0.25,
-                    "keula_voittoprosentti": 0.80,
-                    "balanssi": "Kengät"
-                }
+                "tilastot": {"voittoprosentti": 0.25, "keula_voittoprosentti": 0.80, "balanssi": "Kengät"}
             },
             {
                 "numero": 2,
                 "nimi": "Esimerkki Hevonen 2",
                 "ohjastaja": "Kusk B",
-                "valmentaja": "Valmentaja B",
-                "haastattelu": "Haastava paikka mutta kunnossa.",
-                "vihjekommentti": "Tarvitsee vähän tuuria matkalla.",
-                "tilastot": {
-                    "startit": "15 (2-4-1)",
-                    "voittoprosentti": 0.13,
-                    "keula_voittoprosentti": 0.50,
-                    "balanssi": "Avokenkä"
-                }
+                "tilastot": {"voittoprosentti": 0.13, "keula_voittoprosentti": 0.50, "balanssi": "Avokenkä"}
             }
         ]
     },
 
     # --------------------------------------------------------------------------
-    # LÄHTÖ 2 (Malli)
+    # LÄHTÖ 2
     # --------------------------------------------------------------------------
     {
         "lahto": 2,
@@ -64,15 +48,7 @@ ravilahtot: List[Dict[str, Any]] = [
                 "numero": 1,
                 "nimi": "Esimerkki Hevonen 3",
                 "ohjastaja": "Kusk C",
-                "valmentaja": "Valmentaja C",
-                "haastattelu": "Vahva esitys alla, odotetaan kärkisijoitusta.",
-                "vihjekommentti": "Perushevonen tässä lähdössä.",
-                "tilastot": {
-                    "startit": "18 (4-2-3)",
-                    "voittoprosentti": 0.22,
-                    "keula_voittoprosentti": 0.60,
-                    "balanssi": "Kengät"
-                }
+                "tilastot": {"voittoprosentti": 0.22, "keula_voittoprosentti": 0.60, "balanssi": "Kengät"}
             }
         ]
     },
@@ -92,150 +68,107 @@ ravilahtot: List[Dict[str, Any]] = [
                 "numero": 1,
                 "nimi": "Before Takeoff",
                 "ohjastaja": "Örjan Kihlström",
-                "valmentaja": "Daniel Wäjersten",
-                "haastattelu": "Sai viimeksi hienon juoksun Margaretas Pokalissa. Kaikki tuntuu sen jälkeen hyvältä ja tästä yritetään avata mahdollisimman nopeasti.",
-                "vihjekommentti": "Kolme voittoa kuudesta startista lyhyellä matkalla Ruotsissa. Neljä toista sijaa seitsemästä startista syksyn aikana.",
-                "tilastot": {
-                    "startit": "32 (7-8-4)",
-                    "voittoprosentti": 0.22,
-                    "keula_voittoprosentti": 0.57,
-                    "balanssi": "Kengät / Kokolaput"
-                }
+                "tilastot": {"voittoprosentti": 0.22, "keula_voittoprosentti": 0.57, "balanssi": "Kengät / Kokolaput"}
             },
             {
                 "numero": 2,
                 "nimi": "Romulus Tooma",
                 "ohjastaja": "Peter G Norman",
-                "valmentaja": "Peter G Norman",
-                "haastattelu": "Toimi hyvin viimeksi ja lopetti valtavan nopeasti. Täällä hiivitään mukana ja katsotaan mihin se riittää.",
-                "vihjekommentti": "Lähdön alhaisin voittoprosentti. Neljä toista sijaa parhaana tuloksena 21 startista Normanilla.",
-                "tilastot": {
-                    "startit": "38 (5-7-6)",
-                    "voittoprosentti": 0.13,
-                    "keula_voittoprosentti": 1.00,
-                    "balanssi": "Kengät / Puolilaput / Bike"
-                }
+                "tilastot": {"voittoprosentti": 0.13, "keula_voittoprosentti": 1.00, "balanssi": "Kengät / Puolilaput / Bike"}
             },
             {
                 "numero": 3,
                 "nimi": "Mizai",
                 "ohjastaja": "Mats E Djuse",
-                "valmentaja": "Jan Ove Olsen",
-                "haastattelu": "Meni maaliin voimat tallella ja alkaa päästä huikeaan kuntoon. Nyt on aika olla hyökkäävämpi.",
-                "vihjekommentti": "15 voittoa 21 startista keulasta Ruotsissa (79 %). Voitti kultadivisioonan vuosi sitten.",
-                "tilastot": {
-                    "startit": "77 (21-9-9)",
-                    "voittoprosentti": 0.27,
-                    "keula_voittoprosentti": 0.79,
-                    "balanssi": "Avokenkä / Kokolaput / Bike"
-                }
+                "tilastot": {"voittoprosentti": 0.27, "keula_voittoprosentti": 0.79, "balanssi": "Avokenkä / Kokolaput / Bike"}
             },
             {
                 "numero": 4,
                 "nimi": "Lando Mearas",
                 "ohjastaja": "Magnus A Djuse",
-                "valmentaja": "Daniel Wäjersten",
-                "haastattelu": "Uskomattoman starttinopea tällaisilta paikoilta. Jos pääsee keulaan, vaikea voittaa.",
-                "vihjekommentti": "11 voittoa 14:stä Ruotsin voitosta keulasta (92 %). Talli iskussa.",
-                "tilastot": {
-                    "startit": "36 (14-1-5)",
-                    "voittoprosentti": 0.39,
-                    "keula_voittoprosentti": 0.92,
-                    "balanssi": "Norjalaiset laput / Bike"
-                }
+                "tilastot": {"voittoprosentti": 0.39, "keula_voittoprosentti": 0.92, "balanssi": "Norjalaiset laput / Bike"}
             },
             {
                 "numero": 5,
                 "nimi": "Mellby Joker",
                 "ohjastaja": "Daniel Wäjersten",
-                "valmentaja": "Daniel Wäjersten",
-                "haastattelu": "Teki rajun latauksen Suomessa Don Fanucci Cetin jälkeen. Täältä vaikea päästä keulaan tai voittajaselkään.",
-                "vihjekommentti": "3 voittoa 9 startista Mats E Djusen kanssa. Vaikea asema ulkoa.",
-                "tilastot": {
-                    "startit": "65 (14-10-13)",
-                    "voittoprosentti": 0.22,
-                    "keula_voittoprosentti": 0.50,
-                    "balanssi": "Kokolaput"
-                }
+                "tilastot": {"voittoprosentti": 0.22, "keula_voittoprosentti": 0.50, "balanssi": "Kokolaput"}
             },
             {
                 "numero": 6,
                 "nimi": "Jerka Sting",
                 "ohjastaja": "Claes Sjöström",
-                "valmentaja": "Claes Sjöström",
-                "haastattelu": "Samoilla varusteilla kuin aiemmin, kunto hyvä.",
-                "vihjekommentti": "Yksi voitto neljästä startista sprinterimatkalla. Yksi aiempi startti Hagmyrenissa, jonka voitti.",
-                "tilastot": {
-                    "startit": "69 (19-11-10)",
-                    "voittoprosentti": 0.28,
-                    "keula_voittoprosentti": 0.75,
-                    "balanssi": "Kokolaput / Norskit / Bike"
-                }
+                "tilastot": {"voittoprosentti": 0.28, "keula_voittoprosentti": 0.75, "balanssi": "Kokolaput / Norskit / Bike"}
             }
         ]
     }
 ]
 
 # ==============================================================================
-# 2. MALLINNOSTO / SIMULAATTORI (Monte Carlo Simulation)
+# 2. LASKENTA JA SIMULAATTIORI (NUMEROPOHJAINEN)
 # ==============================================================================
 
 def laske_suorituskyky_indeksi(hevonen: Dict[str, Any]) -> float:
-    """
-    Laskee hevoselle painotetun tasoluvun perustilastojen pohjalta.
-    Korjattu muuttujien nimet (poistettu %-merkit).
-    """
+    """Laskee indeksin pelkästään hevosobjektin tilastoista."""
     stats = hevonen["tilastot"]
     
     perus_v_prosentti = stats.get("voittoprosentti", 0.10)
     keula_v_prosentti = stats.get("keula_voittoprosentti", 0.50)
     
-    # Tarkistetaan varuste- ja balanssietu
     balanssi = stats.get("balanssi", "")
     bonus = 1.15 if "Avokenkä" in balanssi or "barfota" in balanssi.lower() else 1.0
 
-    indeksi = (perus_v_prosentti * 0.4 + keula_v_prosentti * 0.4) * bonus * 100
-    return indeksi
+    return (perus_v_prosentti * 0.4 + keula_v_prosentti * 0.4) * bonus * 100
 
-def simuloita_lahto(lahto_data: Dict[str, Any], simulaatioita: int = 10000) -> Dict[str, float]:
+
+def simuloita_lahto_numerolla(lahto_data: Dict[str, Any], simulaatioita: int = 10000) -> Dict[int, float]:
     """
-    Simuloi tietyn lähdön voittajaa Monte Carlo -menetelmällä.
+    Simuloi voittajat käyttäen avaimena pelkkää hevosen NUMEROA (int).
+    Palauttaa dictin: {hevosen_numero: voittoprosentti}
     """
     hevoset = lahto_data["hevoset"]
-    indeksit = [laske_suorituskyky_indeksi(h) for h in hevoset]
-    summa_indeksi = sum(indeksit)
     
-    # Lasketaan todennäköisyysjakauma
+    # Haetaan pelkät numerot ja lasketaan niille indeksit
+    numerot = [h["numero"] for h in hevoset]
+    indeksit = [laske_suorituskyky_indeksi(h) for h in hevoset]
+    
+    summa_indeksi = sum(indeksit)
     todennakoisyydet = [i / summa_indeksi for i in indeksit]
     
-    voittotilasto = {h["nimi"]: 0 for h in hevoset}
+    # Alustetaan laskuri numeroittain: {1: 0, 2: 0, 3: 0, ...}
+    voittotilasto = {num: 0 for num in numerot}
     
     # Suoritetaan simulaatio
     for _ in range(simulaatioita):
-        voittaja = random.choices(hevoset, weights=todennakoisyydet, k=1)[0]
-        voittotilasto[voittaja["nimi"]] += 1
+        voittaja_numero = random.choices(numerot, weights=todennakoisyydet, k=1)[0]
+        voittotilasto[voittaja_numero] += 1
         
-    # Muunnetaan simulaatiotulokset prosenteiksi
-    tulos_prosentteina = {nimi: (maara / simulaatioita) * 100 for nimi, maara in voittotilasto.items()}
-    return tulos_prosentteina
+    # Lasketaan tulokset prosenteiksi
+    return {num: (maara / simulaatioita) * 100 for num, maara in voittotilasto.items()}
 
 # ==============================================================================
 # 3. STREAMLIT-KÄYTTÖLIITTYMÄ
 # ==============================================================================
 
-st.title("Ravikone - Ennustemallinnus")
-st.write("Mallinnetut voittotodennäköisyydet lähtökohtaisille lähdöille.")
+st.title("Ravikone - Numero-pohjainen Simulaattori")
 
 for lahto in ravilahtot:
     st.header(f"{lahto['nimi']} ({lahto['aika']})")
     st.caption(f"Matka: {lahto['matka']} | {lahto['lahtotapa']} | Palkinto: {lahto['palkinto']}")
     
-    ennusteet = simuloita_lahto(lahto, simulaatioita=10000)
-    jarjestetty = sorted(ennusteet.items(), key=lambda x: x[1], reverse=True)
+    # Luodaan hakutaulukko: numero -> hevosen muut tiedot (nimet jne.)
+    hevoset_dict = {h["numero"]: h for h in lahto["hevoset"]}
     
-    for nimi, prosenti in jarjestetty:
-        hevonen_info = next(h for h in lahto["hevoset"] if h["nimi"] == nimi)
-        st.write(f"**Nro {hevonen_info['numero']} {nimi}** - Voittomahdollisuus: **{prosenti:.1f}%**")
+    # Ajetaan numeropohjainen simulaatio
+    ennusteet_numerolla = simuloita_lahto_numerolla(lahto, simulaatioita=10000)
+    
+    # Järjestetään tulokset voittoprosentin mukaan suurimmasta pienimpään
+    jarjestetty_tulokset = sorted(ennusteet_numerolla.items(), key=lambda x: x[1], reverse=True)
+    
+    # Tulostetaan tulokset
+    for num, prosenti in jarjestetty_tulokset:
+        hevonen = hevoset_dict[num]
+        st.write(f"**Nro {num} {hevonen['nimi']}** ({hevonen['ohjastaja']}) — Voittomahdollisuus: **{prosenti:.1f}%**")
         st.progress(int(prosenti))
     
     st.divider()
