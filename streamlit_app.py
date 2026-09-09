@@ -1,164 +1,90 @@
-import streamlit as st
-import pandas as pd
-import re
-import os
-from datetime import datetime
-
-st.set_page_config(page_title="Hagmyren 12.9.2026", layout="wide")
-st.title("🏇 Hagmyren (12.9.2026) — V85 Ravianalyysi & Seuranta")
-
-st.markdown("""
-**Ohje:** 
-1. Syötä jokaiseen 8 lähtöön **hevoset ja vihjeet** ensimmäiseen kenttään.
-2. Syötä Veikkauksen **peliprosentit (%)** omiin kenttiinsä.
-3. Ohjelma vertailee mallin arvioita markkinaan ja nostaa esille parhaat arvohevokset.
-4. Voit tallentaa päivän parhaat valinnat seurantatiedostoon!
-""")
-
-race_tabs = st.tabs([f"Lähtö {i}" for i in range(1, 9)])
-race_data_results = {}
-
-for i in range(1, 9):
-    with race_tabs[i-1]:
-        st.success(f"🔥 **Lähtö {i} — V85 Kohde {i}/8**")
-            
-        col_a, col_b = st.columns([1.5, 1])
-        
-        with col_a:
-            default_list = f"""1. Hevonen Yksi - Ohjastaja A (Kommentti: Vahva vire)
-2. Hevonen Kaksi - Ohjastaja B (Kommentti: Paikka ulkona)"""
-            raw_text = st.text_area(f"Lähtö {i} - Listat & Vihjeet:", default_list, height=130, key=f"race_input_{i}")
-            
-        with col_b:
-            default_pct = "1. 30%\n2. 15%\n3. 10%"
-            raw_pct = st.text_area(f"Lähtö {i} - Veikkaus Peliprosentit (%):", default_pct, height=130, key=f"pct_input_{i}")
-            
-        # Parsitaan peliprosentit
-        pct_map = {}
-        for p_line in raw_pct.strip().split("\n"):
-            p_match = re.findall(r'(\d+)[^\d]+(\d+)', p_line)
-            if p_match:
-                r_num = int(p_match[0][0])
-                r_pct = float(p_match[0][1])
-                pct_map[r_num] = r_pct
-
-        # Parsitaan hevoset
-        lines = raw_text.strip().split("\n")
-        runners = []
-        for line in lines:
-            if "." in line and "-" in line:
-                try:
-                    parts = line.split("-")
-                    left = parts[0].strip()
-                    right = parts[1].strip()
-                    
-                    num_part = left.split(".")[0].strip()
-                    horse_name = left.split(".")[1].strip()
-                    
-                    driver = right.split("(")[0].strip()
-                    details = right.split("(")[1].replace(")", "").strip() if "(" in right else "Ei lisätietoja"
-                    
-                    r_num = int(num_part) if num_part.isdigit() else 1
-                    assigned_pct = pct_map.get(r_num, 5.0)
-                    
-                    runners.append({
-                        "Rata": r_num,
-                        "Hevonen": horse_name,
-                        "Ohjastaja": driver,
-                        "Peliprosentit %": assigned_pct,
-                        "Lisätiedot / Vihje": details
-                    })
-                except Exception:
-                    continue
-        
-        if runners:
-            df = pd.DataFrame(runners)
-            # Pisteytyskaava (voit muokata tätä tarvittaessa)
-            df["Pisteet"] = [max(10, 50 - (idx * 6)) for idx in range(len(df))]
-            
-            total_pts = df["Pisteet"].sum()
-            df["Mallin To %"] = (df["Pisteet"] / total_pts) * 100
-            df["Etu-indeksi"] = df["Mallin To %"] - df["Peliprosentit %"]
-            
-            df = df.sort_values(by="Etu-indeksi", ascending=False).reset_index(drop=True)
-            race_data_results[i] = df
-            
-            st.markdown(f"**Lähdön {i} Vertailutaulukko (Malli vs Markkina):**")
-            st.dataframe(df, use_container_width=True, hide_index=True)
-        else:
-            st.info(f'Tarkista lähdön {i} syöte.')
-
-st.markdown("---")
-st.header("📊 V85 Yhteenveto & Parhaat Arvokohteet")
-
-v85_top_bets = []
-for r_num, df in race_data_results.items():
-    if not df.empty and "Etu-indeksi" in df.columns:
-        top = df.iloc[0]
-        v85_top_bets.append({
-            "Lähtö": r_num, 
-            "Hevonen": top["Hevonen"], 
-            "Rata": top["Rata"],
-            "Peliprosentti %": top["Peliprosentit %"],
-            "Mallin arvio %": round(top["Mallin To %"], 1),
-            "Etu%": round(top["Etu-indeksi"], 1)
-        })
-
-if v85_top_bets:
-    summary_df = pd.DataFrame(v85_top_bets)
-    st.dataframe(summary_df, use_container_width=True, hide_index=True)
-    
-    # --- TALLENNUSNAPPI SEURANTAAN ---
-    st.subheader("📁 Tulosten seuranta")
-    if st.button("💾 Tallenna tämän kierroksen parhaat vedot seurantaan"):
-        history_file = "v85_seuranta_historia.csv"
-        
-        # Lisätään päivämäärä mukaan rivitietoihin
-        save_df = summary_df.copy()
-        save_df.insert(0, "Pvm", datetime.now().strftime("%Y-%m-%d"))
-        save_df["Tulos (Osuma=1, Huti=0)"] = "" # Valmis sarake myöhempää tuloksen merkkausta varten
-        
-        # Jos tiedosto on olemassa, lisätään tiedot vanhan jatkoksi, muuten luodaan uusi
-        if os.path.exists(history_file):
-            old_df = pd.read_csv(history_file)
-            combined_df = pd.concat([old_df, save_df], ignore_index=True)
-            combined_df.to_csv(history_file, index=False)
-        else:
-            save_df.to_csv(history_file, index=False)
-            
-        st.success(f"Valinnat tallennettu onnistuneesti tiedostoon '{history_file}'!")
-
-    # Mahdollisuus ladata seurantatiedosto CSV:nä koneelle
-    if os.path.exists("v85_seuranta_historia.csv"):
-        with open("v85_seuranta_historia.csv", "rb") as f:
-            st.download_button(
-                label="📥 Lataa koko seurantatiedosto (CSV)",
-                data=f,
-                file_name="v85_seuranta_historia.csv",
-                mime="text/csv"
-            )
-else:
-    st.info("Ei vielä dataa V85-lähdöille.")
-
-st.markdown("---")
-
-# Päivän Duo -suositus (Viimeiset kaksi lähtöä eli 7 & 8)
-active_races = sorted(race_data_results.keys())
-if len(active_races) >= 2:
-    d1, d2 = active_races[-2], active_races[-1]
-    st.subheader(f"🎯 Päivän Duo -suositus (Lähdöt {d1} & {d2})")
-    
-    col1, col2 = st.columns(2)
-    df1 = race_data_results.get(d1, pd.DataFrame())
-    df2 = race_data_results.get(d2, pd.DataFrame())
-    
-    if not df1.empty and not df2.empty:
-        top1 = df1.iloc[0]
-        top2 = df2.iloc[0]
-        
-        with col1:
-            st.info(f"**Duo Kohde 1 (Lähtö {d1})**\n\n🐎 **{top1['Hevonen']}** (Rata {top1['Rata']})\n\nPeliprosentti: {top1['Peliprosentit %']}% | Mallin arvio: {top1['Mallin To %']:.1f}%\n\n*Vihje:* {top1['Lisätiedot / Vihje']}")
-        with col2:
-            st.info(f"**Duo Kohde 2 (Lähtö {d2})**\n\n🐎 **{top2['Hevonen']}** (Rata {top2['Rata']})\n\nPeliprosentti: {top2['Peliprosentit %']}% | Mallin arvio: {top2['Mallin To %']:.1f}%\n\n*Vihje:* {top2['Lisätiedot / Vihje']}")
-else:
-    st.warning("Syötä tietoja vähintään kahteen viimeiseen lähtöön Päivän Duo -suositustasoa varten.")
+{
+  "lAhto": 1,
+  "matka": "2140 m",
+  "lahtotapa": "Autostart",
+  "osallistujat": [
+    {
+      "numero": 1,
+      "hevonen": "T.Wall's Notorius",
+      "ohjastaja": "Johan Brandel",
+      "valmentajat": "Sofia Johansson",
+      "kategoria": "B",
+      "luokitus": "Skräll / Yllättäjä",
+      "varusteet": "Sisäratareissu, kunto huipussaan"
+    },
+    {
+      "numero": 2,
+      "hevonen": "Hip To Be Square",
+      "ohjastaja": "Peter Lennartsson",
+      "kategoria": "A",
+      "luokitus": "Suosikki / Tipsetta",
+      "varusteet": "Hyvä lähtöpaikka, nopeus ja voima"
+    },
+    {
+      "numero": 3,
+      "hevonen": "Sign Of Times",
+      "ohjastaja": "Claes Sjöström",
+      "kategoria": "C",
+      "luokitus": "Ulkopuolinen",
+      "varusteet": "Avaa lujaa, haetaan selkäjuoksua"
+    },
+    {
+      "numero": 4,
+      "hevonen": "Geisha Road Grif",
+      "ohjastaja": "Jorma Kontio",
+      "valmentajat": "Sybille Tinter",
+      "kategoria": "B",
+      "luokitus": "Keulaehdokas (Spets)",
+      "varusteet": "Huippukunto"
+    },
+    {
+      "numero": 5,
+      "hevonen": "Macho Cabrio B.B.",
+      "ohjastaja": "Peter G Norman",
+      "kategoria": "B",
+      "luokitus": "Haastaja",
+      "varusteet": "Kengät jalassa (Skor runt om)"
+    },
+    {
+      "numero": 6,
+      "hevonen": "Herkules A'lir",
+      "ohjastaja": "Rikard N Skoglund",
+      "valmentajat": "Daniel Wäjersten",
+      "kategoria": "B",
+      "luokitus": "Haastaja",
+      "varusteet": "Huippuvire, ulkoradan paikka"
+    },
+    {
+      "numero": 7,
+      "hevonen": "Night Hawk",
+      "ohjastaja": "Magnus A Djuse",
+      "kategoria": "A",
+      "luokitus": "Päähaastaja",
+      "varusteet": "Ilman kenkiä (Barfota runt om)"
+    },
+    {
+      "numero": 8,
+      "hevonen": "Huchuy Qosqo",
+      "ohjastaja": "Anders Eriksson",
+      "kategoria": "C",
+      "luokitus": "Outsider",
+      "varusteet": "Ilman etukenkiä (Barfota fram)"
+    },
+    {
+      "numero": 11,
+      "hevonen": "De Är Hon",
+      "ohjastaja": "Viktor Lyck",
+      "kategoria": "C",
+      "luokitus": "Ulkopuolinen",
+      "varusteet": "Takarivin paikka"
+    },
+    {
+      "numero": 12,
+      "hevonen": "Sandsjöns Cantona",
+      "ohjastaja": "Mats E Djuse",
+      "kategoria": "C",
+      "luokitus": "Jättiyllättäjä",
+      "varusteet": "Ilman takakenkiä (Barfota bak) + Halvstängt"
+    }
+  ]
+}
