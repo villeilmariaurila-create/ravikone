@@ -3,17 +3,22 @@ import pandas as pd
 import streamlit as st
 
 # ==============================================================================
-# 1. LIVE-PELIJAKAUMA & VAIHTO (PÄIVITÄ TÄHÄN)
+# 1. LIVE-PELIJAKAUMA & VAIHTO (LÄHDÖT 1-12)
 # ==============================================================================
 
 LIVE_PELIJAKAUMA = {
+    1: {1: 15, 2: 30, 3: 10, 4: 5, 5: 20, 6: 20},
+    2: {1: 8, 2: 12, 3: 40, 4: 10, 5: 15, 6: 15},
+    3: {1: 25, 2: 25, 3: 20, 4: 10, 5: 10, 6: 10},
+    4: {1: 5, 2: 15, 3: 10, 4: 35, 5: 20, 6: 15},
     5: {1: 3, 2: 24, 3: 1, 4: 4, 5: 10, 6: 5, 7: 3, 8: 12, 9: 35, 10: 1, 11: 1, 12: 2},
     6: {1: 2, 2: 10, 3: 2, 4: 29, 5: 6, 6: 4, 7: 1, 8: 24, 9: 1, 10: 2, 11: 4, 12: 1, 13: 9, 14: 1, 15: 5},
     7: {1: 44, 2: 2, 3: 3, 4: 10, 5: 9, 6: 26, 7: 7},
     8: {1: 2, 2: 3, 3: 10, 4: 1, 5: 3, 6: 36, 7: 2, 8: 13, 9: 2, 10: 3, 11: 1, 12: 15, 13: 4, 14: 2, 15: 1},
     9: {1: 63, 2: 18, 3: 5, 4: 2, 5: 1, 6: 1, 7: 3, 8: 3, 9: 1, 10: 1, 11: 1, 12: 0},
     10: {1: 1, 2: 1, 3: 2, 4: 6, 5: 10, 6: 27, 7: 2, 8: 15, 9: 5, 10: 7, 11: 0, 12: 3, 13: 16, 14: 1, 15: 2},
-    11: {1: 7, 2: 5, 3: 3, 4: 48, 5: 2, 6: 6, 7: 2, 8: 14, 9: 1, 10: 7, 11: 2, 12: 1}
+    11: {1: 7, 2: 5, 3: 3, 4: 48, 5: 2, 6: 6, 7: 2, 8: 14, 9: 1, 10: 7, 11: 2, 12: 1},
+    12: {1: 15, 2: 25, 3: 10, 4: 5, 5: 20, 6: 8, 7: 4, 8: 3, 9: 10}
 }
 
 LIVE_VAIHTOTIEDOT = {
@@ -23,10 +28,66 @@ LIVE_VAIHTOTIEDOT = {
 }
 
 # ==============================================================================
-# 2. HAGMYREN DATA & JENS SJÖDÉN TILASTOT
+# 2. DATA (LÄHDÖT 1-12)
 # ==============================================================================
 
 DATABANK = {
+    1: {
+        "nimi": "Lopp 1 - P21-Lopp (Voittajapeli)",
+        "matka": "2140m Autostart",
+        "tyyppi": "2140a",
+        "vihje": "<b>Voittajapeli:</b> Ennakkolähtö. Suosikit erottuvat, tasainen kärkitaisto.",
+        "hevoset": [
+            {"numero": 1, "nimi": "Lähtö1 Hevonen 1", "ohjastaja": "Ohjastaja A", "peruspaino": 1.1},
+            {"numero": 2, "nimi": "Lähtö1 Hevonen 2", "ohjastaja": "Ohjastaja B", "peruspaino": 1.4},
+            {"numero": 3, "nimi": "Lähtö1 Hevonen 3", "ohjastaja": "Ohjastaja C", "peruspaino": 0.8},
+            {"numero": 4, "nimi": "Lähtö1 Hevonen 4", "ohjastaja": "Ohjastaja D", "peruspaino": 0.5},
+            {"numero": 5, "nimi": "Lähtö1 Hevonen 5", "ohjastaja": "Ohjastaja E", "peruspaino": 1.2},
+            {"numero": 6, "nimi": "Lähtö1 Hevonen 6", "ohjastaja": "Ohjastaja F", "peruspaino": 1.0},
+        ]
+    },
+    2: {
+        "nimi": "Lopp 2 - Svensk Travsports Unghästserie (Voittajapeli)",
+        "matka": "2140m Voltstart",
+        "tyyppi": "tasoitus",
+        "vihje": "<b>Voittajapeli:</b> Nuorten hevosten lähtö. Yllätykset mahdollisia.",
+        "hevoset": [
+            {"numero": 1, "nimi": "Lähtö2 Hevonen 1", "ohjastaja": "Ohjastaja A", "peruspaino": 0.7},
+            {"numero": 2, "nimi": "Lähtö2 Hevonen 2", "ohjastaja": "Ohjastaja B", "peruspaino": 0.9},
+            {"numero": 3, "nimi": "Lähtö2 Hevonen 3", "ohjastaja": "Ohjastaja C", "peruspaino": 1.6},
+            {"numero": 4, "nimi": "Lähtö2 Hevonen 4", "ohjastaja": "Ohjastaja D", "peruspaino": 0.8},
+            {"numero": 5, "nimi": "Lähtö2 Hevonen 5", "ohjastaja": "Ohjastaja E", "peruspaino": 1.1},
+            {"numero": 6, "nimi": "Lähtö2 Hevonen 6", "ohjastaja": "Ohjastaja F", "peruspaino": 1.0},
+        ]
+    },
+    3: {
+        "nimi": "Lopp 3 - Breddlopp (Voittajapeli)",
+        "matka": "1640m Autostart",
+        "tyyppi": "2140a",
+        "vihje": "<b>Voittajapeli:</b> Nopean matkan autolähtö. Eturivin valjakot vahvoilla.",
+        "hevoset": [
+            {"numero": 1, "nimi": "Lähtö3 Hevonen 1", "ohjastaja": "Ohjastaja A", "peruspaino": 1.3},
+            {"numero": 2, "nimi": "Lähtö3 Hevonen 2", "ohjastaja": "Ohjastaja B", "peruspaino": 1.3},
+            {"numero": 3, "nimi": "Lähtö3 Hevonen 3", "ohjastaja": "Ohjastaja C", "peruspaino": 1.1},
+            {"numero": 4, "nimi": "Lähtö3 Hevonen 4", "ohjastaja": "Ohjastaja D", "peruspaino": 0.7},
+            {"numero": 5, "nimi": "Lähtö3 Hevonen 5", "ohjastaja": "Ohjastaja E", "peruspaino": 0.8},
+            {"numero": 6, "nimi": "Lähtö3 Hevonen 6", "ohjastaja": "Ohjastaja F", "peruspaino": 0.8},
+        ]
+    },
+    4: {
+        "nimi": "Lopp 4 - Amatörlopp (Voittajapeli)",
+        "matka": "2140m Autostart",
+        "tyyppi": "2140a",
+        "vihje": "<b>Voittajapeli:</b> Amatööriohjastajat. Taktinen lähtö ennen V85-peliä.",
+        "hevoset": [
+            {"numero": 1, "nimi": "Lähtö4 Hevonen 1", "ohjastaja": "Ohjastaja A", "peruspaino": 0.5},
+            {"numero": 2, "nimi": "Lähtö4 Hevonen 2", "ohjastaja": "Ohjastaja B", "peruspaino": 1.0},
+            {"numero": 3, "nimi": "Lähtö4 Hevonen 3", "ohjastaja": "Ohjastaja C", "peruspaino": 0.8},
+            {"numero": 4, "nimi": "Lähtö4 Hevonen 4", "ohjastaja": "Ohjastaja D", "peruspaino": 1.5},
+            {"numero": 5, "nimi": "Lähtö4 Hevonen 5", "ohjastaja": "Ohjastaja E", "peruspaino": 1.2},
+            {"numero": 6, "nimi": "Lähtö4 Hevonen 6", "ohjastaja": "Ohjastaja F", "peruspaino": 0.9},
+        ]
+    },
     5: {
         "nimi": "Lopp 5 - STL Klass I (V85-1)",
         "matka": "2140m Autostart",
@@ -170,6 +231,26 @@ DATABANK = {
             {"numero": 11, "nimi": "Punchboard", "ohjastaja": "Magnus A Djuse", "peruspaino": 0.6},
             {"numero": 12, "nimi": "Slivovitz Lover", "ohjastaja": "Claes Sjöström", "peruspaino": 0.4},
         ]
+    },
+    12: {
+        "nimi": "Lopp 12 - STL Silverdivisionen (V85-8)",
+        "matka": "2140m Autostart",
+        "tyyppi": "2140a",
+        "vihje": "<b>Daniel Berglund:</b> V85-päätös. Vahvat keulahevoset ja kirijät ratkaisevat.<br><b>Jens Sjödén:</b> Suosikit pitävät hyvin päätöskohteessa.",
+        "hevoset": [
+            {"numero": 1, "nimi": "Lähtö12 Hevonen 1", "ohjastaja": "Ohjastaja 1", "peruspaino": 1.0},
+            {"numero": 2, "nimi": "Lähtö12 Hevonen 2", "ohjastaja": "Ohjastaja 2", "peruspaino": 1.2},
+            {"numero": 3, "nimi": "Lähtö12 Hevonen 3", "ohjastaja": "Ohjastaja 3", "peruspaino": 0.8},
+            {"numero": 4, "nimi": "Lähtö12 Hevonen 4", "ohjastaja": "Ohjastaja 4", "peruspaino": 0.6},
+            {"numero": 5, "nimi": "Lähtö12 Hevonen 5", "ohjastaja": "Ohjastaja 5", "peruspaino": 1.1},
+            {"numero": 6, "nimi": "Lähtö12 Hevonen 6", "ohjastaja": "Ohjastaja 6", "peruspaino": 0.7},
+            {"numero": 7, "nimi": "Lähtö12 Hevonen 7", "ohjastaja": "Ohjastaja 7", "peruspaino": 0.5},
+            {"numero": 8, "nimi": "Lähtö12 Hevonen 8", "ohjastaja": "Ohjastaja 8", "peruspaino": 0.4},
+            {"numero": 9, "nimi": "Lähtö12 Hevonen 9", "ohjastaja": "Ohjastaja 9", "peruspaino": 0.8},
+            {"numero": 10, "nimi": "Lähtö12 Hevonen 10", "ohjastaja": "Ohjastaja 10", "peruspaino": 0.5},
+            {"numero": 11, "nimi": "Lähtö12 Hevonen 11", "ohjastaja": "Ohjastaja 11", "peruspaino": 0.4},
+            {"numero": 12, "nimi": "Lähtö12 Hevonen 12", "ohjastaja": "Ohjastaja 12", "peruspaino": 0.3},
+        ]
     }
 }
 
@@ -180,7 +261,7 @@ for lahto_id, hevoset in DATABANK.items():
         h["peli_pct"] = l_pelit.get(h["numero"], 0)
 
 # ==============================================================================
-# 3. SIMULAATIOT & PARHAIDEN TÄRPPIEN LASKENTA
+# 3. SIMULAATIOT & PELIARVOJEN LASKENTA
 # ==============================================================================
 
 def laske_painotettu_todennakoisyys(lahto_data: dict) -> list:
@@ -242,9 +323,10 @@ for lahto_id, lahto_data in DATABANK.items():
         mc = sim_res[h["numero"]]
         peli = h["peli_pct"]
         ero = round(mc - peli, 1)
+        
         KAIKKI_PELIARVOT.append({
             "lahto": lahto_id,
-            "v85_leg": lahto_id - 4,
+            "v85_leg": (lahto_id - 4) if lahto_id >= 5 else None,
             "nro": h["numero"],
             "nimi": h["nimi"],
             "ohjastaja": h["ohjastaja"],
@@ -253,43 +335,42 @@ for lahto_id, lahto_data in DATABANK.items():
             "ero": ero
         })
 
-# Järjestetään peliarvon mukaan
-TOP_TARPIT = sorted(KAIKKI_PELIARVOT, key=lambda x: x["ero"], reverse=True)[:5]
+TOP_TARPIT_V85 = sorted([p for p in KAIKKI_PELIARVOT if p["lahto"] >= 5], key=lambda x: x["ero"], reverse=True)[:5]
+TOP_TARPIT_VOITTAJA = sorted([p for p in KAIKKI_PELIARVOT if p["lahto"] <= 4], key=lambda x: x["ero"], reverse=True)[:4]
 
 # ==============================================================================
 # 4. STREAMLIT-KÄYTTÖLIITTYMÄ
 # ==============================================================================
 
-st.set_page_config(page_title="Hagmyren V85 - Live-Analysaattori", layout="wide")
+st.set_page_config(page_title="Hagmyren Live - Kokonaisanalyysi (Lähdöt 1-12)", layout="wide")
 
-st.title("🏇 Hagmyren V85 - Live-Analysaattori & Systeemiehdotus")
-st.caption("Monte Carlo + Jens Sjödén Tilastokorjaukset + Live-vaihto & Peliprosentit")
+st.title("🏇 Hagmyren Raveoohjelma - Live Analysaattori (Lähdöt 1–12)")
+st.caption("Monte Carlo Simulaatio + Sjödén-tilastomallinnus (Voittajapeli & V85)")
 
-# Live-vaihto yläpalkissa
 m1, m2, m3 = st.columns(3)
 m1.metric("Vaihto", LIVE_VAIHTOTIEDOT["vaihto"])
 m2.metric("Jakosumma", LIVE_VAIHTOTIEDOT["jakosumma"])
 m3.metric("Jackpot Extra", LIVE_VAIHTOTIEDOT["jackpot"])
 
-tab0, tab1, tab2, tab3, tab4 = st.tabs([
-    "🏆 Yhteenveto & 200€ Systeemi", 
-    "📌 Lähdöt & Tilastoanalyysi", 
-    "📊 V85-Kokonaisuus", 
-    "🔥 V4-Peli", 
+tab_v85, tab_voittaja, tab_lahdot, tab_kokonais, tab_v4, tab_dd = st.tabs([
+    "🏆 V85 Yhteenveto & 200€ Systeemi",
+    "🎯 Voittaja-peli (Lähdöt 1–4)",
+    "📌 Lähdöt 1–12 Analyysi",
+    "📊 Koko Ravipäivä",
+    "🔥 V4-Peli",
     "🎯 Päivän Duo"
 ])
 
 # ------------------------------------------------------------------------------
-# TAB 0: YHTEENVETO & 200€ SYSTEEMI (UUSI)
+# TAB V85: SYSTEEMI (Lähdöt 5-12)
 # ------------------------------------------------------------------------------
-with tab0:
-    st.subheader("🎯 Päivän Top 4 Pelikohdetta (Sjödén-Malli vs. Live-prosentit)")
-    
+with tab_v85:
+    st.subheader("🎯 V85 Parhaat Peliarvot")
     c1, c2, c3, c4 = st.columns(4)
     cols = [c1, c2, c3, c4]
     
     for idx in range(4):
-        tarp = TOP_TARPIT[idx]
+        tarp = TOP_TARPIT_V85[idx]
         with cols[idx]:
             st.success(
                 f"**V85-{tarp['v85_leg']} (Lopp {tarp['lahto']})**\n\n"
@@ -300,38 +381,46 @@ with tab0:
             )
 
     st.divider()
+    st.subheader("💰 200 € V85-Tavoitesysteemi (Lähdöt 5–12)")
     
-    st.subheader("💰 200 € V85-Tavoitesysteemi (Tähtäin > 20 000 – 50 000 € Voittoon)")
-    st.markdown("""
-    Systeemi on rakennettu hakemaan **jättiosumaa**. Varmat pidetään tilastollisesti vahvoissa kohteissa, ja merkit keskitetään auki oleviin skrällilähtöihin (erityisesti V85-4 Dubbelklasslopp).
-    * **Rivirakenne:** $1 \times 4 \times 2 \times 5 \times 1 \times 5 \times 2 = 400\text{ riviä}$
-    * **Rivininta:** $400 \times 0{,}50\text{ €} = \mathbf{200{,}00\text{ €}}$
-    """)
-
-    # Valmiit V85-systeemerkit
     SYSTEEMI_200E = [
-        {"leg": "V85-1 (L5)", "varmat_ja_merkit": "**9 Night Hawk** (A), 2 Hip To Be Square, 8 Herkules A'lir, 5 Macho Cabrio B.B.", "syu": "4 merkkiä"},
+        {"leg": "V85-1 (L5)", "varmat_ja_merkit": "**9 Night Hawk**, 2 Hip To Be Square", "syu": "2 merkkiä"},
         {"leg": "V85-2 (L6)", "varmat_ja_merkit": "**8 Teknologen**, 5 Ellbert, 4 Silke Sjarmör, 2 Sangviks Lynet", "syu": "4 merkkiä"},
-        {"leg": "V85-3 (L7)", "varmat_ja_merkit": "**1 Before Takeoff** (A), 5 Lando Mearas", "syu": "2 merkkiä"},
-        {"leg": "V85-4 (L8)", "varmat_ja_merkit": "**6 Holiday Island**, **11 Bear Victor**, **8 Uno**, 12 Lion Sisu, 3 Ytowns Ulrik", "syu": "5 merkkiä (Skrällihaku)"},
-        {"leg": "V85-5 (L9)", "varmat_ja_merkit": "🔒 **1 Majblomster** (Kivikova varmistamaton spiki)", "syu": "1 merkki (Spiki)"},
-        {"leg": "V85-6 (L10)", "varmat_ja_merkit": "**5 Bohemian Maid**, **8 Brionne**, 4 Grove's Maple Poof, 10 Ajlexes Gourmand, 13 Rupie", "syu": "5 merkkiä"},
-        {"leg": "V85-7 (L11)", "varmat_ja_merkit": "**4 Mellby Mowgli**, 1 Bruce Braylon", "syu": "2 merkkiä"}
+        {"leg": "V85-3 (L7)", "varmat_ja_merkit": "🔒 **1 Before Takeoff** (Varma)", "syu": "1 merkki (Spiki)"},
+        {"leg": "V85-4 (L8)", "varmat_ja_merkit": "**6 Holiday Island**, **11 Bear Victor**, **8 Uno**, 12 Lion Sisu, 3 Ytowns Ulrik", "syu": "5 merkkiä"},
+        {"leg": "V85-5 (L9)", "varmat_ja_merkit": "🔒 **1 Majblomster** (Kivikova spiki)", "syu": "1 merkki (Spiki)"},
+        {"leg": "V85-6 (L10)", "varmat_ja_merkit": "**5 Bohemian Maid**, **8 Brionne**, 4 Grove's Maple Poof, 10 Ajlexes Gourmand", "syu": "4 merkkiä"},
+        {"leg": "V85-7 (L11)", "varmat_ja_merkit": "**4 Mellby Mowgli**, 1 Bruce Braylon", "syu": "2 merkkiä"},
+        {"leg": "V85-8 (L12)", "varmat_ja_merkit": "**2 Hevonen 2**, 5 Hevonen 5", "syu": "2 merkkiä"}
     ]
-
-    df_systeemi = pd.DataFrame(SYSTEEMI_200E)
-    st.table(df_systeemi)
-
-    st.info("💡 **Strategian peruste:** L9 spikataan (Sjödénin SM-tilastot: suosikki voittaa aina). L8 ja L10 ovat tilastollisesti vaikeimpia, joten niihin otetaan 5 merkkiä per lähtö hakuosumia varten. Tämä takaa riittävän kerroinvaikutuksen tavoitevoittoluokkaan.")
+    st.table(pd.DataFrame(SYSTEEMI_200E))
 
 # ------------------------------------------------------------------------------
-# TAB 1: YKSITTÄISET LÄHDÖT
+# TAB VOITTAJA: LÄHDÖT 1-4
 # ------------------------------------------------------------------------------
-with tab1:
+with tab_voittaja:
+    st.subheader("🎯 Parhaat Voittaja-Pelikohteet (Lähdöt 1–4)")
+    st.write("Näissä hevosissa simuloitu voittotodennäköisyys on korkeampi kuin tämänhetkinen peliprosentti.")
+    
+    c1, c2 = st.columns(2)
+    for idx, tarp in enumerate(TOP_TARPIT_VOITTAJA):
+        target_col = c1 if idx % 2 == 0 else c2
+        with target_col:
+            st.info(
+                f"### **Lähtö {tarp['lahto']} - #{tarp['nro']} {tarp['nimi']}**\n\n"
+                f"• Simulaation Voitto-%: **{tarp['sim']}%**\n\n"
+                f"• Peliprosentti: **{tarp['peli']}%**\n\n"
+                f"• **Peliarvo-Ero: +{tarp['ero']}%**"
+            )
+
+# ------------------------------------------------------------------------------
+# TAB LÄHDÖT 1-12
+# ------------------------------------------------------------------------------
+with tab_lahdot:
     valittu_lahto_nro = st.radio(
         "**Valitse Lähtö:**",
         options=list(DATABANK.keys()),
-        format_func=lambda x: f"Lähtö {x}",
+        format_func=lambda x: f"Lähtö {x}" + (f" (V85-{(x-4)})" if x >= 5 else " (Voittajapeli)"),
         horizontal=True
     )
     
@@ -350,14 +439,14 @@ with tab1:
     
     parhaat_pelihevoset = sorted(hevoset_laskettu, key=lambda x: x["ero"], reverse=True)[:3]
     
-    st.markdown("### 🔥 **Parhaat Peliarvot (Sjödén Simulaatio vs. Live Peliprosentti)**")
+    st.markdown("### 🔥 **Parhaat Peliarvot (Simulaatio vs. Peliprosentti)**")
     p1, p2, p3 = st.columns(3)
     for idx, col in enumerate([p1, p2, p3]):
         if idx < len(parhaat_pelihevoset):
             h = parhaat_pelihevoset[idx]
             with col:
                 st.success(f"**#{h['numero']} {h['nimi']}**\n\n"
-                           f"• Simulaatio (Sjödén): **{h['mc']}%**\n\n"
+                           f"• Simulaatio: **{h['mc']}%**\n\n"
                            f"• Live Pelattu: **{h['peli_pct']}%**\n\n"
                            f"• Etumatka: **+{h['ero']}%**")
 
@@ -371,43 +460,42 @@ with tab1:
                 st.markdown(f"#### **{h['numero']}. {h['nimi']}**")
                 st.caption(f"🏎️ Ohjastaja: {h['ohjastaja']}")
                 c1, c2 = st.columns(2)
-                c1.metric("Tilastosim %", f"{h['mc']}%")
-                c2.metric("Live Pelattu %", f"{h['peli_pct']}%", delta=f"{h['ero']:+.1f}%")
+                c1.metric("Simulaatio %", f"{h['mc']}%")
+                c2.metric("Pelattu %", f"{h['peli_pct']}%", delta=f"{h['ero']:+.1f}%")
                 st.progress(int(min(h['mc'], 100)))
 
 # ------------------------------------------------------------------------------
-# TAB 2: V85 KOKONAISUUS
+# TAB KOKO RAVIPÄIVÄ (1-12)
 # ------------------------------------------------------------------------------
-with tab2:
-    st.subheader("📊 V85 Pelipaketti & Sjödén-Malli (Lähdöt 5-11)")
+with tab_kokonais:
+    st.subheader("📊 Kaikkien Lähdöistä (1–12) Simulaatiotulokset")
     
-    v85_data = []
-    for l_id in range(5, 12):
+    kaikki_data = []
+    for l_id in range(1, 13):
         l_info = DATABANK[l_id]
         l_sim = SIM_TULOKSET[l_id]
         for h in l_info["hevoset"]:
             mc = l_sim[h["numero"]]
             peli = h["peli_pct"]
-            v85_data.append({
-                "Lähtö": f"V85-{(l_id-4)} (Lopp {l_id})",
+            kaikki_data.append({
+                "Lähtö": f"Lopp {l_id}" + (f" (V85-{l_id-4})" if l_id >= 5 else ""),
                 "Nro": h["numero"],
                 "Hevonen": h["nimi"],
                 "Ohjastaja": h["ohjastaja"],
-                "Sjödén Sim %": mc,
+                "Simulaatio %": mc,
                 "Live Peli %": peli,
-                "Peliarvo Ero %": round(mc - peli, 1)
+                "Peliarvo (Ero %)": round(mc - peli, 1)
             })
             
-    df_v85 = pd.DataFrame(v85_data)
-    st.dataframe(df_v85, use_container_width=True, hide_index=True)
+    df_kaikki = pd.DataFrame(kaikki_data)
+    st.dataframe(df_kaikki, use_container_width=True, hide_index=True)
 
 # ------------------------------------------------------------------------------
-# TAB 3: V4-PELI
+# TAB V4 & DD
 # ------------------------------------------------------------------------------
-with tab3:
-    st.subheader("🔥 V4-Peli (Lähdöt 8–11)")
-    
-    for v4_leg, l_id in enumerate(range(8, 12), start=1):
+with tab_v4:
+    st.subheader("🔥 V4-Peli (Lähdöt 9–12)")
+    for v4_leg, l_id in enumerate(range(9, 13), start=1):
         st.markdown(f"#### **V4-{v4_leg} / Lopp {l_id}**")
         l_info = DATABANK[l_id]
         l_sim = SIM_TULOKSET[l_id]
@@ -417,58 +505,27 @@ with tab3:
             mc = l_sim[h["numero"]]
             peli = h["peli_pct"]
             l_hevoset.append({
-                "Nro": h["numero"],
-                "Hevonen": h["nimi"],
-                "Ohjastaja": h["ohjastaja"],
-                "Sim %": mc,
-                "Live Peli %": peli,
-                "Ero %": round(mc - peli, 1)
+                "Nro": h["numero"], "Hevonen": h["nimi"], "Ohjastaja": h["ohjastaja"],
+                "Sim %": mc, "Live Peli %": peli, "Ero %": round(mc - peli, 1)
             })
-            
         df_leg = pd.DataFrame(l_hevoset).sort_values(by="Ero %", ascending=False)
-        
-        c1, c2 = st.columns([1, 2])
-        with c1:
-            top_pick = df_leg.iloc[0]
-            st.info(f"🏆 **V4-Pelihevonen:**\n\n"
-                    f"**#{top_pick['Nro']} {top_pick['Hevonen']}**\n\n"
-                    f"Sim: {top_pick['Sim %']}% | Live: {top_pick['Live Peli %']}%\n\n"
-                    f"Etumatka: **+{top_pick['Ero %']}%**")
-        with c2:
-            st.dataframe(df_leg, use_container_width=True, hide_index=True)
-        st.divider()
+        st.dataframe(df_leg, use_container_width=True, hide_index=True)
 
-# ------------------------------------------------------------------------------
-# TAB 4: PÄIVÄN DUO
-# ------------------------------------------------------------------------------
-with tab4:
-    st.subheader("🎯 Päivän Duo (Lähdöt 10 & 11)")
-    
-    dd1_sim = SIM_TULOKSET[10]
-    dd2_sim = SIM_TULOKSET[11]
+with tab_dd:
+    st.subheader("🎯 Päivän Duo (Lähdöt 11 & 12)")
+    dd1_sim = SIM_TULOKSET[11]
+    dd2_sim = SIM_TULOKSET[12]
     
     dd_yhdistelmat = []
-    
-    for h1 in DATABANK[10]["hevoset"]:
-        p1_mc = dd1_sim[h1["numero"]]
-        p1_peli = h1["peli_pct"]
-        
-        for h2 in DATABANK[11]["hevoset"]:
-            p2_mc = dd2_sim[h2["numero"]]
-            p2_peli = h2["peli_pct"]
-            
-            yhdistelma_mc = (p1_mc / 100) * (p2_mc / 100) * 100
-            yhdistelma_peli = (p1_peli / 100) * (p2_peli / 100) * 100
-            ero = yhdistelma_mc - yhdistelma_peli
-            
+    for h1 in DATABANK[11]["hevoset"]:
+        for h2 in DATABANK[12]["hevoset"]:
+            yhdistelma_mc = (dd1_sim[h1["numero"]] / 100) * (dd2_sim[h2["numero"]] / 100) * 100
+            yhdistelma_peli = (h1["peli_pct"] / 100) * (h2["peli_pct"] / 100) * 100
             dd_yhdistelmat.append({
                 "Yhdistelmä": f"DD-1: #{h1['numero']} {h1['nimi']}  x  DD-2: #{h2['numero']} {h2['nimi']}",
-                "Sjödén Todennäköisyys %": round(yhdistelma_mc, 2),
+                "Sim Todennäköisyys %": round(yhdistelma_mc, 2),
                 "Live Todennäköisyys %": round(yhdistelma_peli, 2),
-                "Peliarvo (Ero %)": round(ero, 2)
+                "Peliarvo Ero %": round(yhdistelma_mc - yhdistelma_peli, 2)
             })
             
-    df_dd = pd.DataFrame(dd_yhdistelmat).sort_values(by="Peliarvo (Ero %)", ascending=False)
-    
-    st.markdown("### 🥇 **DD Parhaat peliyhdistelmät**")
-    st.dataframe(df_dd.head(10), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(dd_yhdistelmat).sort_values(by="Peliarvo Ero %", ascending=False).head(10), use_container_width=True, hide_index=True)
