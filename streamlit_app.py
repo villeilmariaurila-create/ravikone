@@ -20,7 +20,7 @@ ravilahto: Dict[str, Any] = {
             "valmentaja": "Sofia Johansson",
             "haastattelu": "Oli erittäin hyvä viimeksi eikä väsynyt. Kestää matkan ja saa hyvän reissun sisältä.",
             "vihje": "Toppikunnossa ja elää voimillaan. Sisärataetukin mukana.",
-            "kerroin_paino": 1.10  # Hyvä paikka + vire
+            "kerroin_paino": 1.10
         },
         {
             "numero": 2,
@@ -29,7 +29,7 @@ ravilahto: Dict[str, Any] = {
             "valmentaja": "Per Lennartsson",
             "haastattelu": "Kova reissu derbykarsinnassa, kaksi voittoa alla ennen sitä. Avaa lujaa ja on vahva.",
             "vihje": "Kestää raskaan reissun ja riittää luokassa. Tipsetta / Ykkösvihje.",
-            "kerroin_paino": 1.35  # Ykkösvihje + huippupaikka
+            "kerroin_paino": 1.35
         },
         {
             "numero": 3,
@@ -47,7 +47,7 @@ ravilahto: Dict[str, Any] = {
             "valmentaja": "Sybille Tinter",
             "haastattelu": "Huippukunnossa. Lähtöpaikka on täydellinen ja tästä tähdätään keulaan.",
             "vihje": "Esiintynyt vahvasti pitkään. Keulasta erittäin vaarallinen.",
-            "kerroin_paino": 1.20  # Keulahuomio + Kontio
+            "kerroin_paino": 1.20
         },
         {
             "numero": 5,
@@ -56,7 +56,7 @@ ravilahto: Dict[str, Any] = {
             "valmentaja": "Peter G Norman",
             "haastattelu": "Kesti vauhdin hyvin finaalissa. Nyt kengät jalassa joka jalkaan. Kestää työnteon.",
             "vihje": "Nostanut tasoaan huimasti kovia vastaan. Kuuluu kärkitaistoon.",
-            "kerroin_paino": 1.25  # Vahva luokka
+            "kerroin_paino": 1.25
         },
         {
             "numero": 6,
@@ -83,7 +83,7 @@ ravilahto: Dict[str, Any] = {
             "valmentaja": "Daniel Wäjersten",
             "haastattelu": "Elämänsä kunnossa, mutta kasirata heikentää mahdollisuuksia huomattavasti.",
             "vihje": "Vahva esitys toiselta ilman selkää. Kunto riittää, paikka ei.",
-            "kerroin_paino": 0.95  # Kova hevostaso, paha paikka
+            "kerroin_paino": 0.95
         },
         {
             "numero": 9,
@@ -92,7 +92,7 @@ ravilahto: Dict[str, Any] = {
             "valmentaja": "Jenny Pettersson",
             "haastattelu": "Parantaa koko ajan. Riittää luokassaan ja ammutaan ilman kenkiä ensi kertaa meiltä.",
             "vihje": "Luokkahevonen (64% voitoista). Ensi kertaa kengittä valmentajaltaan. Iso vaara.",
-            "kerroin_paino": 1.45  # Suurin suosikki: Huikea voittoprosentti + kenkäriisunta
+            "kerroin_paino": 1.45
         },
         {
             "numero": 10,
@@ -101,7 +101,7 @@ ravilahto: Dict[str, Any] = {
             "valmentaja": "Anders Eriksson",
             "haastattelu": "Laukkasi tupsujen irrotukseen. Kunto nousee ja nyt riisutaan kengät edestä.",
             "vihje": "Huipputehoja löytyy. Ensimmäistä kertaa kengittä eteen - mielenkiintoinen.",
-            "kerroin_paino": 1.05  # Yllättäjä / Kenkäriisunta
+            "kerroin_paino": 1.05
         }
     ]
 }
@@ -111,54 +111,95 @@ ravilahto: Dict[str, Any] = {
 # ==============================================================================
 
 def suorita_monte_carlo(lahto: Dict[str, Any], kierrokset: int = 10000) -> Dict[int, float]:
-    """Suorittaa Monte Carlo -simulaation hevosten painotettujen tehojen perusteella."""
     hevoset = lahto["hevoset"]
     numerot = [h["numero"] for h in hevoset]
     painot = [h["kerroin_paino"] for h in hevoset]
     
-    # Alustetaan voittolaskuri
     voitot = {num: 0 for num in numerot}
     
-    # Arvotaan voittaja 'kierrokset'-määrän verran
     for _ in range(kierrokset):
         voittaja = random.choices(numerot, weights=painot, k=1)[0]
         voitot[voittaja] += 1
         
-    # Muutetaan tulokset prosenteiksi
     return {num: (maara / kierrokset) * 100 for num, maara in voitot.items()}
 
 # ==============================================================================
-# 3. HELPOSTI LUETTAVA STREAMLIT-KÄYTTÖLIITTYMÄ
+# 3. STREAMLIT-KÄYTTÖLIITTYMÄ
 # ==============================================================================
 
-st.set_page_config(page_title="Ravikone - Monte Carlo", layout="centered")
+st.set_page_config(page_title="Ravikone - Monte Carlo & Juoksun Kulku", layout="centered")
 
-st.title("🏇 Ravikone: Monte Carlo -Ennuste")
+st.title("🏇 Ravikone: Monte Carlo & Juoksutapahtumat")
 st.subheader(f"{ravilahto['nimi']} | Startti klo {ravilahto['aika']}")
 st.caption(f"📏 Matka: {ravilahto['matka']} | {ravilahto['lahtotapa']} | 💰 Palkinto: {ravilahto['palkinto']}")
 
 st.divider()
 
-# Suoritetaan simulaatio
+# Ajo Monte Carlo
 simulaation_tulokset = suorita_monte_carlo(ravilahto, kierrokset=10000)
-
-# Järjestetään hevoset parhaasta heikoimpaan voittotodennäköisyyden mukaan
 jarjestetty_tulokset = sorted(simulaation_tulokset.items(), key=lambda x: x[1], reverse=True)
 hevoset_dict = {h["numero"]: h for h in ravilahto["hevoset"]}
 
-# Näytetään top 3 selkeänä yhteenvetona
+# Suosikkinäyttö
 top1_num = jarjestetty_tulokset[0][0]
 top1 = hevoset_dict[top1_num]
 
-st.success(f"🏆 **SUURIN VOITTAJASUOSIKKI:** Nro {top1['numero']} **{top1['nimi']}** ({jarjestetty_tulokset[0][1]:.1f}%)")
+st.success(f"🏆 **SIMULAATION VOITTAJASUOSIKKI:** Nro {top1['numero']} **{top1['nimi']}** ({jarjestetty_tulokset[0][1]:.1f}%)")
+
+# ==============================================================================
+# 4. VIDEO-ANALYYSI: JUOKSUN KULKU (TAKTIKKA & ANIMAATIO-ANALYYSI)
+# ==============================================================================
+
+st.markdown("### 🎥 Video-Animaatio & Juoksun Kulku")
+
+tab1, tab2, tab3, tab4 = st.tabs(["🚦 1. Kiihdytys", "↪️ 2. Ensimmäinen kaarre", "🚀 3. Takasuora & Iskut", "🏁 4. Loppusuora"])
+
+with tab1:
+    st.markdown("#### 🚦 Lähtö ja Kiihdytys (0 - 300m)")
+    st.info(
+        "**Ratamestarin havainto:**\n"
+        "* **Nro 4 Geisha Road Grif** (Jorma Kontio) lataa rajusti keskeltä rataa.\n"
+        "* **Nro 2 Hip To Be Square** pystyy vastaamaan sisältä ja pyrkii estämään 4:n pääsyn eteen.\n"
+        "* **Nro 3 Sign Of Times** ottaa lyhyen latauksen jälkeen nopeasti paikan 2:n takaa sisäradalla (Rygg Ledare)."
+    )
+
+with tab2:
+    st.markdown("#### ↪️ Asemat Kaarteessa (300m - 1000m)")
+    st.info(
+        "**Asemat muotoutuvat:**\n"
+        "* **Keulapaikka (1-rata):** Nro 4 Geisha Road Grif pääsee Kontion ajamana keulaan 400m kohdalla.\n"
+        "* **Toinen ilman selkää (2-rata):** Nro 5 Macho Cabrio B.B. joutuu tekemään työt kuolemanpaikalla.\n"
+        "* **Takarivi:** Nro 9 Night Hawk hiipii Mats E Djusen kanssatoisessa ulkoparissa (2-utv) valmiina iskemään."
+    )
+
+with tab3:
+    st.markdown("#### 🚀 Ratkaisut Takasuoralla (1000m - 400m kv)")
+    st.info(
+        "**Vauhti kiihtyy:**\n"
+        "* Tempo pysyy tasaisen kovana. Nro 5 alkaa painaa keulahevosta (Nro 4).\n"
+        "* **Isot liikkeet:** Nro 9 Night Hawk lähtee heittämällä kolmannelle radalle 600 m ennen maalia. Ensimmäistä kertaa ilman kenkiä juokseva Night Hawk liikkuu erittäin tuoreen näköisesti!"
+    )
+
+with tab4:
+    st.markdown("#### 🏁 Loppusuoran Taistelu (400m - Maali)")
+    st.info(
+        "**Ratkaisu:**\n"
+        "* Keulassa ollut Nro 4 taipuu hivenen kovasta temposta.\n"
+        "* **Nro 2 Hip To Be Square** löytää tilaa vapaalle radalle ja haastaa keulan.\n"
+        "* Ulkorataa pitkin uljaasti tykittävä **Nro 9 Night Hawk** tulee kuitenkin kengättä ylivoimaisella vauhdilla ohi muista ja ratkaisee lähdön varmasti!"
+    )
+
+st.divider()
+
+# ==============================================================================
+# 5. KAIKKIEN HEVOSTEN SIMULAATIOTULOKSET
+# ==============================================================================
 
 st.markdown("### 📊 Kaikkien hevosten voittotodennäköisyydet (10 000 simulaatiota)")
 
-# Tulostetaan jokainen hevonen selkeänä korttina
 for num, prosentti in jarjestetty_tulokset:
     h = hevoset_dict[num]
     
-    # Kortin otsikkorivi
     otsikko = f"Nro {h['numero']} {h['nimi']} ({h['ohjastaja']}) — {prosentti:.1f}%"
     
     with st.expander(otsikko):
@@ -169,5 +210,4 @@ for num, prosentti in jarjestetty_tulokset:
         with col2:
             st.write(f"**Valmentajan kommentti:** {h['haastattelu']}")
             
-    # Visuaalinen edistymispalkki
     st.progress(int(prosentti))
