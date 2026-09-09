@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 
 # ==============================================================================
-# 1. LIVE-PELIJAKAUMA & VAIHTO (PÄIVITETÄÄN TÄHÄN)
+# 1. LIVE-PELIJAKAUMA & VAIHTO (PÄIVITÄ TÄHÄN)
 # ==============================================================================
 
 LIVE_PELIJAKAUMA = {
@@ -28,10 +28,10 @@ LIVE_VAIHTOTIEDOT = {
 
 DATABANK = {
     5: {
-        "nimi": "Lopp 5 - STL Klass I (V85-1, V5-2)",
+        "nimi": "Lopp 5 - STL Klass I (V85-1)",
         "matka": "2140m Autostart",
         "tyyppi": "2140a",
-        "vihje": "<b>Daniel Berglund:</b> 9 Night Hawk ja 2 Hip To Be Square vahvoilla.<br><b>Jens Sjödén - Tilastot:</b> Hagmyrenissä pelaajat ovat osuvat kahden suosituimman joukkoon 10/11 kertaa tässä luokassa. Radat 4-5 huippuradoja, 7-12 ottavat vain 28% voitoista.",
+        "vihje": "<b>Daniel Berglund:</b> 9 Night Hawk ja 2 Hip To Be Square vahvoilla.<br><b>Jens Sjödén:</b> 10/11 kertaa voittaja löytynyt 2 suosituimman joukosta.",
         "hevoset": [
             {"numero": 1, "nimi": "T.Wall's Notorius", "ohjastaja": "Jomar Blekkan", "peruspaino": 1.0},
             {"numero": 2, "nimi": "Hip To Be Square", "ohjastaja": "Per Lennartsson", "peruspaino": 1.4},
@@ -51,7 +51,7 @@ DATABANK = {
         "nimi": "Lopp 6 - STL Kallblodsdivisionen (V85-2)",
         "matka": "2140m Voltstart",
         "tyyppi": "tasoitus",
-        "vihje": "<b>Daniel Berglund:</b> Sekava lähtö. 8 Teknologen paras takaa, muuten paalun hevoset vahvoja.<br><b>Jens Sjödén - Tilastot:</b> Syysomgångilla takaa tullaan paremmin läpi (21% voitoista takariveiltä/kauempaa).",
+        "vihje": "<b>Daniel Berglund:</b> Sekava lähtö. 8 Teknologen paras takaa, paalu vahva.<br><b>Jens Sjödén:</b> Syksyllä takaa tullaan paremmin läpi (21% voitoista).",
         "hevoset": [
             {"numero": 1, "nimi": "Fosshaug Frasse", "ohjastaja": "Michaela B Fransson", "peruspaino": 0.6},
             {"numero": 2, "nimi": "Sangviks Lynet", "ohjastaja": "Ulf Ohlsson", "peruspaino": 1.1},
@@ -74,7 +74,7 @@ DATABANK = {
         "nimi": "Lopp 7 - STL Gulddivisionen EJ's Guldsko (V85-3)",
         "matka": "1640m Autostart",
         "tyyppi": "guld",
-        "vihje": "<b>Daniel Berglund:</b> Vain 7 hevosta, taktinen taisto keulasta.<br><b>Jens Sjödén - Tilastot:</b> Vain 7 osallistujaa pudottaa jo entisestään erittäin matalan skrällitodennäköisyyden lähes nollaan. Vain 2 skrälliä sitten vuoden 1995.",
+        "vihje": "<b>Daniel Berglund:</b> Vain 7 hevosta, taktinen taisto keulasta.<br><b>Jens Sjödén:</b> Vain 7 osallistujaa -> skrälliriski olematon.",
         "hevoset": [
             {"numero": 1, "nimi": "Before Takeoff", "ohjastaja": "Örjan Kihlström", "peruspaino": 1.45},
             {"numero": 2, "nimi": "Santos De Castella", "ohjastaja": "Marcus Lilius", "peruspaino": 0.6},
@@ -86,10 +86,10 @@ DATABANK = {
         ]
     },
     8: {
-        "nimi": "Lopp 8 - STL Dubbelklasslopp (V85-4, V4-1, V5-1)",
+        "nimi": "Lopp 8 - STL Dubbelklasslopp (V85-4)",
         "matka": "2640m Autostart",
         "tyyppi": "dubbelklass",
-        "vihje": "<b>Daniel Berglund:</b> Erittäin avoin lähtö, 8 Uno ja 11 Bear Victor mielenkiintoisia.<br><b>Jens Sjödén - Tilastot:</b> Paras paikka skrällille! Suosikit voittavat vain 20%, 2-suosikki 25% ja skrälli (rank 4+) toteutuu 4 kerta 10:stä.",
+        "vihje": "<b>Daniel Berglund:</b> Avoin lähtö, 8 Uno & 11 Bear Victor.<br><b>Jens Sjödén:</b> Paras skrällilähtö (40% skrällitoteutuma).",
         "hevoset": [
             {"numero": 1, "nimi": "Napoleon Sisu", "ohjastaja": "Oskar J Andersson", "peruspaino": 0.8},
             {"numero": 2, "nimi": "Ies Ingusmemory", "ohjastaja": "Magnus A Djuse", "peruspaino": 0.95},
@@ -109,10 +109,10 @@ DATABANK = {
         ]
     },
     9: {
-        "nimi": "Lopp 9 - Tammer Pokal Kallblods-SM ston (V85-5, V4-2)",
+        "nimi": "Lopp 9 - Tammer Pokal Kallblods-SM ston (V85-5)",
         "matka": "2140m Autostart",
         "tyyppi": "2140a_sm",
-        "vihje": "<b>Daniel Berglund:</b> 1 Majblomster on keulasta vaikea voittaa.<br><b>Jens Sjödén - Tilastot:</b> Kallblods-SM ston on pelisuosikkien juhlaa (alkaen 2002). Ei skrällejä koskaan. 'Det är en god idé att spika i V85-5.'",
+        "vihje": "<b>Daniel Berglund:</b> 1 Majblomster johtaa alusta loppuun.<br><b>Jens Sjödén:</b> Tammakoitoissa ei skrällejä (Spika v V85-5).",
         "hevoset": [
             {"numero": 1, "nimi": "Majblomster", "ohjastaja": "Mats E Djuse", "peruspaino": 2.1},
             {"numero": 2, "nimi": "Prinsesse Ness Tjo", "ohjastaja": "Örjan Kihlström", "peruspaino": 1.2},
@@ -129,10 +129,10 @@ DATABANK = {
         ]
     },
     10: {
-        "nimi": "Lopp 10 - STL Stodivisionen (V85-6, V4-3, DD-1)",
+        "nimi": "Lopp 10 - STL Stodivisionen (V85-6)",
         "matka": "2640m Voltstart",
         "tyyppi": "tasaus",
-        "vihje": "<b>Daniel Berglund:</b> Vaikea tammalähtö. 6 Kopparmärra, 4 Grove's Maple Poof, 8 Brionne.<br><b>Jens Sjödén - Tilastot:</b> Syysomgångin 170m loppusuora ja 2640m matka vaativat kestävyyttä.",
+        "vihje": "<b>Daniel Berglund:</b> Vaikea lähtö. 6 Kopparmärra, 4 Grove's Maple Poof, 8 Brionne.<br><b>Jens Sjödén:</b> 2640m voltissa vahvat kirijät valttia.",
         "hevoset": [
             {"numero": 1, "nimi": "Sessan Of Man", "ohjastaja": "Henrik Svensson", "peruspaino": 0.5},
             {"numero": 2, "nimi": "Adora Liss", "ohjastaja": "Fredrik Plassen", "peruspaino": 0.6},
@@ -152,10 +152,10 @@ DATABANK = {
         ]
     },
     11: {
-        "nimi": "Lopp 11 - STL Bronsdivisionen (V85-7, V4-4, DD-2)",
+        "nimi": "Lopp 11 - STL Bronsdivisionen (V85-7)",
         "matka": "2140m Autostart",
         "tyyppi": "2140a_brons",
-        "vihje": "<b>Daniel Berglund:</b> 4 Mellby Mowgli, 3 Graces Bird, 10 Gosa Gosing.<br><b>Jens Sjödén - Tilastot:</b> Hopea/Pronssitasolla 2140a Hagmyrenissä skrällää todella harvoin (vain 2/20 skrälliä). Top-suosikit vahvoilla.",
+        "vihje": "<b>Daniel Berglund:</b> 4 Mellby Mowgli, 3 Graces Bird, 10 Gosa Gosing.<br><b>Jens Sjödén:</b> Skrällää todella harvoin.",
         "hevoset": [
             {"numero": 1, "nimi": "Bruce Braylon", "ohjastaja": "Per Lennartsson", "peruspaino": 1.2},
             {"numero": 2, "nimi": "Pineapple", "ohjastaja": "Carl Johan Jepson", "peruspaino": 1.1},
@@ -180,7 +180,7 @@ for lahto_id, hevoset in DATABANK.items():
         h["peli_pct"] = l_pelit.get(h["numero"], 0)
 
 # ==============================================================================
-# 3. LASKENTAMOOTTORI (TILASTOLISIN KORJAUSKERROIN)
+# 3. SIMULAATIOT & PARHAIDEN TÄRPPIEN LASKENTA
 # ==============================================================================
 
 def laske_painotettu_todennakoisyys(lahto_data: dict) -> list:
@@ -193,31 +193,27 @@ def laske_painotettu_todennakoisyys(lahto_data: dict) -> list:
         nro = h["numero"]
         peli = h["peli_pct"]
         
-        # 1. SJÖDÉN SPÅRSTATISTIK (2140a: L5, L9, L11)
         if tyyppi in ["2140a", "2140a_sm", "2140a_brons"]:
             if nro in [4, 5]:
-                paino *= 1.20  # Toppspår 4-5
+                paino *= 1.20
             elif nro == 2:
-                paino *= 0.85  # Överskattat spår 2
+                paino *= 0.85
             elif nro >= 7:
-                paino *= 0.80  # Radat 7-12 ottavat vain 28% voitoista
+                paino *= 0.80
                 
-        # 2. SJÖDÉN ERITYISLÄHDÖT
-        if tyyppi == "2140a_sm":  # L9 Kallblods-SM (Majblomster)
+        if tyyppi == "2140a_sm":
             if peli > 50:
-                paino *= 1.45  # SM-suosikin tilastollinen dominanssi (ei skrällejä)
-        
-        elif tyyppi == "guld":  # L7 EJ's Guldsko (7 hevosta)
+                paino *= 1.45
+        elif tyyppi == "guld":
             if peli > 30:
-                paino *= 1.30  # Ei skrällejä pienissä kultadivisioonissa
+                paino *= 1.30
             elif peli < 5:
-                paino *= 0.3  # Yllättäjät todella tiukilla
-                
-        elif tyyppi == "dubbelklass":  # L8 Dubbelklasslopp
+                paino *= 0.3
+        elif tyyppi == "dubbelklass":
             if peli < 10:
-                paino *= 1.35  # Skrällihakuisuutta lisätty (40% skrällitoteutuma)
+                paino *= 1.35
             elif peli > 30:
-                paino *= 0.85  # Suosikkivoitot vain 20%
+                paino *= 0.85
                 
         korjatut_painot.append((nro, max(paino, 0.05)))
         
@@ -236,17 +232,38 @@ def simuloi_lahto_tilastoilla(lahto_data: dict, kierrokset: int = 10000) -> dict
     return {num: round((maara / kierrokset) * 100, 1) for num, maara in voitot.items()}
 
 SIM_TULOKSET = {}
+KAIKKI_PELIARVOT = []
+
 for lahto_id, lahto_data in DATABANK.items():
-    SIM_TULOKSET[lahto_id] = simuloi_lahto_tilastoilla(lahto_data)
+    sim_res = simuloi_lahto_tilastoilla(lahto_data)
+    SIM_TULOKSET[lahto_id] = sim_res
+    
+    for h in lahto_data["hevoset"]:
+        mc = sim_res[h["numero"]]
+        peli = h["peli_pct"]
+        ero = round(mc - peli, 1)
+        KAIKKI_PELIARVOT.append({
+            "lahto": lahto_id,
+            "v85_leg": lahto_id - 4,
+            "nro": h["numero"],
+            "nimi": h["nimi"],
+            "ohjastaja": h["ohjastaja"],
+            "sim": mc,
+            "peli": peli,
+            "ero": ero
+        })
+
+# Järjestetään peliarvon mukaan
+TOP_TARPIT = sorted(KAIKKI_PELIARVOT, key=lambda x: x["ero"], reverse=True)[:5]
 
 # ==============================================================================
 # 4. STREAMLIT-KÄYTTÖLIITTYMÄ
 # ==============================================================================
 
-st.set_page_config(page_title="Hagmyren V85 - Sjödén Simulaattori", layout="wide")
+st.set_page_config(page_title="Hagmyren V85 - Live-Analysaattori", layout="wide")
 
-st.title("🏇 Hagmyren V85 - Live-Jakauma & Sjödén-Tilastosimulaattori")
-st.caption("Monte Carlo + Jens Sjödén Tilastokorjaukset (170m upplopp, 2140a radat, SM-tilastot) + Live-vaihto")
+st.title("🏇 Hagmyren V85 - Live-Analysaattori & Systeemiehdotus")
+st.caption("Monte Carlo + Jens Sjödén Tilastokorjaukset + Live-vaihto & Peliprosentit")
 
 # Live-vaihto yläpalkissa
 m1, m2, m3 = st.columns(3)
@@ -254,7 +271,58 @@ m1.metric("Vaihto", LIVE_VAIHTOTIEDOT["vaihto"])
 m2.metric("Jakosumma", LIVE_VAIHTOTIEDOT["jakosumma"])
 m3.metric("Jackpot Extra", LIVE_VAIHTOTIEDOT["jackpot"])
 
-tab1, tab2, tab3, tab4 = st.tabs(["📌 Lähdöt & Tilastoanalyysi", "📊 V85-Kokonaisuus", "🔥 V4-Peli", "🎯 Päivän Duo"])
+tab0, tab1, tab2, tab3, tab4 = st.tabs([
+    "🏆 Yhteenveto & 200€ Systeemi", 
+    "📌 Lähdöt & Tilastoanalyysi", 
+    "📊 V85-Kokonaisuus", 
+    "🔥 V4-Peli", 
+    "🎯 Päivän Duo"
+])
+
+# ------------------------------------------------------------------------------
+# TAB 0: YHTEENVETO & 200€ SYSTEEMI (UUSI)
+# ------------------------------------------------------------------------------
+with tab0:
+    st.subheader("🎯 Päivän Top 4 Pelikohdetta (Sjödén-Malli vs. Live-prosentit)")
+    
+    c1, c2, c3, c4 = st.columns(4)
+    cols = [c1, c2, c3, c4]
+    
+    for idx in range(4):
+        tarp = TOP_TARPIT[idx]
+        with cols[idx]:
+            st.success(
+                f"**V85-{tarp['v85_leg']} (Lopp {tarp['lahto']})**\n\n"
+                f"### **#{tarp['nro']} {tarp['nimi']}**\n\n"
+                f"• Simulaatio: **{tarp['sim']}%**\n\n"
+                f"• Live-pelattu: **{tarp['peli']}%**\n\n"
+                f"• Peliarvo: **+{tarp['ero']}%**"
+            )
+
+    st.divider()
+    
+    st.subheader("💰 200 € V85-Tavoitesysteemi (Tähtäin > 20 000 – 50 000 € Voittoon)")
+    st.markdown("""
+    Systeemi on rakennettu hakemaan **jättiosumaa**. Varmat pidetään tilastollisesti vahvoissa kohteissa, ja merkit keskitetään auki oleviin skrällilähtöihin (erityisesti V85-4 Dubbelklasslopp).
+    * **Rivirakenne:** $1 \times 4 \times 2 \times 5 \times 1 \times 5 \times 2 = 400\text{ riviä}$
+    * **Rivininta:** $400 \times 0{,}50\text{ €} = \mathbf{200{,}00\text{ €}}$
+    """)
+
+    # Valmiit V85-systeemerkit
+    SYSTEEMI_200E = [
+        {"leg": "V85-1 (L5)", "varmat_ja_merkit": "**9 Night Hawk** (A), 2 Hip To Be Square, 8 Herkules A'lir, 5 Macho Cabrio B.B.", "syu": "4 merkkiä"},
+        {"leg": "V85-2 (L6)", "varmat_ja_merkit": "**8 Teknologen**, 5 Ellbert, 4 Silke Sjarmör, 2 Sangviks Lynet", "syu": "4 merkkiä"},
+        {"leg": "V85-3 (L7)", "varmat_ja_merkit": "**1 Before Takeoff** (A), 5 Lando Mearas", "syu": "2 merkkiä"},
+        {"leg": "V85-4 (L8)", "varmat_ja_merkit": "**6 Holiday Island**, **11 Bear Victor**, **8 Uno**, 12 Lion Sisu, 3 Ytowns Ulrik", "syu": "5 merkkiä (Skrällihaku)"},
+        {"leg": "V85-5 (L9)", "varmat_ja_merkit": "🔒 **1 Majblomster** (Kivikova varmistamaton spiki)", "syu": "1 merkki (Spiki)"},
+        {"leg": "V85-6 (L10)", "varmat_ja_merkit": "**5 Bohemian Maid**, **8 Brionne**, 4 Grove's Maple Poof, 10 Ajlexes Gourmand, 13 Rupie", "syu": "5 merkkiä"},
+        {"leg": "V85-7 (L11)", "varmat_ja_merkit": "**4 Mellby Mowgli**, 1 Bruce Braylon", "syu": "2 merkkiä"}
+    ]
+
+    df_systeemi = pd.DataFrame(SYSTEEMI_200E)
+    st.table(df_systeemi)
+
+    st.info("💡 **Strategian peruste:** L9 spikataan (Sjödénin SM-tilastot: suosikki voittaa aina). L8 ja L10 ovat tilastollisesti vaikeimpia, joten niihin otetaan 5 merkkiä per lähtö hakuosumia varten. Tämä takaa riittävän kerroinvaikutuksen tavoitevoittoluokkaan.")
 
 # ------------------------------------------------------------------------------
 # TAB 1: YKSITTÄISET LÄHDÖT
