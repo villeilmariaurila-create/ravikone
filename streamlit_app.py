@@ -248,8 +248,9 @@ with tab2:
             
     df_v85 = pd.DataFrame(v85_data)
     
+    # Puhdas taulukkonäkymä ilman matplotlib-muotoilua
     st.dataframe(
-        df_v85.style.background_gradient(subset=["Ero %"], cmap="RdYlGn"),
+        df_v85,
         use_container_width=True,
         hide_index=True
     )
@@ -324,8 +325,9 @@ with tab4:
     df_dd = pd.DataFrame(dd_yhdistelmat).sort_values(by="Peliarvo (Ero %)", ascending=False)
     
     st.markdown("### 🥇 **Päivän Duon Parhaat Peliyhdistelmät**")
+    # Puhdas taulukkonäkymä ilman matplotlib-muotoilua
     st.dataframe(
-        df_dd.head(10).style.background_gradient(subset=["Peliarvo (Ero %)"], cmap="Greens"),
+        df_dd.head(10),
         use_container_width=True,
         hide_index=True
     )
