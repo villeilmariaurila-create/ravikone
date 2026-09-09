@@ -1,4 +1,5 @@
 import random
+import streamlit as st
 from typing import List, Dict, Any
 
 # ==============================================================================
@@ -77,7 +78,7 @@ ravilahtot: List[Dict[str, Any]] = [
     },
 
     # --------------------------------------------------------------------------
-    # LÄHTÖ 3 (Toimittamasi data suomennettuna)
+    # LÄHTÖ 3
     # --------------------------------------------------------------------------
     {
         "lahto": 3,
@@ -148,7 +149,7 @@ ravilahtot: List[Dict[str, Any]] = [
                 "nimi": "Mellby Joker",
                 "ohjastaja": "Daniel Wäjersten",
                 "valmentaja": "Daniel Wäjersten",
-                "haastattelu": "Tekö rajun latauksen Suomessa Don Fanucci Cetin jälkeen. Täältä vaikea päästä keulaan tai voittajaselkään.",
+                "haastattelu": "Teki rajun latauksen Suomessa Don Fanucci Cetin jälkeen. Täältä vaikea päästä keulaan tai voittajaselkään.",
                 "vihjekommentti": "3 voittoa 9 startista Mats E Djusen kanssa. Vaikea asema ulkoa.",
                 "tilastot": {
                     "startit": "65 (14-10-13)",
@@ -181,21 +182,19 @@ ravilahtot: List[Dict[str, Any]] = [
 
 def laske_suorituskyky_indeksi(hevonen: Dict[str, Any]) -> float:
     """
-    Laskee hevoselle painotetun tasoluvun perustilastojen pohjalta:
-    - Yleinen voittoprosentti (40% paino)
-    - Keulamenestys (40% paino)
-    - Varustebonus / Avokenkä (20% paino)
+    Laskee hevoselle painotetun tasoluvun perustilastojen pohjalta.
+    Korjattu muuttujien nimet (poistettu %-merkit).
     """
     stats = hevonen["tilastot"]
     
-    perus_v% = stats.get("voittoprosentti", 0.10)
-    keula_v% = stats.get("keula_voittoprosentti", 0.50)
+    perus_v_prosentti = stats.get("voittoprosentti", 0.10)
+    keula_v_prosentti = stats.get("keula_voittoprosentti", 0.50)
     
     # Tarkistetaan varuste- ja balanssietu
     balanssi = stats.get("balanssi", "")
     bonus = 1.15 if "Avokenkä" in balanssi or "barfota" in balanssi.lower() else 1.0
 
-    indeksi = (perus_v% * 0.4 + keula_v% * 0.4) * bonus * 100
+    indeksi = (perus_v_prosentti * 0.4 + keula_v_prosentti * 0.4) * bonus * 100
     return indeksi
 
 def simuloita_lahto(lahto_data: Dict[str, Any], simulaatioita: int = 10000) -> Dict[str, float]:
@@ -221,23 +220,22 @@ def simuloita_lahto(lahto_data: Dict[str, Any], simulaatioita: int = 10000) -> D
     return tulos_prosentteina
 
 # ==============================================================================
-# 3. AJO JA TULOSTEN TULOSTUS
+# 3. STREAMLIT-KÄYTTÖLIITTYMÄ
 # ==============================================================================
 
-if __name__ == "__main__":
-    print("=" * 60)
-    print("RAVILÄHTÖJEN MALLINNOUS JA VOITTO-OSUMAENNUSTEET")
-    print("=" * 60)
+st.title("Ravikone - Ennustemallinnus")
+st.write("Mallinnetut voittotodennäköisyydet lähtökohtaisille lähdöille.")
+
+for lahto in ravilahtot:
+    st.header(f"{lahto['nimi']} ({lahto['aika']})")
+    st.caption(f"Matka: {lahto['matka']} | {lahto['lahtotapa']} | Palkinto: {lahto['palkinto']}")
     
-    for lahto in ravilahtot:
-        print(f"\n---> {lahto['nimi']} | Aika: {lahto['aika']} | Matka: {lahto['matka']}")
-        print("-" * 60)
-        
-        ennusteet = simuloita_lahto(lahto, simulaatioita=10000)
-        
-        # Järjestetään hevoset simuloidun voittotodennäköisyyden mukaan
-        jarjestetty = sorted(ennusteet.items(), key=lambda x: x[1], reverse=True)
-        
-        for nimi, prosenti in jarjestetty:
-            hevonen_info = next(h for h in lahto["hevoset"] if h["nimi"] == nimi)
-            print(f"Nro {hevonen_info['numero']} {nimi:<20} | Mallinnettu voittomahdollisuus: {prosenti:.1f}%")
+    ennusteet = simuloita_lahto(lahto, simulaatioita=10000)
+    jarjestetty = sorted(ennusteet.items(), key=lambda x: x[1], reverse=True)
+    
+    for nimi, prosenti in jarjestetty:
+        hevonen_info = next(h for h in lahto["hevoset"] if h["nimi"] == nimi)
+        st.write(f"**Nro {hevonen_info['numero']} {nimi}** - Voittomahdollisuus: **{prosenti:.1f}%**")
+        st.progress(int(prosenti))
+    
+    st.divider()
