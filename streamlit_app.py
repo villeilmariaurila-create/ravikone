@@ -1,14 +1,9 @@
 DATABANK = {
-    # (Lähdöt 1-4 ennallaan tai päivitettävissä vastaavasti)
-    1: { ... },
-    2: { ... },
-    3: { ... },
-    4: { ... },
     5: {
         "nimi": "Lopp 5 - STL Klass I (V85-1)",
         "matka": "2140m Autostart",
         "tyyppi": "2140a",
-        "vihje": "<b>Mats Djuse:</b> 9 Night Hawk on avoimen lähdön ensihevonen (barfota runt om, uusi päävarustus). Huomioi myös 2 Hip To Be Square ja vaarallinen 1 T.Wall's Notorius.",
+        "vihje": "Mats Djuse: 9 Night Hawk on avoimen lähdön ensihevonen. Huomioi myös 2 Hip To Be Square ja vaarallinen 1 T.Wall's Notorius.",
         "hevoset": [
             {"numero": 1, "nimi": "T.Wall's Notorius", "ohjastaja": "Jomar Blekkan", "peruspaino": 1.2},
             {"numero": 2, "nimi": "Hip To Be Square", "ohjastaja": "Per Lennartsson", "peruspaino": 1.3},
@@ -28,7 +23,7 @@ DATABANK = {
         "nimi": "Lopp 6 - STL Kallblodsdivisionen (V85-2)",
         "matka": "2140m Voltstart",
         "tyyppi": "tasoitus",
-        "vihje": "<b>Mats Djuse:</b> 4 Silke Sjarmör on oma suosikkini norjalaisvierailijana. Ajokki 5 Ellbert omaa hyvän päivänkunnon (arvosana 5/10).",
+        "vihje": "Mats Djuse: 4 Silke Sjarmör on norjalaisvierailijana mielenkiintoinen. Ajokki 5 Ellbert omaa hyvän päivänkunnon.",
         "hevoset": [
             {"numero": 1, "nimi": "Fosshaug Frasse", "ohjastaja": "Michaela B Fransson", "peruspaino": 0.6},
             {"numero": 2, "nimi": "Sangviks Lynet", "ohjastaja": "Ulf Ohlsson", "peruspaino": 1.1},
@@ -51,7 +46,7 @@ DATABANK = {
         "nimi": "Lopp 7 - STL Gulddivisionen EJ's Guldsko (V85-3)",
         "matka": "1640m Autostart",
         "tyyppi": "guld",
-        "vihje": "<b>Mats Djuse:</b> 4 Mizai voi yllättää keulasta ja olla vaikea lyötävä. Ajokkimi 6 Mellby Joker on hyvä, mutta paikka on avoin (arvosana 6/10).",
+        "vihje": "Mats Djuse: 4 Mizai voi yllättää keulasta. Ajokki 6 Mellby Joker hakee hyvää sijoitusta.",
         "hevoset": [
             {"numero": 1, "nimi": "Before Takeoff", "ohjastaja": "Örjan Kihlström", "peruspaino": 1.3},
             {"numero": 2, "nimi": "Santos De Castella", "ohjastaja": "Marcus Lilius", "peruspaino": 0.6},
@@ -66,7 +61,7 @@ DATABANK = {
         "nimi": "Lopp 8 - STL Dubbelklasslopp (V85-4)",
         "matka": "2640m Autostart",
         "tyyppi": "dubbelklass",
-        "vihje": "<b>Mats Djuse:</b> Todella sekava lähtö, 'strecka alla'! Ajokkini 8 Uno omaa kapasiteettia (arvosana 5/10).",
+        "vihje": "Mats Djuse: Todella avoin lähtö, varaa laajasti merkkejä. Ajokki 8 Uno omaa hyvän kapasiteetin.",
         "hevoset": [
             {"numero": 1, "nimi": "Napoleon Sisu", "ohjastaja": "Oskar J Andersson", "peruspaino": 0.8},
             {"numero": 2, "nimi": "Ies Ingusmemory", "ohjastaja": "Magnus A Djuse", "peruspaino": 1.0},
@@ -89,7 +84,7 @@ DATABANK = {
         "nimi": "Lopp 9 - Tammer Pokal Kallblods-SM ston (V85-5)",
         "matka": "2140m Autostart",
         "tyyppi": "2140a_sm",
-        "vihje": "<b>Mats Djuse:</b> Ajokillani 1 Majblomster on kierroksen paras segerchans ja korkein arvosana (8/10), mutta kovat haastajat 2 Prinsesse Ness Tjo ja 3 Tekno Tana vaaditaan huomioon.",
+        "vihje": "Mats Djuse: Ajokillani 1 Majblomster on kierroksen vahvimpia voittajaehdokkaita. Kovina haastajina 2 Prinsesse Ness Tjo ja 3 Tekno Tana.",
         "hevoset": [
             {"numero": 1, "nimi": "Majblomster", "ohjastaja": "Mats E Djuse", "peruspaino": 2.2},
             {"numero": 2, "nimi": "Prinsesse Ness Tjo", "ohjastaja": "Örjan Kihlström", "peruspaino": 1.3},
@@ -109,7 +104,7 @@ DATABANK = {
         "nimi": "Lopp 10 - STL Stodivisionen (V85-6)",
         "matka": "2640m Voltstart",
         "tyyppi": "tasaus",
-        "vihje": "<b>Mats Djuse:</b> Ajokillani 13 Rupie on hienossa kunnossa, mutta vaatii nappireissun 20 metrin pakilta (arvosana 5/10).",
+        "vihje": "Mats Djuse: Ajokki 13 Rupie on hienossa kunnossa, mutta vaatii onnistumisen takamatkalta.",
         "hevoset": [
             {"numero": 1, "nimi": "Sessan Of Man", "ohjastaja": "Henrik Svensson", "peruspaino": 0.5},
             {"numero": 2, "nimi": "Adora Liss", "ohjastaja": "Fredrik Plassen", "peruspaino": 0.6},
@@ -132,7 +127,7 @@ DATABANK = {
         "nimi": "Lopp 11 - STL Bronsdivisionen (V85-7)",
         "matka": "2140m Autostart",
         "tyyppi": "2140a_brons",
-        "vihje": "<b>Mats Djuse:</b> Ajokillani 8 Lucky Silver on huippukunnossa, mutta vaatii tuuria vaikealta radalta (arvosana 6/10). Vahvoja vastustajia mm. 3 Graces Bird ja 4 Mellby Mowgli.",
+        "vihje": "Mats Djuse: Ajokillani 8 Lucky Silver on hyvää toivoa täynnä, mutta lähtöpaikka on haastava.",
         "hevoset": [
             {"numero": 1, "nimi": "Bruce Braylon", "ohjastaja": "Per Lennartsson", "peruspaino": 1.2},
             {"numero": 2, "nimi": "Pineapple", "ohjastaja": "Carl Johan Jepson", "peruspaino": 1.1},
@@ -152,7 +147,7 @@ DATABANK = {
         "nimi": "Lopp 12 - STL Silverdivisionen (V85-8)",
         "matka": "2140m Autostart",
         "tyyppi": "2140a",
-        "vihje": "<b>Mats Djuse:</b> Ajokillani 12 X.O.Kemp on arpaonnen vuoksi vaikeassa paikassa, mutta kunto on huippuluokkaa (arvosana 6/10).",
+        "vihje": "Mats Djuse: Ajokillani 12 X.O.Kemp on huippukunnossa, mutta ulkorata tuo omat haasteensa juoksuun.",
         "hevoset": [
             {"numero": 1, "nimi": "Lähtö12 Hevonen 1", "ohjastaja": "Ohjastaja 1", "peruspaino": 1.0},
             {"numero": 2, "nimi": "Crowe Motion", "ohjastaja": "Ohjastaja 2", "peruspaino": 1.2},
