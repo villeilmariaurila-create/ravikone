@@ -440,7 +440,12 @@ with tab_lahdot:
         mc = sim.get(h["numero"], 0.0)
         peli = h["peli_pct"]
         ero = round(mc - peli, 1)
-        hevoset_laskettu.append({**h, "mc": mc, "ero": ero})
+        hevoset_laskettu.append({
+            **h, 
+            "mc": mc, 
+            "ero": ero,
+            "varuste": h.get("varuste_muutos", "Normaali")
+        })
     
     parhaat_pelihevoset = sorted(hevoset_laskettu, key=lambda x: x["ero"], reverse=True)[:3]
     
