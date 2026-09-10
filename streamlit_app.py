@@ -1,3 +1,5 @@
+import streamlit as st
+
 DATABANK = {
     5: {
         "nimi": "Lopp 5 - STL Klass I (V85-1)",
@@ -127,7 +129,7 @@ DATABANK = {
         "nimi": "Lopp 11 - STL Bronsdivisionen (V85-7)",
         "matka": "2140m Autostart",
         "tyyppi": "2140a_brons",
-        "vihje": "Mats Djuse: Ajokillani 8 Lucky Silver on hyvää toivoa täynnä, mutta lähtöpaikka on haastava.",
+        "vihje": "Mats Djuse: Ajokillani 8 Lucky Silver on hyvää toivoa täynnä, mutta lähtöpaika on haastava.",
         "hevoset": [
             {"numero": 1, "nimi": "Bruce Braylon", "ohjastaja": "Per Lennartsson", "peruspaino": 1.2},
             {"numero": 2, "nimi": "Pineapple", "ohjastaja": "Carl Johan Jepson", "peruspaino": 1.1},
@@ -164,3 +166,18 @@ DATABANK = {
         ]
     }
 }
+
+# Käyttöliittymäkomponentit, jotka piirtävät tiedot ruudulle
+st.title("Ravikone - V85 Vihjeet ja Tiedot")
+st.write("Tässä näytetään tallennetut lähdöt ja Mats Djusen vihjeet.")
+
+for loppu_id, tiedot in DATABANK.items():
+    st.subheader(tiedot["nimi"])
+    st.write(f"**Matka:** {tiedot['matka']}")
+    st.write(f"**Vihje:** {tiedot['vihje']}")
+    
+    st.write("**Hevoset:**")
+    for hevonen in tiedot["hevoset"]:
+        st.write(f"- #{hevonen['numero']} **{hevonen['nimi']}** (Ohjastaja: {hevonen['ohjastaja']})")
+    
+    st.divider()
