@@ -1,5 +1,3 @@
-
- from textwrap import dedent
 import pandas as pd
 import streamlit as st
 
@@ -11,17 +9,9 @@ st.set_page_config(
     page_title="V85 Yllättäjä- ja Kerroinvertailutyökalu", layout="wide"
 )
 
-# CSS-tyyli taulukon ja korttien parantamiseen
-st.markdown(
-    """
-    
-    """,
-    unsafe_allow_html=True,
-)
-
 st.title("🎯 V85 Yllättäjäanalyysi & Prosenttivertailu")
 st.caption(
-    "Automaattinen suodatin: Näytetään vain valjakot, joiden lauantain peliprosentti on enintään 10 %."
+    "Automaattinen suodatus: Näytetään vain valjakot, joiden lauantain peliprosentti on enintään 10 %."
 )
 
 # Raakadata kaikista seuratuista kohteista
@@ -46,7 +36,7 @@ kaikki_data = [
         "Muutos": "+29.9%",
         "Unibet Kerroin": 3.20,
         "Coolbet Kerroin": 3.10,
-        "Perustelut": "Peliynteressi heräsi voimakkaasti lauantaina. Ei enää yllättäjä.",
+        "Perustelut": "Peli-intressi heräsi voimakkaasti lauantaina. Suosikiksi noussut valjakko rajautuu pois yllättäjälistalta.",
     },
     {
         "Kohde": "V85-4 (Lopp 8)",
@@ -83,7 +73,7 @@ kaikki_data = [
     },
 ]
 
-# Suodatetaan kooditasolla automaattisesti alle tai tasan 10 % hevoset
+# Automaattinen suodatus: poistetaan hevoset, joiden La-% on yli 10 %
 yllattajat_filtratty = [
     item
     for item in kaikki_data
@@ -92,14 +82,38 @@ yllattajat_filtratty = [
 
 df_yllattajat = pd.DataFrame(yllattajat_filtratty)
 
-# Näytetään päätaulukko Streamlitissa
+# Päätaulukko
 st.dataframe(df_yllattajat, use_container_width=True, hide_index=True)
 
 st.divider()
 
-# Tarkemmat perustelut korteina
+# Tarkemmat perustelut Streamlitin omilla native-elementeillä
 st.subheader("📖 Suodatettujen yllättäjien analyysit")
 
 for item in yllattajat_filtratty:
-    card_html = dedent(
-        f"""       '
+    with st.container(border=True):
+        st.markdown(
+            f"### {item['Kohde']} – {item['Hevonen']} ({item['Rata & Tapa']})"
+        )
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric(
+                label="Lauantain peliprosentti",
+                value=item["La-%"],
+                delta=item["Muutos"],
+            )
+        with col2:
+            st.write(f"**Perjantain prosentti:** {item['Pe-% (15.40)']}")
+            st.write(f"**Unibet kerroin:** {item['Unibet Kerroin']}")
+        with col3:
+            st.write(f"**Coolbet kerroin:** {item['Coolbet Kerroin']}")
+
+        st.write(f"**Analyysi ja perustelut:** {item['Perustelut']}")
+
+st.divider()
+st.subheader("💡 Ohjeet ja huomiot")
+st.write(
+    "- **Automaattisuodatus:** Koodi suodattaa pois yli 10 % pelatut (esim. L6 #8 Teknologen 32 % rajautui automaattisesti pois).\n"
+    "- **Native-rakenne:** HTML-koodin sijaan käytetään Streamlitin `st.container`- ja `st.metric`-komponentteja, mikä estää syntaksi- ja sisenysvirheet."
+)'
