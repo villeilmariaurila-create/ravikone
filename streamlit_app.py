@@ -7,15 +7,10 @@ import streamlit as st
 
 st.set_page_config(page_title="V85 Yllättäjä- ja Peliarvotyökalu", layout="wide")
 
-# CSS-tyyli, joka pakottaa taulukon tekstit rivittymään ja tekee linkeistä tyylikkäitä
+# CSS-tyyli taulukon solujen sisällön rivittämiseen
 st.markdown(
     """
-    <style>
-    .stDataFrame td, th {
-        white-space: normal !important;
-        word-wrap: break-word !important;
-    }
-    </style>
+    
     """,
     unsafe_allow_html=True
 )
@@ -34,7 +29,7 @@ v85_yllattajat_data = [
         "Unibet": 14.50,
         "Sim %": 11.2,
         "Yllättäjän Perustelut": "Travronden ja Expressen nostavat tallin nousuvireen esiin. Sisärata (3) ja hyvät varustemuutokset puoltavat menestystä.",
-        "Seuranta / Linkit": "[Travronden Vihjeet](https://www.travronden.fi) | [ATG Live](https://www.atg.se)"
+        "Seuranta / Linkit": "🔗 [Travronden](https://www.travronden.fi) | [ATG](https://www.atg.se)"
     },
     {
         "Kohde": "V85-2 (Lopp 6)",
@@ -46,7 +41,7 @@ v85_yllattajat_data = [
         "Unibet": 22.00,
         "Sim %": 8.9,
         "Yllättäjän Perustelut": "Travronden Spelin asiantuntijat pitävät tätä jättiyllättäjänä. Haastavasta volttiradasta huolimatta kyky riittää.",
-        "Seuranta / Linkit": "[Travronden Vihjeet](https://www.travronden.fi) | [ATG Live](https://www.atg.se)"
+        "Seuranta / Linkit": "🔗 [Travronden](https://www.travronden.fi) | [ATG](https://www.atg.se)"
     },
     {
         "Kohde": "V85-4 (Lopp 8)",
@@ -58,7 +53,7 @@ v85_yllattajat_data = [
         "Unibet": 16.00,
         "Sim %": 10.5,
         "Yllättäjän Perustelut": "Pitkä matka ja takarivi vaativat tuuria, mutta jenkkikärryt tuovat lisätehoja voittotaistoon.",
-        "Seuranta / Linkit": "[Travronden Vihjeet](https://www.travronden.fi) | [ATG Live](https://www.atg.se)"
+        "Seuranta / Linkit": "🔗 [Travronden](https://www.travronden.fi) | [ATG](https://www.atg.se)"
     },
     {
         "Kohde": "V85-6 (Lopp 10)",
@@ -69,8 +64,8 @@ v85_yllattajat_data = [
         "Muutos": "+2.8%",
         "Unibet": 18.50,
         "Sim %": 9.4,
-        "Yllättäjän Perustelut": "Tammojen pitkän matkan volttilähtö. Kokenut ohjastaja pystyy poimimaan lopussa tarvittavat selät.",
-        "Seuranta / Linkit": "[Travronden Vihjeet](https://www.travronden.fi) | [ATG Live](https://www.atg.se)"
+        "Yllättäjän Perustelut": "Tammojen pitkän matkan volttilähtö. Kokenut ohjastaja pystyy poimimaan lopussa tarvettavat selät.",
+        "Seuranta / Linkit": "🔗 [Travronden](https://www.travronden.fi) | [ATG](https://www.atg.se)"
     },
     {
         "Kohde": "V85-7 (Lopp 11)",
@@ -82,14 +77,14 @@ v85_yllattajat_data = [
         "Unibet": 11.00,
         "Sim %": 12.1,
         "Yllättäjän Perustelut": "Ykkösrata takaa sisäradan juoksun ja mahdollisuuden keulaan tai johtavan taakse. Fiksumpi raha herännyt.",
-        "Seuranta / Linkit": "[Travronden Vihjeet](https://www.travronden.fi) | [ATG Live](https://www.atg.se)"
+        "Seuranta / Linkit": "🔗 [Travronden](https://www.travronden.fi) | [ATG](https://www.atg.se)"
     }
 ]
 
 df_yllattajat = pd.DataFrame(v85_yllattajat_data)
 
-# Renderöidään taulukko niin, että linkit ja tekstit näkyvät ja toimivat
-st.markdown(df_yllattajat.to_markdown(index=False), unsafe_allow_html=True)
+# Korjattu pois puuttuvasta 'tabulate'-kirjastosta johtunut virhe käyttämällä Streamlitin natiivia taulukkoa
+st.dataframe(df_yllattajat, use_container_width=True, hide_index=True)
 
 st.divider()
 st.subheader("💡 Peliohjeet & Seuranta")
