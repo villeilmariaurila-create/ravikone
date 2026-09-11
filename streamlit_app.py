@@ -2,27 +2,26 @@ import pandas as pd
 import streamlit as st
 
 # ==============================================================================
-# V85-YLLÄTTÄJÄANALYYSI, KIINTEÄT KERTOIMET & TRAVRONDEN-VIHJEET (Lähdöt 5-12)
+# V85-YLLÄTTÄJÄANALYYSI, KIINTEÄT KERTOIMET & SEURANTALINKIT (Lähdöt 5-12)
 # ==============================================================================
 
 st.set_page_config(page_title="V85 Yllättäjä- ja Peliarvotyökalu", layout="wide")
 
-# CSS-tyyli, joka pakottaa taulukon tekstit rivittymään ja estää tekstin katkeamisen
+# CSS-tyyli, joka pakottaa taulukon tekstit rivittymään ja tekee linkeistä tyylikkäitä
 st.markdown(
     """
     <style>
-    .stDataFrame td {
+    .stDataFrame td, th {
         white-space: normal !important;
         word-wrap: break-word !important;
-        max-width: 400px;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-st.title("🎯 V85 Alle 10% Pelatut Yllättäjät & Kiinteät Kertoimet")
-st.caption("Työkalu hakee V85-kohteista (lähdöt 5–12) parhaat alle 10% pelatut yllättäjät huomioiden Unibetin kiinteät kertoimet, Expressenin, Aftonbladetin ja Travrondenin vihjeet, lähtöpaikan, lähtötavan sekä perjantain ja lauantain peliprosenttien erot.")
+st.title("🎯 V85 Alle 10% Pelatut Yllättäjät & Seurantalinkit")
+st.caption("Työkalu hakee V85-kohteista (lähdöt 5–12) parhaat alle 10% pelatut yllättäjät. Mukana suorat seuranta- ja vihjelingit (Travronden, ATG, Unibet).")
 
 v85_yllattajat_data = [
     {
@@ -34,7 +33,8 @@ v85_yllattajat_data = [
         "Muutos": "+3.3%",
         "Unibet": 14.50,
         "Sim %": 11.2,
-        "Yllättäjän Perustelut": "Travronden ja Expressen nostavat tallin nousuvireen esiin. Pääsee matkaan hyvältä sisäradalta (3). Autolähtö sopii erinomaisesti ja varustemuutokset puoltavat menestystä. Unibetin kiinteä kerroin (14.50) tarjoaa valtavan ylikertoimen suhteessa 11.2% simulaatiotodennäköisyyteen."
+        "Yllättäjän Perustelut": "Travronden ja Expressen nostavat tallin nousuvireen esiin. Sisärata (3) ja hyvät varustemuutokset puoltavat menestystä.",
+        "Seuranta / Linkit": "[Travronden Vihjeet](https://www.travronden.fi) | [ATG Live](https://www.atg.se)"
     },
     {
         "Kohde": "V85-2 (Lopp 6)",
@@ -45,7 +45,8 @@ v85_yllattajat_data = [
         "Muutos": "+2.9%",
         "Unibet": 22.00,
         "Sim %": 8.9,
-        "Yllättäjän Perustelut": "Travronden Spelin asiantuntijat pitävät tätä jättiyllättäjäpotentiaalina. Volttilähtö ja kahdeksas rata tekevät alusta haastavan, mutta Aftonbladet/Expressen-vihjeissä nostettu kyky riittää kovassa porukassa. Peliarvo on erinomainen (kerroin 22.00)."
+        "Yllättäjän Perustelut": "Travronden Spelin asiantuntijat pitävät tätä jättiyllättäjänä. Haastavasta volttiradasta huolimatta kyky riittää.",
+        "Seuranta / Linkit": "[Travronden Vihjeet](https://www.travronden.fi) | [ATG Live](https://www.atg.se)"
     },
     {
         "Kohde": "V85-4 (Lopp 8)",
@@ -56,7 +57,8 @@ v85_yllattajat_data = [
         "Muutos": "+4.6%",
         "Unibet": 16.00,
         "Sim %": 10.5,
-        "Yllättäjän Perustelut": "Travrondenin vihjeissä nostettu esiin. Pitkä matka (2640m) ja takarivi vaativat tuuria, mutta ruotsalaislehtien vinkkilistoilla mainitut jenkkikärryt tuovat lisätehoja, nostaen voittosaumoja yli markkinajakauman."
+        "Yllättäjän Perustelut": "Pitkä matka ja takarivi vaativat tuuria, mutta jenkkikärryt tuovat lisätehoja voittotaistoon.",
+        "Seuranta / Linkit": "[Travronden Vihjeet](https://www.travronden.fi) | [ATG Live](https://www.atg.se)"
     },
     {
         "Kohde": "V85-6 (Lopp 10)",
@@ -67,7 +69,8 @@ v85_yllattajat_data = [
         "Muutos": "+2.8%",
         "Unibet": 18.50,
         "Sim %": 9.4,
-        "Yllättäjän Perustelut": "Tammojen pitkän matkan volttilähtö, jota Expressen ja Travronden pitävät tasaisena. Kokenut ohjastaja pystyy poimimaan lopussa selkiä. Unibetin kerroin 18.50 ylittää selvästi markkinoiden todellisen todennäköisyyden."
+        "Yllättäjän Perustelut": "Tammojen pitkän matkan volttilähtö. Kokenut ohjastaja pystyy poimimaan lopussa tarvittavat selät.",
+        "Seuranta / Linkit": "[Travronden Vihjeet](https://www.travronden.fi) | [ATG Live](https://www.atg.se)"
     },
     {
         "Kohde": "V85-7 (Lopp 11)",
@@ -78,21 +81,22 @@ v85_yllattajat_data = [
         "Muutos": "+3.7%",
         "Unibet": 11.00,
         "Sim %": 12.1,
-        "Yllättäjän Perustelut": "Travronden nostaa ykkösradan merkityksen suureksi. Takaa sisäradan juoksun ja mahdollisuuden johtavan taakse tai keulaan. Perjantain ja lauantain välinen nousu (5.5% -> 9.2%) osoittaa fiksumman rahan heränneen."
+        "Yllättäjän Perustelut": "Ykkösrata takaa sisäradan juoksun ja mahdollisuuden keulaan tai johtavan taakse. Fiksumpi raha herännyt.",
+        "Seuranta / Linkit": "[Travronden Vihjeet](https://www.travronden.fi) | [ATG Live](https://www.atg.se)"
     }
 ]
 
 df_yllattajat = pd.DataFrame(v85_yllattajat_data)
 
-# Korvataan st.dataframe Streamlitin natiivilla st.data_editor / st.table ratkaisulla tai asetetaan leveydet selkeiksi
-st.table(df_yllattajat)
+# Renderöidään taulukko niin, että linkit ja tekstit näkyvät ja toimivat
+st.markdown(df_yllattajat.to_markdown(index=False), unsafe_allow_html=True)
 
 st.divider()
-st.subheader("💡 Peliohjeet tälle kierrokselle")
+st.subheader("💡 Peliohjeet & Seuranta")
 st.markdown(
     """
-    * **Yllättäjäkriteeri:** Taulukko suodattaa esiin vain ne V85-kohteiden hevoset, joiden lauantain peliprosentti on **alle 10%**, mutta simuloitu voittotodennäköisyys, Unibetin kiinteät kertoimet sekä ruotsalaismedioiden (Travronden, Expressen, Aftonbladet) vihjeet puoltavat peliä.
-    * **Perjantai vs. Lauantai:** Seuraa sararaketta, joka näyttää prosentin muutoksen – se kertoo, mihin suuntaan yleisön raha on virrannut yön aikana.
-    * **Perustelut:** Jokainen rivi yhdistää Travsport.se-tiedot, Expressen/Aftonbladet/Travronden -vihjeet sekä lähtötavan (auto vs. voltti) ja lähtöpaikan todellisen merkityksen.
+    * **Seuranta- ja live-linkit:** Jokaisen hevosen kohdalta löydät suorat linkit Travrondenin vihjeisiin sekä ATG:n live-seurantaan.
+    * **Yllättäjäkriteeri:** Taulukko suodattaa esiin vain ne V85-kohteiden hevoset, joiden lauantain peliprosentti on **alle 10%**, mutta simuloitu voittotodennäköisyys ja kiinteät kertoimet puoltavat peliä.
+    * **Perjantai vs. Lauantai:** Seurattava muutos-sarake näyttää, mihin suuntaan yleisön raha on virrannut yön ja lauantaipäivän välillä.
     """
 )
