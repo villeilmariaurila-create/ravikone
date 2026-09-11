@@ -19,10 +19,10 @@ st.markdown(
 
 st.title("🎯 V85 Yllättäjäanalyysi & Prosenttivertailu")
 st.caption(
-    "Perjantain peliprosentit (klo 15.40) vs. lauantain päivittyneet arvot."
+    "Perjantain peliprosentit (klo 15.40) vs. lauantain päivittyneet arvot (Vain alle 10 % pelatut yllättäjät)."
 )
 
-# Datan määrittely päivitetyillä lauantain prosenteilla
+# Datan määrittely - mukana vain alle 10 % lauantaina pelatut hevoset
 v85_yllattajat_data = [
     {
         "Kohde": "V85-1 (Lopp 5)",
@@ -34,17 +34,6 @@ v85_yllattajat_data = [
         "Unibet (Pe 15.40)": 14.50,
         "Coolbet (Pe 15.40)": 15.00,
         "Perustelut": "Travronden ja Expressen nostavat tallin nousuvireen esiin. Sisärata (3) ja hyvät varustemuutokset puoltavat menestystä.",
-    },
-    {
-        "Kohde": "V85-2 (Lopp 6)",
-        "Hevonen": "#8 Teknologen",
-        "Rata & Tapa": "2140m Voltstart (Rata 8)",
-        "Pe-% (15.40)": "2.1%",
-        "La-%": "32.0%",
-        "Muutos": "+29.9%",
-        "Unibet (Pe 15.40)": 22.00,
-        "Coolbet (Pe 15.40)": 21.00,
-        "Perustelut": "Peliynteressi heräsi voimakkaasti lauantaina. Haastavasta volttiradasta huolimatta kyky riittää ja hevonen on noussut lähdön suosikkikaartiin.",
     },
     {
         "Kohde": "V85-4 (Lopp 8)",
