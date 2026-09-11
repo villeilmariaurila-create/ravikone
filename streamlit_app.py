@@ -8,7 +8,7 @@ import streamlit as st
 
 st.set_page_config(page_title="V85 Yllättäjä- ja Kerroinvertailutyökalu", layout="wide")
 
-# CSS-tyyli taulukon ja korttien parantamiseen
+# CSS-tyyli taulukolle, korteille ja vihreälle pallopainikkeelle
 st.markdown(
     """
     
@@ -23,10 +23,11 @@ st.caption("Perjantain peliprosentit (otettu klo 15.40) vs. lauantain arvot.")
 if "kertoimet_paivitetty" not in st.session_state:
   st.session_state.kertoimet_paivitetty = False
 
-# Painike suoraan pääsivulla näkyvällä paikalla
-col1, col2 = st.columns([2, 5])
-with col1:
-  if st.button("🔄 Hae lauantain kertoimet (Unibet)", type="primary"):
+# Vihreä pallopainike etusivulla keskeisellä paikalla
+st.write("")
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+  if st.button("🟢 Hae lauantain kertoimet (Unibet)"):
     st.session_state.kertoimet_paivitetty = True
     st.rerun()
 
