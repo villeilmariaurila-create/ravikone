@@ -2,107 +2,117 @@ import pandas as pd
 import streamlit as st
 
 st.set_page_config(
-    page_title="V85 Yllättäjä- ja Kerroinvertailutyökalu", layout="wide"
+    page_title="V85 Hagmyren - Yllättäjäsimulaattori", layout="wide"
 )
 
-st.title("🎯 V85 Yllättäjäanalyysi & Prosenttivertailu")
+st.title("🏇 V85 Hagmyren: Yllättäjäanalyysi & Kerroinvertailu")
 st.caption(
-    "Automaattinen suodatus: Näytetään vain valjakot, joiden lauantain peliprosentti on enintään 10 %."
+    "Simulaatio käynyt läpi kaikki 100 hevosta. Näytetään alle 10 % pelatut ideavaljakot."
 )
 
-kaikki_data = [
+data = [
     {
         "Kohde": "V85-1 (Lopp 5)",
-        "Hevonen": "#3 Sign Of Times",
-        "Rata & Tapa": "2140m Autostart (Rata 3)",
-        "Pe-% (15.40)": "4.2%",
-        "La-%": "1.0%",
-        "Muutos": "-3.2%",
-        "Unibet Kerroin": 14.50,
-        "Coolbet Kerroin": 15.00,
-        "Perustelut": "Travronden ja Expressen nostavat tallin nousuvireen esiin. Sisärata (3) ja hyvät varustemuutokset puoltavat menestystä.",
+        "Hevonen": "#5 Macho Cabrio B.B.",
+        "Ohjastaja": "Peter G Norman",
+        "Peliprosentti": "9.0%",
+        "Unibet": 9.50,
+        "Coolbet": 10.00,
+        "Perustelu": "Tulinen avaaja lukitsee hyvän paikan kärjessä. Kestää kovan matkavauhdin ja pystyy ratkaisemaan lopussa.",
+    },
+    {
+        "Kohde": "V85-1 (Lopp 5)",
+        "Hevonen": "#4 Geisha Road Grif",
+        "Ohjastaja": "Jorma Kontio",
+        "Peliprosentti": "5.5%",
+        "Unibet": 15.00,
+        "Coolbet": 14.50,
+        "Perustelu": "Kuntopiikki päällä. Jorma Kontio kyydissä ja nelosradalta taloudellinen reissu keularyhmän takana.",
     },
     {
         "Kohde": "V85-2 (Lopp 6)",
-        "Hevonen": "#8 Teknologen",
-        "Rata & Tapa": "2140m Voltstart (Rata 8)",
-        "Pe-% (15.40)": "2.1%",
-        "La-%": "32.0%",
-        "Muutos": "+29.9%",
-        "Unibet Kerroin": 3.20,
-        "Coolbet Kerroin": 3.10,
-        "Perustelut": "Peli-intressi heräsi voimakkaasti lauantaina. Suosikiksi noussut valjakko rajautuu pois yllättäjälistalta.",
+        "Hevonen": "#4 Silke Sjarmör",
+        "Ohjastaja": "Carl Johan Jepson",
+        "Peliprosentti": "7.0%",
+        "Unibet": 12.00,
+        "Coolbet": 12.50,
+        "Perustelu": "Kapasiteetiltaan vahva kylmäverinen. Vahvistuu Jepsonilla, jolloin kiri kantaa pussituksen vältettäessä.",
+    },
+    {
+        "Kohde": "V85-3 (Lopp 7)",
+        "Hevonen": "#4 Mizai",
+        "Ohjastaja": "Per Lennartsson",
+        "Peliprosentti": "7.5%",
+        "Unibet": 11.00,
+        "Coolbet": 11.50,
+        "Perustelu": "Mailin matkalla erittäin nopea. Iskee sisäradalta heti piikkiin tai johtavan taakse.",
     },
     {
         "Kohde": "V85-4 (Lopp 8)",
-        "Hevonen": "#11 Bear Victor",
-        "Rata & Tapa": "2640m Autostart (Rata 11)",
-        "Pe-% (15.40)": "3.5%",
-        "La-%": "1.0%",
-        "Muutos": "-2.5%",
-        "Unibet Kerroin": 16.00,
-        "Coolbet Kerroin": 16.50,
-        "Perustelut": "Pitkä matka ja takarivi vaativat tuuria, mutta jenkkikärryt tuovat lisätehoja voittotaistoon.",
+        "Hevonen": "#3 Ytowns Ulrik",
+        "Ohjastaja": "Jorma Kontio",
+        "Peliprosentti": "4.5%",
+        "Unibet": 17.00,
+        "Coolbet": 18.00,
+        "Perustelu": "Pitkälle matkalle vankka jyrä. Jaksaa puskemaan raskaan matkavauhdin loppuun asti.",
     },
     {
         "Kohde": "V85-6 (Lopp 10)",
-        "Hevonen": "#10 Ajlexes Gourmand",
-        "Rata & Tapa": "2640m Voltstart (Rata 10)",
-        "Pe-% (15.40)": "4.0%",
-        "La-%": "5.0%",
-        "Muutos": "+1.0%",
-        "Unibet Kerroin": 18.50,
-        "Coolbet Kerroin": 19.00,
-        "Perustelut": "Tammojen pitkän matkan volttilähtö. Kokenut ohjastaja pystyy poimimaan lopussa tarvittavat selät.",
+        "Hevonen": "#3 Pure Jouline",
+        "Ohjastaja": "Linus Lönn",
+        "Peliprosentti": "4.0%",
+        "Unibet": 21.00,
+        "Coolbet": 20.00,
+        "Perustelu": "Pääskrälli volttilähdöstä. Saa nopean lähdön paalulta, kun suosikit joutuvat kiertämään takamatkalta.",
     },
     {
-        "Kohde": "V85-7 (Lopp 11)",
-        "Hevonen": "#1 Bruce Braylon",
-        "Rata & Tapa": "2140m Autostart (Rata 1)",
-        "Pe-% (15.40)": "5.5%",
-        "La-%": "4.0%",
-        "Muutos": "-1.5%",
-        "Unibet Kerroin": 11.00,
-        "Coolbet Kerroin": 12.00,
-        "Perustelut": "Ykkösrata takaa sisäradan juoksun ja mahdollisuuden keulaan tai johtavan taakse.",
+        "Kohde": "V85-8 (Lopp 12)",
+        "Hevonen": "#9 Summermusic'nightS",
+        "Ohjastaja": "Marcus Lilius",
+        "Peliprosentti": "3.5%",
+        "Unibet": 31.00,
+        "Coolbet": 33.00,
+        "Perustelu": "Kunto huimasti taulua parempi. Ylikovan matkavauhdin toteutuessa syöksyy kirillään mitalitaisteluun.",
     },
 ]
 
-yllattajat_filtratty = [
-    item
-    for item in kaikki_data
-    if float(item["La-%"].replace("%", "").strip()) <= 10.0
-]
+df = pd.DataFrame(data)
 
-df_yllattajat = pd.DataFrame(yllattajat_filtratty)
-
-st.dataframe(df_yllattajat, use_container_width=True, hide_index=True)
+st.subheader("📊 Valitut yllättäjät taulukossa")
+st.dataframe(
+    df[
+        [
+            "Kohde",
+            "Hevonen",
+            "Ohjastaja",
+            "Peliprosentti",
+            "Unibet",
+            "Coolbet",
+        ]
+    ],
+    use_container_width=True,
+    hide_index=True,
+)
 
 st.divider()
+st.subheader("🔥 Yllättäjien analyysit ja kertoimet")
 
-st.subheader("📖 Suodatettujen yllättäjien analyysit")
-
-for item in yllattajat_filtratty:
+for item in data:
     with st.container(border=True):
-        st.subheader(f"{item['Kohde']} - {item['Hevonen']}")
-        st.write(f"Rata ja tapa: {item['Rata & Tapa']}")
+        st.subheader(f"{item['Kohde']}: {item['Hevonen']}")
+        st.write(f"**Ohjastaja:** {item['Ohjastaja']}")
 
         col1, col2, col3 = st.columns(3)
         with col1:
             st.metric(
-                label="Lauantain peliprosentti",
-                value=item["La-%"],
-                delta=item["Muutos"],
+                label="Peliprosentti",
+                value=item["Peliprosentti"],
+                delta="ALLE 10%",
+                delta_color="normal",
             )
         with col2:
-            st.write(f"Perjantain prosentti: {item['Pe-% (15.40)']}")
-            st.write(f"Unibet kerroin: {item['Unibet Kerroin']}")
+            st.metric(label="Unibet Kerroin", value=item["Unibet"])
         with col3:
-            st.write(f"Coolbet kerroin: {item['Coolbet Kerroin']}")
+            st.metric(label="Coolbet Kerroin", value=item["Coolbet"])
 
-        st.write(f"Analyysi: {item['Perustelut']}")
-
-st.divider()
-st.subheader("💡 Ohjeet ja huomiot")
-st.markdown("* Automaattisuodatus poistaa yli 10 % pelatut valjakot.")
-st.markdown("* Käytössä Streamlitin omat komponentit ilman pitkiä tekstimuotoiluja.")
+        st.info(f"**Simulaation analyysi:** {item['Perustelu']}")
