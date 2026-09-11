@@ -19,19 +19,21 @@ st.markdown(
 st.title("🎯 V85 Yllättäjäanalyysi & Prosenttivertailu")
 st.caption("Perjantain peliprosentit (otettu klo 15.40) vs. lauantain arvot.")
 
-# Alustetaan Streamlitin tila (session_state), jotta painikkeen painallusmuisti säilyy
+# Alustetaan tila
 if "kertoimet_paivitetty" not in st.session_state:
   st.session_state.kertoimet_paivitetty = False
 
-# Sivupalkki tai yläosa painikkeelle
-st.sidebar.header("Päivitystoiminnot")
-if st.sidebar.button("🔄 Hae tuoreet lauantain kertoimet (Unibet)"):
-  st.session_state.kertoimet_paivitetty = True
-  st.sidebar.success("Kertoimet haettu ja päivitetty onnistuneesti!")
+# Painike suoraan pääsivulla näkyvällä paikalla
+col1, col2 = st.columns([2, 5])
+with col1:
+  if st.button("🔄 Hae lauantain kertoimet (Unibet)", type="primary"):
+    st.session_state.kertoimet_paivitetty = True
+    st.rerun()
 
-# Datan määrittely sen mukaan, onko kertoimet haettu vai ei
+st.divider()
+
+# Datan määrittely ilman Coolbetia
 if not st.session_state.kertoimet_paivitetty:
-  # Perjantain alustava / odottava data
   v85_yllattajat_data = [
       {
           "Kohde": "V85-1 (Lopp 5)",
@@ -41,8 +43,7 @@ if not st.session_state.kertoimet_paivitetty:
           "La-%": "Ei vielä avattu",
           "Muutos": "Odottaa lauantaita",
           "Unibet (Pe 15.40)": 14.50,
-          "Coolbet (Pe 15.40)": 15.00,
-          "Unibet/Coolbet (La)": "Ei vielä avattu",
+          "Unibet (La)": "Ei vielä avattu",
           "Perustelut": (
               "Travronden ja Expressen nostavat tallin nousuvireen esiin."
               " Sisärata (3) ja hyvät varustemuutokset puoltavat menestystä."
@@ -56,8 +57,7 @@ if not st.session_state.kertoimet_paivitetty:
           "La-%": "Ei vielä avattu",
           "Muutos": "Odottaa lauantaita",
           "Unibet (Pe 15.40)": 22.00,
-          "Coolbet (Pe 15.40)": 21.00,
-          "Unibet/Coolbet (La)": "Ei vielä avattu",
+          "Unibet (La)": "Ei vielä avattu",
           "Perustelut": (
               "Travronden Spelin asiantuntijat pitävät tätä jättiyllättäjänä."
               " Haastavasta volttiradasta huolimatta kyky riittää."
@@ -71,8 +71,7 @@ if not st.session_state.kertoimet_paivitetty:
           "La-%": "Ei vielä avattu",
           "Muutos": "Odottaa lauantaita",
           "Unibet (Pe 15.40)": 16.00,
-          "Coolbet (Pe 15.40)": 16.50,
-          "Unibet/Coolbet (La)": "Ei vielä avattu",
+          "Unibet (La)": "Ei vielä avattu",
           "Perustelut": (
               "Pitkä matka ja takarivi vaativat tuuria, mutta jenkkikärryt tuovat"
               " lisätehoja voittotaistoon."
@@ -86,8 +85,7 @@ if not st.session_state.kertoimet_paivitetty:
           "La-%": "Ei vielä avattu",
           "Muutos": "Odottaa lauantaita",
           "Unibet (Pe 15.40)": 18.50,
-          "Coolbet (Pe 15.40)": 19.00,
-          "Unibet/Coolbet (La)": "Ei vielä avattu",
+          "Unibet (La)": "Ei vielä avattu",
           "Perustelut": (
               "Tammojen pitkän matkan volttilähtö. Kokenut ohjastaja pystyy"
               " poimimaan lopussa tarvettavat selät."
@@ -101,8 +99,7 @@ if not st.session_state.kertoimet_paivitetty:
           "La-%": "Ei vielä avattu",
           "Muutos": "Odottaa lauantaita",
           "Unibet (Pe 15.40)": 11.00,
-          "Coolbet (Pe 15.40)": 12.00,
-          "Unibet/Coolbet (La)": "Ei vielä avattu",
+          "Unibet (La)": "Ei vielä avattu",
           "Perustelut": (
               "Ykkösrata takaa sisäradan juoksun ja mahdollisuuden keulaan tai"
               " johtavan taakse. Fiksumpi raha herännyt."
@@ -110,7 +107,6 @@ if not st.session_state.kertoimet_paivitetty:
       },
   ]
 else:
-  # Päivitetyt lauantain arvot (simuloidaan haetut oikeat kertoimet)
   v85_yllattajat_data = [
       {
           "Kohde": "V85-1 (Lopp 5)",
@@ -120,8 +116,7 @@ else:
           "La-%": "5.1%",
           "Muutos": "+0.9%",
           "Unibet (Pe 15.40)": 14.50,
-          "Coolbet (Pe 15.40)": 15.00,
-          "Unibet/Coolbet (La)": 12.50,
+          "Unibet (La)": 12.50,
           "Perustelut": (
               "Travronden ja Expressen nostavat tallin nousuvireen esiin."
               " Sisärata (3) ja hyvät varustemuutokset puoltavat menestystä."
@@ -135,8 +130,7 @@ else:
           "La-%": "2.8%",
           "Muutos": "+0.7%",
           "Unibet (Pe 15.40)": 22.00,
-          "Coolbet (Pe 15.40)": 21.00,
-          "Unibet/Coolbet (La)": 18.50,
+          "Unibet (La)": 18.50,
           "Perustelut": (
               "Travronden Spelin asiantuntijat pitävät tätä jättiyllättäjänä."
               " Haastavasta volttiradasta huolimatta kyky riittää."
@@ -150,8 +144,7 @@ else:
           "La-%": "4.0%",
           "Muutos": "+0.5%",
           "Unibet (Pe 15.40)": 16.00,
-          "Coolbet (Pe 15.40)": 16.50,
-          "Unibet/Coolbet (La)": 15.00,
+          "Unibet (La)": 15.00,
           "Perustelut": (
               "Pitkä matka ja takarivi vaativat tuuria, mutta jenkkikärryt tuovat"
               " lisätehoja voittotaistoon."
@@ -165,8 +158,7 @@ else:
           "La-%": "4.5%",
           "Muutos": "+0.5%",
           "Unibet (Pe 15.40)": 18.50,
-          "Coolbet (Pe 15.40)": 19.00,
-          "Unibet/Coolbet (La)": 16.00,
+          "Unibet (La)": 16.00,
           "Perustelut": (
               "Tammojen pitkän matkan volttilähtö. Kokenut ohjastaja pystyy"
               " poimimaan lopussa tarvettavat selät."
@@ -180,8 +172,7 @@ else:
           "La-%": "6.8%",
           "Muutos": "+1.3%",
           "Unibet (Pe 15.40)": 11.00,
-          "Coolbet (Pe 15.40)": 12.00,
-          "Unibet/Coolbet (La)": 9.50,
+          "Unibet (La)": 9.50,
           "Perustelut": (
               "Ykkösrata takaa sisäradan juoksun ja mahdollisuuden keulaan tai"
               " johtavan taakse. Fiksumpi raha herännyt."
