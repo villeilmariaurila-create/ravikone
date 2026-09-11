@@ -188,7 +188,7 @@ st.dataframe(df_yllattajat, use_container_width=True, hide_index=True)
 
 st.divider()
 
-# Tarkemmat perustelut korteina
+# Tarkemmat perustelut korteina (korjattu lainausmerkit f-stringin sisällä)
 st.subheader("📖 Tarkemmat perustelut ja analyysit kohdekohtaisesti")
 
 for item in v85_yllattajat_data:
