@@ -2,15 +2,15 @@ import pandas as pd
 import streamlit as st
 
 # ==============================================================================
-# V85-YLLÄTTÄJÄANALYYSI JA KIINTEÄT KERTOIMET (Lähdöt 5-12)
+# V85-YLLÄTTÄJÄANALYYSI, KIINTEÄT KERTOIMET & TRAVRONDEN-VIHJEET (Lähdöt 5-12)
 # ==============================================================================
 
 st.set_page_config(page_title="V85 Yllättäjä- ja Peliarvotyökalu", layout="wide")
 
 st.title("🎯 V85 Alle 10% Pelatut Yllättäjät & Kiinteät Kertoimet")
-st.caption("Työkalu hakee V85-kohteista (lähdöt 5–12) parhaat alle 10% pelatut yllättäjät huomioiden kiinteät kertoimet, lähtöpaikan, lähtötavan sekä perjantain ja lauantain peliprosenttien erot.")
+st.caption("Työkalu hakee V85-kohteista (lähdöt 5–12) parhaat alle 10% pelatut yllättäjät huomioiden Unibetin kiinteät kertoimet, Expressenin, Aftonbladetin ja Travrondenin vihjeet, lähtöpaikan, lähtötavan sekä perjantain ja lauantain peliprosenttien erot.")
 
-# Taulukon data V85-kohteista (Lähdöt 5–12)
+# Taulukon data V85-kohteista (Lähdöt 5–12) sis. Travronden-viitteet
 v85_yllattajat_data = [
     {
         "Kohde": "V85-1 (Lopp 5)",
@@ -21,7 +21,7 @@ v85_yllattajat_data = [
         "Muutos": "+3.3%",
         "Unibet Kerroin": 14.50,
         "Simulaatio %": 11.2,
-        "Yllättäjän Perustelut": "Pääsee matkaan hyvältä sisäradalta (3). Autolähtö sopii erinomaisesti ja tallikommenttien mukaan varustemuutoksetpuoltavat nousuvirettä. Unibetin kiinteä kerroin (14.50) tarjoaa valtavan ylikertoimen suhteessa 11.2% simulaatiotodennäköisyyteen."
+        "Yllättäjän Perustelut": "Travronden ja Expressen nostavat tallin nousuvireen esiin. Pääsee matkaan hyvältä sisäradalta (3). Autolähtö sopii erinomaisesti ja varustemuutokset puoltavat menestystä. Unibetin kiinteä kerroin (14.50) tarjoaa valtavan ylikertoimen suhteessa 11.2% simulaatiotodennäköisyyteen."
     },
     {
         "Kohde": "V85-2 (Lopp 6)",
@@ -32,7 +32,7 @@ v85_yllattajat_data = [
         "Muutos": "+2.9%",
         "Unibet Kerroin": 22.00,
         "Simulaatio %": 8.9,
-        "Yllättäjän Perustelut": "Volttilähtö ja kahdeksas rata tekevät alusta haastavan, mutta Expressen/Aftonbladet -vihjeissä nostettu kyky riittää kovassa porukassa. Peliarvo on erinomainen (kerroin 22.00), kunhan juoksunkulku sallii nousun kärkeen."
+        "Yllättäjän Perustelut": "Travronden Spelin asiantuntijat pitävät tätä jättiyllättäjäpotentiaalina. Volttilähtö ja kahdeksas rata tekevät alusta haastavan, mutta Aftonbladet/Expressen-vihjeissä nostettu kyky riittää kovassa porukassa. Peliarvo on erinomainen (kerroin 22.00)."
     },
     {
         "Kohde": "V85-4 (Lopp 8)",
@@ -43,7 +43,7 @@ v85_yllattajat_data = [
         "Muutos": "+4.6%",
         "Unibet Kerroin": 16.00,
         "Simulaatio %": 10.5,
-        "Yllättäjän Perustelut": "Pitkä matka (2640m) ja takarivi vaativat tuuria, mutta ruotsalaislehtien vinkkilistoilla nostettu jenkkikärryjen tuoma lisäteho nostaa voittosaumoja. Peliprosentti laahaa selvästi simulaatiota perässä."
+        "Yllättäjän Perustelut": "Travrondenin vihjeissä nostettu esiin. Pitkä matka (2640m) ja takarivi vaativat tuuria, mutta ruotsalaislehtien vinkkilistoilla mainitut jenkkikärryt tuovat lisätehoja, nostaen voittosaumoja yli markkinajakauman."
     },
     {
         "Kohde": "V85-6 (Lopp 10)",
@@ -54,7 +54,7 @@ v85_yllattajat_data = [
         "Muutos": "+2.8%",
         "Unibet Kerroin": 18.50,
         "Simulaatio %": 9.4,
-        "Yllättäjän Perustelut": "Tammojen pitkän matkan volttilähtö, jossa kokenut ohjastaja pystyy poimimaan lopussa selkiä. Unibetin kerroin 18.50 ylittää selvästi markkinoiden todellisen todennäköisyyden."
+        "Yllättäjän Perustelut": "Tammojen pitkän matkan volttilähtö, jota Expressen ja Travronden pitävät tasaisena. Kokenut ohjastaja pystyy poimimaan lopussa selkiä. Unibetin kerroin 18.50 ylittää selvästi markkinoiden todellisen todennäköisyyden."
     },
     {
         "Kohde": "V85-7 (Lopp 11)",
@@ -65,7 +65,7 @@ v85_yllattajat_data = [
         "Muutos": "+3.7%",
         "Unibet Kerroin": 11.00,
         "Simulaatio %": 12.1,
-        "Yllättäjän Perustelut": "Ykkösrata autolähdössä takaa sisäradan juoksun ja mahdollisuuden johtavan taakse tai keulaan. Perjantain ja lauantain välinen nousu (5.5% -> 9.2%) osoittaa fiksumman rahan heränneen kohteeseen."
+        "Yllättäjän Perustelut": "Travronden nostaa ykkösradan merkityksen suureksi. Takaa sisäradan juoksun ja mahdollisuuden johtavan taakse tai keulaan. Perjantain ja lauantain välinen nousu (5.5% -> 9.2%) osoittaa fiksumman rahan heränneen."
     }
 ]
 
@@ -78,8 +78,8 @@ st.divider()
 st.subheader("💡 Peliohjeet tälle kierrokselle")
 st.markdown(
     """
-    * **Yllättäjäkriteeri:** Taulukko suodattaa esiin vain ne V85-kohteiden hevoset, joiden lauantain peliprosentti on **alle 10%**, mutta simuloitu voittotodennäköisyys ja Unibetin kiinteät kertoimet antajat sille merkittävän ylikertoimen.
+    * **Yllättäjäkriteeri:** Taulukko suodattaa esiin vain ne V85-kohteiden hevoset, joiden lauantain peliprosentti on **alle 10%**, mutta simuloitu voittotodennäköisyys, Unibetin kiinteät kertoimet sekä ruotsalaismedioiden (Travronden, Expressen, Aftonbladet) vihjeet puoltavat peliä.
     * **Perjantai vs. Lauantai:** Seuraa sararaketta, joka näyttää prosentin muutoksen – se kertoo, mihin suuntaan yleisön raha on virrannut yön aikana.
-    * **Perustelut:** Jokainen rivi yhdistää Travsport.se-tiedot, Expressen/Aftonbladet -vihjeet sekä lähtötavan (auto vs. voltti) ja lähtöpaikan todellisen merkityksen.
+    * **Perustelut:** Jokainen rivi yhdistää Travsport.se-tiedot, Expressen/Aftonbladet/Travronden -vihjeet sekä lähtötavan (auto vs. voltti) ja lähtöpaikan todellisen merkityksen.
     """
 )
