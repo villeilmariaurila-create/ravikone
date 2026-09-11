@@ -1,10 +1,6 @@
 import pandas as pd
 import streamlit as st
 
-# ==============================================================================
-# V85-YLLÄTTÄJÄANALYYSI & KERTOIMET
-# ==============================================================================
-
 st.set_page_config(
     page_title="V85 Yllättäjä- ja Kerroinvertailutyökalu", layout="wide"
 )
@@ -14,7 +10,6 @@ st.caption(
     "Automaattinen suodatus: Näytetään vain valjakot, joiden lauantain peliprosentti on enintään 10 %."
 )
 
-# Raakadata kaikista seuratuista kohteista
 kaikki_data = [
     {
         "Kohde": "V85-1 (Lopp 5)",
@@ -73,7 +68,6 @@ kaikki_data = [
     },
 ]
 
-# Automaattinen suodatus: poistetaan hevoset, joiden La-% on yli 10 %
 yllattajat_filtratty = [
     item
     for item in kaikki_data
@@ -82,19 +76,16 @@ yllattajat_filtratty = [
 
 df_yllattajat = pd.DataFrame(yllattajat_filtratty)
 
-# Päätaulukko
 st.dataframe(df_yllattajat, use_container_width=True, hide_index=True)
 
 st.divider()
 
-# Tarkemmat perustelut Streamlitin omilla native-elementeillä
 st.subheader("📖 Suodatettujen yllättäjien analyysit")
 
 for item in yllattajat_filtratty:
     with st.container(border=True):
-        st.markdown(
-            f"### {item['Kohde']} – {item['Hevonen']} ({item['Rata & Tapa']})"
-        )
+        st.subheader(f"{item['Kohde']} - {item['Hevonen']}")
+        st.write(f"Rata ja tapa: {item['Rata & Tapa']}")
 
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -104,16 +95,14 @@ for item in yllattajat_filtratty:
                 delta=item["Muutos"],
             )
         with col2:
-            st.write(f"**Perjantain prosentti:** {item['Pe-% (15.40)']}")
-            st.write(f"**Unibet kerroin:** {item['Unibet Kerroin']}")
+            st.write(f"Perjantain prosentti: {item['Pe-% (15.40)']}")
+            st.write(f"Unibet kerroin: {item['Unibet Kerroin']}")
         with col3:
-            st.write(f"**Coolbet kerroin:** {item['Coolbet Kerroin']}")
+            st.write(f"Coolbet kerroin: {item['Coolbet Kerroin']}")
 
-        st.write(f"**Analyysi ja perustelut:** {item['Perustelut']}")
+        st.write(f"Analyysi: {item['Perustelut']}")
 
 st.divider()
 st.subheader("💡 Ohjeet ja huomiot")
-st.write(
-    "- **Automaattisuodatus:** Koodi suodattaa pois yli 10 % pelatut (esim. L6 #8 Teknologen 32 % rajautui automaattisesti pois).\n"
-    "- **Native-rakenne:** HTML-koodin sijaan käytetään Streamlitin `st.container`- ja `st.metric`-komponentteja, mikä estää syntaksi- ja sisenysvirheet."
-)'
+st.markdown("* Automaattisuodatus poistaa yli 10 % pelatut valjakot.")
+st.markdown("* Käytössä Streamlitin omat komponentit ilman pitkiä tekstimuotoiluja.")
