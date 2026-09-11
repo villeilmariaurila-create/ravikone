@@ -81,5 +81,5 @@ st.divider()
 st.subheader("📖 Tarkemmat perustelut ja analyysit kohdekohtaisesti")
 
 for item in v85_yllattajat_data:
-    st.markdown(
-        f"""
+    card_html = (
+        '
