@@ -1,3 +1,5 @@
+
+ from textwrap import dedent
 import pandas as pd
 import streamlit as st
 
@@ -19,11 +21,11 @@ st.markdown(
 
 st.title("🎯 V85 Yllättäjäanalyysi & Prosenttivertailu")
 st.caption(
-    "Perjantain peliprosentit (klo 15.40) vs. lauantain päivittyneet arvot (Vain alle 10 % pelatut yllättäjät)."
+    "Automaattinen suodatin: Näytetään vain valjakot, joiden lauantain peliprosentti on enintään 10 %."
 )
 
-# Datan määrittely - mukana vain alle 10 % lauantaina pelatut hevoset
-v85_yllattajat_data = [
+# Raakadata kaikista seuratuista kohteista
+kaikki_data = [
     {
         "Kohde": "V85-1 (Lopp 5)",
         "Hevonen": "#3 Sign Of Times",
@@ -31,9 +33,20 @@ v85_yllattajat_data = [
         "Pe-% (15.40)": "4.2%",
         "La-%": "1.0%",
         "Muutos": "-3.2%",
-        "Unibet (Pe 15.40)": 14.50,
-        "Coolbet (Pe 15.40)": 15.00,
+        "Unibet Kerroin": 14.50,
+        "Coolbet Kerroin": 15.00,
         "Perustelut": "Travronden ja Expressen nostavat tallin nousuvireen esiin. Sisärata (3) ja hyvät varustemuutokset puoltavat menestystä.",
+    },
+    {
+        "Kohde": "V85-2 (Lopp 6)",
+        "Hevonen": "#8 Teknologen",
+        "Rata & Tapa": "2140m Voltstart (Rata 8)",
+        "Pe-% (15.40)": "2.1%",
+        "La-%": "32.0%",
+        "Muutos": "+29.9%",
+        "Unibet Kerroin": 3.20,
+        "Coolbet Kerroin": 3.10,
+        "Perustelut": "Peliynteressi heräsi voimakkaasti lauantaina. Ei enää yllättäjä.",
     },
     {
         "Kohde": "V85-4 (Lopp 8)",
@@ -42,8 +55,8 @@ v85_yllattajat_data = [
         "Pe-% (15.40)": "3.5%",
         "La-%": "1.0%",
         "Muutos": "-2.5%",
-        "Unibet (Pe 15.40)": 16.00,
-        "Coolbet (Pe 15.40)": 16.50,
+        "Unibet Kerroin": 16.00,
+        "Coolbet Kerroin": 16.50,
         "Perustelut": "Pitkä matka ja takarivi vaativat tuuria, mutta jenkkikärryt tuovat lisätehoja voittotaistoon.",
     },
     {
@@ -53,8 +66,8 @@ v85_yllattajat_data = [
         "Pe-% (15.40)": "4.0%",
         "La-%": "5.0%",
         "Muutos": "+1.0%",
-        "Unibet (Pe 15.40)": 18.50,
-        "Coolbet (Pe 15.40)": 19.00,
+        "Unibet Kerroin": 18.50,
+        "Coolbet Kerroin": 19.00,
         "Perustelut": "Tammojen pitkän matkan volttilähtö. Kokenut ohjastaja pystyy poimimaan lopussa tarvittavat selät.",
     },
     {
@@ -64,13 +77,20 @@ v85_yllattajat_data = [
         "Pe-% (15.40)": "5.5%",
         "La-%": "4.0%",
         "Muutos": "-1.5%",
-        "Unibet (Pe 15.40)": 11.00,
-        "Coolbet (Pe 15.40)": 12.00,
+        "Unibet Kerroin": 11.00,
+        "Coolbet Kerroin": 12.00,
         "Perustelut": "Ykkösrata takaa sisäradan juoksun ja mahdollisuuden keulaan tai johtavan taakse.",
     },
 ]
 
-df_yllattajat = pd.DataFrame(v85_yllattajat_data)
+# Suodatetaan kooditasolla automaattisesti alle tai tasan 10 % hevoset
+yllattajat_filtratty = [
+    item
+    for item in kaikki_data
+    if float(item["La-%"].replace("%", "").strip()) <= 10.0
+]
+
+df_yllattajat = pd.DataFrame(yllattajat_filtratty)
 
 # Näytetään päätaulukko Streamlitissa
 st.dataframe(df_yllattajat, use_container_width=True, hide_index=True)
@@ -78,8 +98,8 @@ st.dataframe(df_yllattajat, use_container_width=True, hide_index=True)
 st.divider()
 
 # Tarkemmat perustelut korteina
-st.subheader("📖 Tarkemmat perustelut ja analyysit kohdekohtaisesti")
+st.subheader("📖 Suodatettujen yllättäjien analyysit")
 
-for item in v85_yllattajat_data:
-    card_html = (
-        '
+for item in yllattajat_filtratty:
+    card_html = dedent(
+        f"""       '
