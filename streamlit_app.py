@@ -1,140 +1,229 @@
 import pandas as pd
 import streamlit as st
 
+# Sivun asetukset
 st.set_page_config(
-    page_title="V85 Hagmyren - Kaikki Yllättäjät", layout="wide"
+    page_title="V85 Hagmyren - Yllättäjät & Ideat",
+    page_icon="🏇",
+    layout="wide",
 )
 
 st.title("🏇 V85 Hagmyren: KAIKKI Alle 10 % Yllättäjät Perusteluineen")
 st.caption(
-    "Simulaation ja kertoimien pohjalta poimittu jokainen alle 10 % pelattu ideavaljakko tarkan analyysin kera."
+    "Vihjeanalyysin ja Unibet-kertoimien pohjalta kootut alle 10 % pelatut ideavaljakot."
 )
 
+# Datapisteet vihjenostojen pohjalta
 data = [
+    # V85-1
     {
-        "Kohde": "V85-1 (Lopp 5)",
-        "Hevonen": "#5 Macho Cabrio B.B.",
-        "Ohjastaja": "Peter G Norman",
-        "Peliprosentti": "9.0%",
-        "Unibet": 9.50,
-        "Coolbet": 10.00,
-        "Perustelu": "Luokkoriittävä hevonen, joka saa eturivin paikalta 5 hyvät asemat toisesta ulkoa tai johtavan rinnalta. Kestää kovan matkavauhdin ja pystyy Hagmyrenin lyhyellä loppusuoralla ratkaisemaan peli-ideana.",
+        "Kohde": "V85-1",
+        "Hevonen": "#6 Henessi Kiev",
+        "Ohjastaja": "Oskar J Andersson",
+        "Peliprosentti": "4.0%",
+        "Unibet": 14.50,
+        "Coolbet": 15.00,
+        "Perustelu": "Viimeksi jäi voimissaan pussiin johtavan taakse. Hieno 4-vuotias, joka vältessään johtavan rinnalla juoksemisen on todella varhainen varmistusmerkki.",
     },
     {
-        "Kohde": "V85-1 (Lopp 5)",
+        "Kohde": "V85-1",
         "Hevonen": "#4 Geisha Road Grif",
         "Ohjastaja": "Jorma Kontio",
         "Peliprosentti": "5.5%",
-        "Unibet": 15.00,
-        "Coolbet": 14.50,
-        "Perustelu": "Italialaissukuinen tamma kokeneen Jorma Kontion ohjastamana. Viime kisan kakkossija osoitti kunnon olevan kohdallaan, ja nelosradalta tie on auki taloudelliseen juoksuun keularyhmän tuntumassa.",
+        "Unibet": 11.00,
+        "Coolbet": 10.50,
+        "Perustelu": "Lähdön todennäköisin keulahevonen. Jorma Kontio ladannee keulaan, ja jos vauhti saa dämpätä toisella puolikkaalla, voi vetää loppuun asti.",
     },
     {
-        "Kohde": "V85-2 (Lopp 6)",
+        "Kohde": "V85-1",
+        "Hevonen": "#8 Herkules A'lir",
+        "Ohjastaja": "Rikard N Skoglund",
+        "Peliprosentti": "6.0%",
+        "Unibet": 13.00,
+        "Coolbet": 13.50,
+        "Perustelu": "Kohtaa pykälää helpomman porukan kuin viimeksi Pronssidivisioonassa. Paikka on hankala, mutta juoksun onnistuessa riittää pitkälle.",
+    },
+    # V85-2
+    {
+        "Kohde": "V85-2",
         "Hevonen": "#4 Silke Sjarmör",
         "Ohjastaja": "Carl Johan Jepson",
         "Peliprosentti": "7.0%",
-        "Unibet": 12.00,
-        "Coolbet": 12.50,
-        "Perustelu": "Kapasiteetiltaan vahva norjalainen kylmäverinen. Ohjastajavahvistus Carl Johan Jepson tuo huomattavan lisäedun taktiikkaan, jolloin kiri kantaa pussituksen vältettäessä.",
+        "Unibet": 6.50,
+        "Coolbet": 7.00,
+        "Perustelu": "Keulafavoriitti ensimmäiseen kaarteeseen. Hoitojen jälkeen parempi ja viihtyy Hagmyrenillä (2 starttia, 2 voittoa). Johtaa pitkään.",
     },
     {
-        "Kohde": "V85-2 (Lopp 6)",
+        "Kohde": "V85-2",
         "Hevonen": "#10 Re Alkapital",
         "Ohjastaja": "Joakim Eskilsson",
         "Peliprosentti": "3.0%",
-        "Unibet": 26.00,
-        "Coolbet": 25.00,
-        "Perustelu": "Huono tulossarja hämää suuria massoja, minkä vuoksi peliprosentti on painunut pohjiin. Väläytellyt aiemmin luokkaa, jolla taistellaan kärkikohteissa laukan sattuessa muille.",
+        "Unibet": 21.00,
+        "Coolbet": 22.00,
+        "Perustelu": "Treeniraportit erittäin positiivisia. Ravaessaan pystyy yllättämään suosikit, vaikka ohjastajakokemus V85-tasolta on vähäinen.",
     },
     {
-        "Kohde": "V85-3 (Lopp 7)",
-        "Hevonen": "#4 Mizai",
-        "Ohjastaja": "Per Lennartsson",
-        "Peliprosentti": "7.5%",
-        "Unibet": 11.00,
-        "Coolbet": 11.50,
-        "Perustelu": "Pikamatkalla (1640 m) erittäin nopea avaaja. Per Lennartsson saa tammalla sisäradalta heti paikan kärkiporukasta, mistä se pystyy yllättämään suosikit.",
-    },
-    {
-        "Kohde": "V85-4 (Lopp 8)",
-        "Hevonen": "#3 Ytowns Ulrik",
-        "Ohjastaja": "Jorma Kontio",
+        "Kohde": "V85-2",
+        "Hevonen": "#15 Guli Em",
+        "Ohjastaja": "Rikard N Skoglund",
         "Peliprosentti": "4.5%",
-        "Unibet": 17.00,
-        "Coolbet": 18.00,
-        "Perustelu": "Pitkälle matkalle (2640 m) vankka ja tasainen jyrä Jorma Kontiolla vahvistettuna. Jaksaa puskemaan raskaan matkavauhdin loppuun asti muiden hyytyessä.",
+        "Unibet": 16.00,
+        "Coolbet": 15.00,
+        "Perustelu": "Taka-alalta kova tehtävä, mutta nopea jaloistaan ja toimi loistavasti uudessa kärrytasapainossa viimeksi. Vaarallinen yllättäjä.",
+    },
+    # V85-3
+    {
+        "Kohde": "V85-3",
+        "Hevonen": "#7 Jerka Sting",
+        "Ohjastaja": "Claes Sjöström",
+        "Peliprosentti": "8.5%",
+        "Unibet": 7.50,
+        "Coolbet": 8.00,
+        "Perustelu": "Vihjekirjoittajan A-hevonen! Jos megaratsut Mizai ja Before Takeoff kiihdyttävät rajusti keulasta, Jerka Sting kuittaa lopussa tulisen loppuvetonsa ansiosta.",
     },
     {
-        "Kohde": "V85-4 (Lopp 8)",
+        "Kohde": "V85-3",
+        "Hevonen": "#4 Mizai",
+        "Ohjastaja": "Mats E Djuse",
+        "Peliprosentti": "7.5%",
+        "Unibet": 8.50,
+        "Coolbet": 9.00,
+        "Perustelu": "Mats E Djuse tuntee vastustajat ja uskoo vahvasti keulapaikan ottoon. Viimeksi pirteä selästä, nopealla radalla jättiyllätysvalmis keulasta.",
+    },
+    # V85-4
+    {
+        "Kohde": "V85-4",
         "Hevonen": "#11 Bear Victor",
         "Ohjastaja": "Ulf Ohlsson",
         "Peliprosentti": "2.3%",
-        "Unibet": 10.91,
+        "Unibet": 35.00,
+        "Coolbet": 33.00,
+        "Perustelu": "Täydellinen jättisensaatio hakuun. Pitkä matka sopii ja Ulf Ohlsson säästää voimia taka-alalta ratkaisukiriin.",
+    },
+    {
+        "Kohde": "V85-4",
+        "Hevonen": "#3 Ytowns Ulrik",
+        "Ohjastaja": "Jorma Kontio",
+        "Peliprosentti": "4.5%",
+        "Unibet": 15.00,
+        "Coolbet": 16.00,
+        "Perustelu": "Näytti avaussuorituskykyä ja voimaa viime keulavoitossaan. Vankka jyrä pitkälle 2640m matkalle.",
+    },
+    # V85-5
+    {
+        "Kohde": "V85-5",
+        "Hevonen": "#3 Tekno Tana",
+        "Ohjastaja": "Tomas Pettersson",
+        "Peliprosentti": "5.0%",
+        "Unibet": 12.00,
         "Coolbet": 11.00,
-        "Perustelu": "Erittäin alipelattu suhteessa voittajakertoimeensa (10.91). Mestarikuski Ulf Ohlsson ohjastaa ja pystyy takarivistä ajamaan säästeliäästi pitkällä matkalla iskien lopussa.",
+        "Perustelu": "Viimeksi häikäisevä loppuveto voittomatsissa. Erittäin nopeasti avaava tamma, joka voi heittää jättisuosikki Majblomsterille todellisen haasteen.",
     },
     {
-        "Kohde": "V85-5 (Lopp 9)",
-        "Hevonen": "#4 Hulte Alva",
-        "Ohjastaja": "Linda S Hedström",
-        "Peliprosentti": "6.0%",
-        "Unibet": 18.00,
-        "Coolbet": 17.50,
-        "Perustelu": "Suurmurskaajasuosikki Majblomsterin varjossa kulkeva tasaisen varma tamma, joka hyötyy erinomaisesta eturivin lähtöpaikasta ja tarkasta juoksusta.",
+        "Kohde": "V85-5",
+        "Hevonen": "#2 Prinsesse Ness Tjo",
+        "Ohjastaja": "Örjan Kihlström",
+        "Peliprosentti": "6.5%",
+        "Unibet": 9.50,
+        "Coolbet": 10.00,
+        "Perustelu": "Huippukuntoinen tamma, joka saa Örjan Kihlströmin kyytiin. Jos 1 ja 3 tappelevat keulasta, Örjan rankaisee lopussa.",
     },
+    # V85-6
     {
-        "Kohde": "V85-6 (Lopp 10)",
+        "Kohde": "V85-6",
         "Hevonen": "#3 Pure Jouline",
         "Ohjastaja": "Linus Lönn",
         "Peliprosentti": "4.0%",
-        "Unibet": 21.00,
-        "Coolbet": 20.00,
-        "Perustelu": "Kierroksen pääskrälli volttilähdöstä. Saa nopean lähdön paalulta, kun suosikit joutuvat kiertämään takamatkalta runsaassa liikenneruuhkassa.",
+        "Unibet": 19.00,
+        "Coolbet": 18.00,
+        "Perustelu": "Ainoa kerta keulasta toi voiton kovia vastaan. Kunto parempi kuin rivi näyttää ja keulaan päästessään voi kantaa koko matkan.",
     },
     {
-        "Kohde": "V85-6 (Lopp 10)",
-        "Hevonen": "#8 Brionne",
-        "Ohjastaja": "Rikard N Skoglund",
+        "Kohde": "V85-6",
+        "Hevonen": "#9 Melina Havelock",
+        "Ohjastaja": "Fredrik Wallin",
         "Peliprosentti": "3.5%",
-        "Unibet": 28.00,
-        "Coolbet": 26.00,
-        "Perustelu": "Pitkä 2640 metrin matka suosii hevosta. Saa hyvän peitteisen juoksun sisäradalla ja Rikard N Skoglundin ajamana kyseessä on merkittävä peli-idea.",
+        "Unibet": 23.00,
+        "Coolbet": 25.00,
+        "Perustelu": "Kohdannut ikäluokkalähdöissä kovia tammoja. Saanut kovista kisoista rutiinia ja kohtaa nyt selvästi helpomman vastuksen.",
     },
     {
-        "Kohde": "V85-7 (Lopp 11)",
+        "Kohde": "V85-6",
+        "Hevonen": "#5 Bohemian Maid",
+        "Ohjastaja": "Magnus A Djuse",
+        "Peliprosentti": "3.0%",
+        "Unibet": 27.00,
+        "Coolbet": 26.00,
+        "Perustelu": "Mielenkiintoiset muutokset: kengittä, norjalaiset pääkkärit ja Magnus A Djuse ohjasiin. Yllätysvalmis smyygejuoksulla.",
+    },
+    # V85-7
+    {
+        "Kohde": "V85-7",
         "Hevonen": "#3 Graces Bird",
         "Ohjastaja": "Fredrik Plassen",
-        "Peliprosentti": "7.8%",
-        "Unibet": 13.50,
-        "Coolbet": 14.00,
-        "Perustelu": "Tulinen avaaja ja lähdön todennäköisin keulakandidaatti. Hagmyrenin lyhyellä 170 metrin loppusuoralla keulasta ajava valjakko on tilastollisesti vahvoilla.",
-    },
-    {
-        "Kohde": "V85-7 (Lopp 11)",
-        "Hevonen": "#1 Bruce Braylon",
-        "Ohjastaja": "Per Lennartsson",
-        "Peliprosentti": "5.0%",
-        "Unibet": 19.00,
-        "Coolbet": 18.50,
-        "Perustelu": "Ykkösradalta taattu taloudellinen sisäradan juoksu johtavan takana. Iskee terävästi tilan avautuessa loppusuoralla Per Lennartssonin kannustamana.",
-    },
-    {
-        "Kohde": "V85-8 (Lopp 12)",
-        "Hevonen": "#9 Summermusic'nightS",
-        "Ohjastaja": "Marcus Lilius",
         "Peliprosentti": "3.5%",
-        "Unibet": 31.00,
-        "Coolbet": 33.00,
-        "Perustelu": "Suorituskyky on huomattavasti tulostaulua parempi. Jos eturivin suosikit pitävät yllä liian kovaa matkavauhtia, tämä valjakko syöksyy kirillään mitalitaisteluun.",
+        "Unibet": 21.00,
+        "Coolbet": 19.00,
+        "Perustelu": "Vihjeen kirjoittajan OMA hevonen. Paljastaa, että tällä AJETAAN KEULASTA. Hagmyrenin 170m loppusuoralla jätti-idea 3-4% pelattuna!",
+    },
+    {
+        "Kohde": "V85-7",
+        "Hevonen": "#2 Pineapple",
+        "Ohjastaja": "Carl Johan Jepson",
+        "Peliprosentti": "4.5%",
+        "Unibet": 15.00,
+        "Coolbet": 14.00,
+        "Perustelu": "Ensimmäistä kertaa ilman kenkiä (barfota runt om) + CJ Jepson rattailla. Vastasi rajusti ryöstäjiin viimereissulla, yllättää ylivauhdilla.",
+    },
+    # V85-8
+    {
+        "Kohde": "V85-8",
+        "Hevonen": "#7 Brilliant Kid",
+        "Ohjastaja": "Peter G Norman",
+        "Peliprosentti": "5.5%",
+        "Unibet": 12.00,
+        "Coolbet": 12.50,
+        "Perustelu": "Lähdön todennäköisin keulahevonen (spetsfavorit). Jos saa rauhoittaa matkavauhtia, suosikkien on vaikea tavoittaa lyhyellä loppusuoralla.",
     },
 ]
 
 df = pd.DataFrame(data)
 
-st.subheader(f"📊 Yhteenvetotaulukko ({len(data)} Hevosta)")
+# Sivupalkin suodatin helppoon selaukseen
+st.sidebar.header("Suodata kohteita")
+selected_kohde = st.sidebar.selectbox(
+    "Valitse kohde:", ["Kaikki kohteet"] + list(df["Kohde"].unique())
+)
+
+if selected_kohde != "Kaikki kohteet":
+    filtered_df = df[df["Kohde"] == selected_kohde]
+else:
+    filtered_df = df
+
+# Päänäkymä: Korttirakenne helppoon luettavuuteen
+st.subheader("💡 Nostot & Perustelut (Helppolukuinen näkymä)")
+
+for idx, row in filtered_df.iterrows():
+    with st.expander(
+        f"{row['Kohde']}: {row['Hevonen']} ({row['Ohjastaja']}) — Pelattu: {row['Peliprosentti']} | Unibet: {row['Unibet']:.2f}"
+    ):
+        col1, col2, col3 = st.columns([1, 1, 3])
+        with col1:
+            st.metric("Peliosuus", row["Peliprosentti"])
+        with col2:
+            st.metric("Unibet Kerroin", f"{row['Unibet']:.2f}")
+        with col3:
+            st.write(f"**Ohjastaja:** {row['Ohjastaja']}")
+            st.write(f"**Coolbet:** {row['Coolbet']:.2f}")
+
+        st.markdown(f"**💡 Perustelu:** {row['Perustelu']}")
+
+st.divider()
+
+# Yhteenvetotaulukko sivun alalaidassa
+st.subheader("📊 Kaikki ideat taulukossa")
 st.dataframe(
-    df[
+    filtered_df[
         [
             "Kohde",
             "Hevonen",
@@ -148,26 +237,3 @@ st.dataframe(
     use_container_width=True,
     hide_index=True,
 )
-
-st.divider()
-st.subheader("🔥 Kaikkien 13 yllättäjän yksityiskohtaiset analyysit")
-
-for item in data:
-    with st.container(border=True):
-        st.subheader(f"{item['Kohde']}: {item['Hevonen']}")
-        st.write(f"**Ohjastaja:** {item['Ohjastaja']}")
-
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric(
-                label="Peliprosentti",
-                value=item["Peliprosentti"],
-                delta="ALLE 10%",
-                delta_color="normal",
-            )
-        with col2:
-            st.metric(label="Unibet Kerroin", value=item["Unibet"])
-        with col3:
-            st.metric(label="Coolbet Kerroin", value=item["Coolbet"])
-
-        st.info(f"💡 **Simulaation perustelu:** {item['Perustelu']}")
