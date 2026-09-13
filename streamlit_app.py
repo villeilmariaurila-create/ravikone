@@ -6,7 +6,7 @@ st.set_page_config(
 )
 
 st.title("🚜 Aatoksen ja Villen Forssa-Peli 🚛")
-st.subheader("Raviradan kunnossapito")
+st.caption("Ohjaa vesiautoa (🚛), kastele rata (💧) ja väistä traktoreita (🚜)!")
 
 # Alustetaan pelin tila
 if "player_x" not in st.session_state:
@@ -15,7 +15,6 @@ if "player_x" not in st.session_state:
     st.session_state.score = 0
     st.session_state.lives = 3
     st.session_state.game_over = False
-    # Luodaan kastelupisteet radalle
     st.session_state.water_dots = [
         (1, 0),
         (2, 0),
@@ -36,23 +35,21 @@ def move_player(dx, dy):
     if st.session_state.game_over:
         return
 
-    # Uusi sijainti
+    # Liikutetaan pelaajaa
     new_x = max(0, min(4, st.session_state.player_x + dx))
     new_y = max(0, min(4, st.session_state.player_y + dy))
     st.session_state.player_x = new_x
     st.session_state.player_y = new_y
 
-    # Siirretään traktoreita satunnaisesti
+    # Liikutetaan traktoreita
     new_tractors = []
     for tx, ty in st.session_state.tractors:
-        tdx = random.choice([-1, 0, 1])
-        tdy = random.choice([-1, 0, 1])
-        nx = max(0, min(4, tx + tdx))
-        ny = max(0, min(4, ty + tdy))
+        nx = max(0, min(4, tx + random.choice([-1, 0, 1])))
+        ny = max(0, min(4, ty + random.choice([-1, 0, 1])))
         new_tractors.append((nx, ny))
     st.session_state.tractors = new_tractors
 
-    # Tarkistetaan törmäys traktoriin
+    # Törmäys traktoriin
     if (new_x, new_y) in st.session_state.tractors:
         st.session_state.lives -= 1
         st.toast("⚠️ Törmäsit traktoriin! Menetit elämän.", icon="💥")
@@ -62,14 +59,14 @@ def move_player(dx, dy):
             st.session_state.game_over = True
             return
 
-    # Tarkistetaan veden keräys
+    # Veden keräys
     if (new_x, new_y) in st.session_state.water_dots:
         st.session_state.water_dots.remove((new_x, new_y))
         st.session_state.score += 10
         st.toast("💧 Kastelupiste kerätty! +10 pistettä", icon="🎉")
 
-    # Jos kaikki vedet kerätty, täytetään rata uudelleen
-    if len(st.session_state.water_dots) == 0:
+    # Jos vesi loppuu, täytetään uudet pisarat
+    if not st.session_state.water_dots:
         st.session_state.water_dots = [
             (1, 0),
             (2, 0),
@@ -109,18 +106,60 @@ def restart_game():
 
 # Tilastot
 col1, col2 = st.columns(2)
-with col1:
-    st.metric("💧 Kastelupisteet", st.session_state.score)
-with col2:
-    st.metric("❤️ Elämät", st.session_state.lives)
+col1.metric("💧 Kastelupisteet", st.session_state.score)
+col2.metric("❤️ Elämät", st.session_state.lives)
 
 st.markdown("---")
 
 if st.session_state.game_over:
     st.error(
-        f"💥 PELI PÄÄTTYI! Aatoseksi ja Villeksi saavutitte {st.session_state.score} pistettä!"
+        f"💥 PELI PÄÄTTYI! Aatoksen ja Villen radalle keräämät pisteet: {st.session_state.score}"
     )
     st.button("🔄 Pelaa uudelleen", on_click=restart_game, type="primary")
 else:
-    # Piirretään pelikenttä (5x5 ruudukko)
-    grid_html = "
+    # Piirretään pelikenttä Streamlit-sarakkeilla ilman HTML-koodia
+    for y in range(5):
+        cols = st.columns(5)
+        for x in range(5):
+            icon = "🟫"
+            if (x, y) == (
+                st.session_state.player_x,
+                st.session_state.player_y,
+            ):
+                icon = "🚛"
+            elif (x, y) in st.session_state.tractors:
+                icon = "🚜"
+            elif (x, y) in st.session_state.water_dots:
+                icon = "💧"
+            cols[x].markdown(f"### {icon}")
+
+    st.markdown("---")
+
+    # Ohjauspainikkeet
+    c1, c2, c3 = st.columns([1, 1, 1])
+    c2.button(
+        "⬆️ Ylös",
+        on_click=move_player,
+        args=(0, -1),
+        use_container_width=True,
+    )
+
+    c4, c5, c6 = st.columns([1, 1, 1])
+    c4.button(
+        "⬅️ Vasen",
+        on_click=move_player,
+        args=(-1, 0),
+        use_container_width=True,
+    )
+    c5.button(
+        "⬇️ Alas",
+        on_click=move_player,
+        args=(0, 1),
+        use_container_width=True,
+    )
+    c6.button(
+        "➡️ Oikea",
+        on_click=move_player,
+        args=(1, 0),
+        use_container_width=True,
+    )
