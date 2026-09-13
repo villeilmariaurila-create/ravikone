@@ -1,20 +1,18 @@
-
 import pandas as pd
 import streamlit as st
 
 st.set_page_config(
-    page_title="Päivän Duo - Automaattinen Simulaattori",
+    page_title="Päivän Duo - Simulaattori & Perustelut",
     page_icon="🏇",
     layout="wide",
 )
 
-st.title("🏇 Päivän Duo - Automaattinen EV-Simulaattori")
+st.title("🏇 Päivän Duo - Simulaation Lopputulos & Perustelut")
 st.caption(
-    "Järjestelmä laskee dynaamiset voittotodennäköisyydet ja tuottaa parhaat Duo-pelikohteet välittömästi."
+    "Bjerke 13.9.2026: Taso-erot, todennäköisimmät voittajat ja suurin pelillinen etu (EV)."
 )
 
-# ----------------- 1. SUORAT KERTOIMET & BASE-DATA -----------------
-# Kiinteät kertoimet Unibet / Bookie -kertoimien mukaisesti
+# ----------------- 1. SIMULAATION LÄHTÖDATA & PERUSTELUT -----------------
 pd1_data = [
     {
         "Nro": 1,
@@ -22,6 +20,7 @@ pd1_data = [
         "P_Oma %": 3.5,
         "Unibet": 22.0,
         "Veikkaus %": 3.5,
+        "Perustelu": "Sisärata auttaa, mutta taso ei riitä aivan kärkeen.",
     },
     {
         "Nro": 2,
@@ -29,6 +28,7 @@ pd1_data = [
         "P_Oma %": 8.5,
         "Unibet": 12.0,
         "Veikkaus %": 7.0,
+        "Perustelu": "Hyvä paikka, kykyjä yllätykseen jos keulassa pidetään vauhtia.",
     },
     {
         "Nro": 3,
@@ -36,6 +36,7 @@ pd1_data = [
         "P_Oma %": 44.0,
         "Unibet": 1.85,
         "Veikkaus %": 48.0,
+        "Perustelu": "Lähdön selkeä ykkössuosikki ja keulahahmo. Erittäin todennäköinen voittaja.",
     },
     {
         "Nro": 4,
@@ -43,6 +44,7 @@ pd1_data = [
         "P_Oma %": 11.5,
         "Unibet": 8.0,
         "Veikkaus %": 10.0,
+        "Perustelu": "Pääsee suosikin vanavedessä hyviin asemiin, ykköshaastaja.",
     },
     {
         "Nro": 5,
@@ -50,6 +52,7 @@ pd1_data = [
         "P_Oma %": 2.0,
         "Unibet": 35.0,
         "Veikkaus %": 1.5,
+        "Perustelu": "Ulkopuolelta vaikea päästä asemiin.",
     },
     {
         "Nro": 6,
@@ -57,6 +60,7 @@ pd1_data = [
         "P_Oma %": 9.5,
         "Unibet": 9.5,
         "Veikkaus %": 8.5,
+        "Perustelu": "Vahva puristaja, hyötyy jos avauksessa ajetaan liian kovaa.",
     },
     {
         "Nro": 7,
@@ -64,6 +68,7 @@ pd1_data = [
         "P_Oma %": 1.0,
         "Unibet": 60.0,
         "Veikkaus %": 0.5,
+        "Perustelu": "Ulkotorven paikka, ei riitä.",
     },
     {
         "Nro": 8,
@@ -71,6 +76,7 @@ pd1_data = [
         "P_Oma %": 4.0,
         "Unibet": 25.0,
         "Veikkaus %": 3.0,
+        "Perustelu": "Raskaat asemat luvassa.",
     },
     {
         "Nro": 9,
@@ -78,6 +84,7 @@ pd1_data = [
         "P_Oma %": 5.5,
         "Unibet": 15.0,
         "Veikkaus %": 5.0,
+        "Perustelu": "Takarivin paikka vaatii tuureja matkan aikana.",
     },
     {
         "Nro": 10,
@@ -85,6 +92,7 @@ pd1_data = [
         "P_Oma %": 7.5,
         "Unibet": 11.0,
         "Veikkaus %": 8.0,
+        "Perustelu": "Vahva jakso, pystyy nousemaan raskaallakin juoksulla.",
     },
     {
         "Nro": 11,
@@ -92,6 +100,7 @@ pd1_data = [
         "P_Oma %": 3.0,
         "Unibet": 25.0,
         "Veikkaus %": 3.0,
+        "Perustelu": "Takarivistä haastava tehtävä.",
     },
     {
         "Nro": 12,
@@ -99,6 +108,7 @@ pd1_data = [
         "P_Oma %": 2.0,
         "Unibet": 30.0,
         "Veikkaus %": 2.0,
+        "Perustelu": "Kapasiteetti ei riitä kärkeen.",
     },
 ]
 
@@ -109,6 +119,7 @@ pd2_data = [
         "P_Oma %": 2.0,
         "Unibet": 40.0,
         "Veikkaus %": 1.5,
+        "Perustelu": "Arvoituksellinen kunto.",
     },
     {
         "Nro": 2,
@@ -116,6 +127,7 @@ pd2_data = [
         "P_Oma %": 9.5,
         "Unibet": 11.0,
         "Veikkaus %": 8.0,
+        "Perustelu": "Oma kärkipaikka tai hyvä selkäjuoksu luvassa.",
     },
     {
         "Nro": 3,
@@ -123,6 +135,7 @@ pd2_data = [
         "P_Oma %": 4.0,
         "Unibet": 25.0,
         "Veikkaus %": 3.0,
+        "Perustelu": "Tasainen suorittaja.",
     },
     {
         "Nro": 4,
@@ -130,6 +143,7 @@ pd2_data = [
         "P_Oma %": 5.0,
         "Unibet": 20.0,
         "Veikkaus %": 4.0,
+        "Perustelu": "Sopivalla juoksulla pystyy sijoittumaan.",
     },
     {
         "Nro": 5,
@@ -137,6 +151,7 @@ pd2_data = [
         "P_Oma %": 3.0,
         "Unibet": 30.0,
         "Veikkaus %": 2.5,
+        "Perustelu": "Sektorin ulkopuolella.",
     },
     {
         "Nro": 6,
@@ -144,6 +159,7 @@ pd2_data = [
         "P_Oma %": 15.0,
         "Unibet": 6.5,
         "Veikkaus %": 16.0,
+        "Perustelu": "Erittäin nopea avaaja, todennäköinen keulahevonen ja lähdön suosikki.",
     },
     {
         "Nro": 7,
@@ -151,6 +167,7 @@ pd2_data = [
         "P_Oma %": 2.0,
         "Unibet": 50.0,
         "Veikkaus %": 1.5,
+        "Perustelu": "Häntäpään hevosia.",
     },
     {
         "Nro": 8,
@@ -158,6 +175,7 @@ pd2_data = [
         "P_Oma %": 6.0,
         "Unibet": 15.0,
         "Veikkaus %": 5.0,
+        "Perustelu": "Ulkopuolelta paha kiihdytys.",
     },
     {
         "Nro": 9,
@@ -165,6 +183,7 @@ pd2_data = [
         "P_Oma %": 12.5,
         "Unibet": 7.5,
         "Veikkaus %": 14.0,
+        "Perustelu": "Kunto huipussaan, kova loppuveto takarivistä.",
     },
     {
         "Nro": 10,
@@ -172,6 +191,7 @@ pd2_data = [
         "P_Oma %": 5.0,
         "Unibet": 20.0,
         "Veikkaus %": 4.0,
+        "Perustelu": "Sopisi yllättäjäksi jos kärki vetää ylikovaa.",
     },
     {
         "Nro": 11,
@@ -179,6 +199,7 @@ pd2_data = [
         "P_Oma %": 3.0,
         "Unibet": 30.0,
         "Veikkaus %": 2.5,
+        "Perustelu": "Vaikeat asemat.",
     },
     {
         "Nro": 12,
@@ -186,6 +207,7 @@ pd2_data = [
         "P_Oma %": 8.5,
         "Unibet": 9.0,
         "Veikkaus %": 10.0,
+        "Perustelu": "Nousukuntoinen haastaja.",
     },
     {
         "Nro": 13,
@@ -193,6 +215,7 @@ pd2_data = [
         "P_Oma %": 11.5,
         "Unibet": 8.0,
         "Veikkaus %": 13.0,
+        "Perustelu": "Erittäin vahva esitys viimeksi, taistelee voitosta.",
     },
     {
         "Nro": 14,
@@ -200,6 +223,7 @@ pd2_data = [
         "P_Oma %": 2.0,
         "Unibet": 40.0,
         "Veikkaus %": 2.0,
+        "Perustelu": "Ulkopaikka verottaa mahdollista menestystä.",
     },
     {
         "Nro": 15,
@@ -207,14 +231,15 @@ pd2_data = [
         "P_Oma %": 13.5,
         "Unibet": 7.0,
         "Veikkaus %": 13.0,
+        "Perustelu": "Matka sopii ja kunto rautaa. Kierroksen paras pelikohde suosikkiparin muodossa.",
     },
 ]
 
 df1 = pd.DataFrame(pd1_data)
 df2 = pd.DataFrame(pd2_data)
 
-# ----------------- 2. AUTOMAATTINEN SIMULAATIO & EV-LASKENTA -----------------
-T = 0.80  # Päivän Duon palautusprosentti (80%)
+# ----------------- 2. SIMULAATION LASKENTA -----------------
+T = 0.80  # Veikkauksen palautusprosentti
 yhdistelmat = []
 
 for _, h1 in df1.iterrows():
@@ -222,11 +247,9 @@ for _, h1 in df1.iterrows():
         p_oma_combo = (h1["P_Oma %"] / 100.0) * (h2["P_Oma %"] / 100.0)
         p_peli_combo = (h1["Veikkaus %"] / 100.0) * (h2["Veikkaus %"] / 100.0)
 
-        # Arvioitu kerroin ja Unibetin yhdistelmäkerroin
         pooli_kerroin = T / p_peli_combo if p_peli_combo > 0 else 0
         unibet_kerroin = h1["Unibet"] * h2["Unibet"]
 
-        # Odotusarvo (EV)
         ev_pooli = p_oma_combo * pooli_kerroin
         ev_unibet = p_oma_combo * unibet_kerroin
 
@@ -235,44 +258,50 @@ for _, h1 in df1.iterrows():
                 "Yhdistelmä": f"#{h1['Nro']} {h1['Hevonen']} × #{h2['Nro']} {h2['Hevonen']}",
                 "Todennäköisyys %": round(p_oma_combo * 100, 2),
                 "Pooli Kerroin": round(pooli_kerroin, 1),
-                "Unibet Kerroin": round(unibet_kerroin, 1),
                 "EV (Pooli)": round(ev_pooli, 2),
-                "EV (Unibet)": round(ev_unibet, 2),
+                "Perustelu": f"PD1: {h1['Perustelu']} | PD2: {h2['Perustelu']}",
             }
         )
 
 df_yhdistelmat = pd.DataFrame(yhdistelmat)
 
-# ----------------- 3. YKSINKERTAINEN NÄKYMÄ & TULOKSET -----------------
-st.subheader("🔥 Pelattavat Ylikertoimet (EV >= 1.10)")
+# ----------------- 3. TULOSTEN NÄYTTÖ -----------------
+st.subheader("🏆 Simulaation Voittaja-Arviot Lähdöittäin")
 
-parhaat_ideat = df_yhdistelmat[df_yhdistelmat["EV (Pooli)"] >= 1.10].sort_values(
-    by="EV (Pooli)", ascending=False
-)
-
-if not parhaat_ideat.empty:
-    st.dataframe(
-        parhaat_ideat[
-            [
-                "Yhdistelmä",
-                "Todennäköisyys %",
-                "Pooli Kerroin",
-                "Unibet Kerroin",
-                "EV (Pooli)",
-                "EV (Unibet)",
-            ]
-        ],
-        use_container_width=True,
-        hide_index=True,
+col1, col2 = st.columns(2)
+with col1:
+    st.write("**PD-1 (Lähtö 11) Voittajasuosikki:**")
+    v1 = df1.sort_values(by="P_Oma %", ascending=False).iloc[0]
+    st.success(
+        f"**#{v1['Nro']} {v1['Hevonen']}** ({v1['P_Oma %']} %)\n\n*Perustelu:* {v1['Perustelu']}"
     )
-else:
-    st.info("Kierrokselta ei löydy minimirajan ylittäviä pelikohteita.")
+
+with col2:
+    st.write("**PD-2 (Lähtö 12) Voittajasuosikki:**")
+    v2 = df2.sort_values(by="P_Oma %", ascending=False).iloc[0]
+    st.success(
+        f"**#{v2['Nro']} {v2['Hevonen']}** ({v2['P_Oma %']} %)\n\n*Perustelu:* {v2['Perustelu']}"
+    )
 
 st.divider()
 
-st.subheader("📊 Kaikki Duo-Yhdistelmät (Odotusarvojärjestys)")
+st.subheader("🔥 Parhaat Pelikohteet Odotusarvon Perusteella (EV >= 1.10)")
+parhaat = df_yhdistelmat[df_yhdistelmat["EV (Pooli)"] >= 1.10].sort_values(
+    by="EV (Pooli)", ascending=False
+)
 st.dataframe(
-    df_yhdistelmat.sort_values(by="EV (Pooli)", ascending=False),
+    parhaat[["Yhdistelmä", "Todennäköisyys %", "Pooli Kerroin", "EV (Pooli)"]],
+    use_container_width=True,
+    hide_index=True,
+)
+
+st.divider()
+
+st.subheader("📋 Kaikkien Yhdistelmien Analyysi & Perustelut")
+st.dataframe(
+    df_yhdistelmat.sort_values(by="EV (Pooli)", ascending=False)[
+        ["Yhdistelmä", "Todennäköisyys %", "Pooli Kerroin", "EV (Pooli)", "Perustelu"]
+    ],
     use_container_width=True,
     hide_index=True,
 )
