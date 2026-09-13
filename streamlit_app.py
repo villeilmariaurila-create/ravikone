@@ -1,18 +1,126 @@
-import base64
+import random
 import streamlit as st
-import streamlit.components.v1 as components
 
 st.set_page_config(
-    page_title="Aatoksen ja Villen Forssa-Peli", page_icon="🚜", layout="wide"
+    page_title="Aatoksen ja Villen Forssa-Peli", page_icon="🚜", layout="centered"
 )
 
-st.title("🚜 Aatoksen ja Villen Forssa-Peli: Raviradan Kunnossapito 🚛")
-st.caption(
-    "Aatoksen ja Villen tekemä peli: Ohjaa punaisella vesiautolla Forssan raviradalla, kastele rata ja väistä 3 punaista traktoria!"
-)
+st.title("🚜 Aatoksen ja Villen Forssa-Peli 🚛")
+st.subheader("Raviradan kunnossapito")
 
-# Korjattu ja toimiva HTML/JS-koodi Base64-muodossa
-b64_game = "PCFET0NUWVBFIGh0bWw+PGh0bWw+PGhlYWQ+PHN0eWxlPmJvZHl7bWFyZ2luOjA7YmFja2dyb3VuZC1jb2xvcjojMWUxZTFlO2NvbG9yOndoaXRlO2ZvbnQtZmFtaWx5OnNhbnMtc2VyaWY7dGV4dC1hbGlnbjpjZW50ZXI7fWNhbnZhc3tiYWNrZ3JvdW5kOiMyZTdkMzI7Ym9yZGVyOjRweCBzb2xpZCAjZmZmZmZmO2JvcmRlci1yYWRpdXM6MTBweDtkaXNwbGF5OmJsb2NrO21hcmdpbjoxMHB4IGF1dG87fS5pbmZve2ZvbnQtc2l6ZToyMHB4O21hcmdpbi1ib3R0b206MTBweDtmb250LXdlaWdodDpib2xkO308L3N0eWxlPjwvaGVhZD48Ym9keT48ZGl2IGNsYXNzPSJpbmZvIj5LYXN0ZWx1cGlzdGVldDogPHNwYW4gaWQ9InNjb3JlIiBzdHlsZT0iY29sb3I6IzI5YjZmNjsiPjA8L3NwYW4+IHwgRWxhbWF0OiA8c3BhbiBpZD0ibGl2ZXMiIHN0eWxlPSJjb2xvcjojZmY1MjUyOyI+Mzwvc3Bhbj48L2Rpdj48Y2FudmFzIGlkPSJnYW1lQ2FudmFzIiB3aWR0aD0iODAwIiBoZWlnaHQ9IjUwMCI+PC9jYW52YXM+PHA+T2hqYWEgPGI+cHVuYWlzdGEgdmVzaWF1dG9hPC9iPiBOdW9saW5hcHBhaW1pbGxhIHRhaSA8Yj5XQVNEPC9iPi1uYXBwYWltaWxsYS4gQWxhIHRvcm1hYSB0cmFrdG9yaWloaW4hPC9wPjxzY3JpcHQ+Y29uc3QgY2FudmFzPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdnYW1lQ2FudmFzJyk7Y29uc3QgY3R4PWNhbnZhcy5nZXRDb250ZXh0KCcyZCcpO2xldCBzY29yZT0wO2xldCBsaXZlcz0zO2xldCBnYW1lT3Zlcj1mYWxzZTtjb25zdCBwbGF5ZXI9e3g6NDAwLHk6NDIwLHdpZHRoOjMyLGhlaWdodDoyMCxzcGVlZDo1fTtjb25zdCB0cmFjdG9ycz1be3g6MTgwLHk6OTAsc3BlZWRYOjMuNSxzcGVlZFk6MCx3aWR0aDoyOCxoZWlnaHQ6MjR9LHt4OjYyMCx5OjQxMCxzcGVlZFg6LTQuMCxzcGVlZFk6MCx3aWR0aDoyOCxoZWlnaHQ6MjR9LHt4OjcxMCx5OjI1MCxzcGVlZFg6MCxzcGVlZFk6My44LHdpZHRoOjI4LGhlaWdodDoyNH0pO2xldCB3YXRlckRvdHM9W107ZnVuY3Rpb24gaW5pdFdhdGVyKCl7d2F0ZXJEb3RzPVtdO2ZvcihsZXQgaT0wO2k8MjQ7aSsrKXtsZXQgYW5nbGU9KGkvMjQpKk1hdGguUEkqMjtsZXQgcng9MzEwKk1hdGguY29zKGFuZ2xlKSs0MDA7bGV0IHJ5PTE3MCpNYXRoLnNpbihhbmdsZSkrMjUwO3dhdGVyRG90cy5wdXNoKHt4OnJ4LHk6cnksY29sbGVjdGVkOmZhbHNlfSk7fX1pbml0V2F0ZXIoKTtjb25zdCBrZXlzPXt9O3dpbmRvdy5hZGRFdmVudExpc3RlbmVyKCdrZXlkb3duJyxmdW5jdGlvbihlKXtrZXlzW2Uua2V5XT10cnVlO30pO3dpbmRvdy5hZGRFdmVudExpc3RlbmVyKCdrZXl1cCcsZnVuY3Rpb24oZSl7a2V5c1tlLmtleV09ZmFsc2U7fSk7ZnVuY3Rpb24gdXBkYXRlKCl7aWYoZ2FtZU92ZXIpcmV0dXJuO2lmKGtleXNbJ0Fycm93VXAnXXx8a2V5c1sndyddfHxrZXlzWydXJ10pcGxheWVyLnktPXBsYXllci5zcGVlZDtpZihrZXlzWydBcnJvd0Rvd24nXXx8a2V5c1sncyddfHxrZXlzWydTJ10pcGxheWVyLnkrPXBsYXllci5zcGVlZDtpZihrZXlzWydBcnJvd0xlZnQnXXx8a2V5c1snYSddfHxrZXlzWydBJ10pcGxheWVyLngtPXBsYXllci5zcGVlZDtpZihrZXlzWydBcnJvd1JpZ2h0J118fGtleXNbJ2QnXXx8a2V5c1snRCddKXBsYXllci54Kz1wbGF5ZXIuc3BlZWQ7cGxheWVyLng9TWF0aC5tYXgoMTAsTWF0aC5taW4oY2FudmFzLndpZHRoLTM1LHBsYXllci54KSk7cGxheWVyLnk9TWF0aC5tYXgoMTAsTWF0aC5taW4oY2FudmFzLmhlaWdodC0yNSxwbGF5ZXIueSkpO3RyYWN0b3JzLmZvckVhY2goZnVuY3Rpb24odCl7dC54Kz10LnNwZWVkWDt0LnkrPXQuc3BlZWRZO2lmKHQueDwxMHx8dC54PmNhbnZhcy53aWR0aC0zNSl0LnNwZWVkWCo9LTE7aWYodC55PDEwfHx0Lnk+Y2FudmFzLmhlaWdodC0yNSl0LnNwZWVkWSo9LTE7aWYoTWF0aC5hYnMocGxheWVyLngtdC54KTwyNCYmTWF0aC5hYnMocGxheWVyLnktdC55KTwyMil7bGl2ZXMtLTtkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnbGl2ZXMnKS5pbm5lclRleHQ9bGl2ZXM7cGxheWVyLng9NDAwO3BsYXllci55PTQyMDtpZihsaXZlczw9MCl7Z2FtZU92ZXI9dHJ1ZTt9fX0pO3dhdGVyRG90cy5mb3JFYWNoKGZ1bmN0aW9uKGRvdCl7aWYoIWRvdC5jb2xsZWN0ZWQmJk1hdGguaHlwb3QocGxheWVyLngtZG90LngscGxheWVyLnktZG90LnkpPDI2KXtkb3QuY29sbGVjdGVkPXRydWU7c2NvcmUrPTEwO2RvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdzY29yZScpLmlubmVyVGV4dD1zY29yZTt9fSk7aWYod2F0ZXJEb3RzLmV2ZXJ5KGZ1bmN0aW9uKGQpe3JldHVybiBkLmNvbGxlY3RlZDt9KSl7aW5pdFdhdGVyKCk7fX1mdW5jdGlvbiBkcmF3KCl7Y3R4LmZpbGxTdHlsZT0nIzJlN2QzMic7Y3R4LmZpbGxSZWN0KDAsMCxjYW52YXMud2lkdGgsY2FudmFzLmhlaWdodCk7Y3R4LmJlZ2luUGF0aCgpO2N0eC5lbGxpcHNlKDQwMCwyNTAsMzMwLDE4NSwwLDAsTWF0aC5QSSoyKTtjdHgubGluZVdpZHRoPTQ1O2N0eC5zdHJva2VTdHlsZT0nIzhkNmU2Myc7Y3R4LnN0cm9rZSgpO2N0eC5maWxsU3R5bGU9JyNkN2NjYzgnO2N0eC5maWxsKCk7Y3R4LmJlZ2luUGF0aCgpO2N0eC5lbGxpcHNlKDQwMCwyNTAsMjYwLDEyMCwwLDAsTWF0aC5QSSoyKTtjdHguZmlsbFN0eWxlPScjMmU3ZDMyJztjdHguZmlsbCgpO2N0eC5mb250PSdib2xkIDIycHggc2Fucy1zZXJpZic7Y3R4LmZpbGxTdHlsZT0nI2ZmZmZmZic7Y3R4LmZpbGxUZXh0KCdGT1JTU0FOIFJBVklSQVRBJywyOTUsMjU1KTt3YXRlckRvdHMuZm9yRWFjaChmdW5jdGlvbihkb3Qpe2lmKCFkb3QuY29sbGVjdGVkKXtjdHguYmVnaW5QYXRoKCk7Y3R4LmFyYyhkb3QueCxkb3QueSw3LDAsTWF0aC5QSSoyKTtjdHguZmlsbFN0eWxlPScjMDBiMGZmJztjdHguZmlsbCgpO319KTtjdHguZmlsbFN0eWxlPScjYzYyODI4JztjdHguZmlsbFJlY3QocGxheWVyLngscGxheWVyLnkscGxheWVyLndpZHRoLHBsYXllci5oZWlnaHQpO2N0eC5maWxsU3R5bGU9JyMwMjg4ZDEnO2N0eC5maWxsUmVjdChwbGF5ZXIueCs1LHBsYXllci55KzMscGxheWVyLndpZHRoLTEwLHBsYXllci5oZWlnaHQtNik7Y3R4LmZpbGxTdHlsZT0nI2ZmZmZmZic7Y3R4LmZvbnQ9JzlweCBzYW5zLXNlcmlmJztjdHguZmlsbFRleHQoJ1ZFU0knLHBsYXllci54KzUscGxheWVyLnkrMTQpO3RyYWN0b3JzLmZvckVhY2goZnVuY3Rpb24odCl7Y3R4LmZpbGxTdHlsZT0nI2IxN2MxYyc7Y3R4LmZpbGxSZWN0KHQueCx0LnksdC53aWR0aCx0LmhlaWdodCk7Y3R4LmZpbGxTdHlsZT0nIzExMTExMSc7Y3R4LmZpbGxSZWN0KHQueC0zLHQueS0zLDcsNyk7Y3R4LmZpbGxSZWN0KHQueCt0LndpZHRoLTQsdC55LTMsNyw3KTtjdHguZmlsbFJlY3QodC54LTMsdC55K3QuaGVpZ2h0LTQsNyw3KTtjdHguZmlsbFJlY3QodC54K3Qud2lkdGgtNCx0LnkrdC5oZWlnaHQtNCw3LDcpO30pO2lmKGdhbWVPdmVyKXtjdHguZmlsbFN0eWxlPSdyZ2JhKDAsMCwwLDAuODIpJztjdHguZmlsbFJlY3QoMCwwLGNhbnZhcy53aWR0aCxjYW52YXMuaGVpZ2h0KTtjdHguZmlsbFN0eWxlPScjZmY1MjUyJztjdHguZm9udD0nYm9sZCAzOHB4IHNhbnMtc2VyaWYnO2N0eC5maWxsVGV4dCgnUEVMSSBQQUFUVFlJIScsMjc1LDIxMCk7Y3R4LmZpbGxTdHlsZT0nI2ZmZmZmZic7Y3R4LmZvbnQ9JzIycHggc2Fucy1zZXJpZic7Y3R4LmZpbGxUZXh0KCdBYXRva3NlbiBqYSBWaWxsZW4gcmFkYWxsZSBrZXJlYW1hdCBwaXN0ZWV0OiAnK3Njb3JlLDE1MCwyNjApO2N0eC5maWxsVGV4dCgnUGFpdml0YSBzaXZ1IHBlbGF0a2Flc2kgdXVkZWxsZWVuJywyNDAsMzEwKTt9fWZ1bmN0aW9uIGdhbWVMb29wKCl7dXBkYXRlKCk7ZHJhdygpO3JlcXVlc3RBbmltYXRpb25GcmFtZShnYW1lTG9vcCk7fWdhbWVMb29wKCk7PC9zY3JpcHQ+PC9ib2R5PjwvaHRtbD4="
+# Alustetaan pelin tila
+if "player_x" not in st.session_state:
+    st.session_state.player_x = 2
+    st.session_state.player_y = 4
+    st.session_state.score = 0
+    st.session_state.lives = 3
+    st.session_state.game_over = False
+    # Luodaan kastelupisteet radalle
+    st.session_state.water_dots = [
+        (1, 0),
+        (2, 0),
+        (3, 0),
+        (0, 1),
+        (4, 1),
+        (0, 2),
+        (4, 2),
+        (0, 3),
+        (4, 3),
+        (1, 4),
+        (3, 4),
+    ]
+    st.session_state.tractors = [(1, 1), (3, 2), (2, 0)]
 
-game_html = base64.b64decode(b64_game.encode("utf-8")).decode("utf-8")
-components.html(game_html, height=630)
+
+def move_player(dx, dy):
+    if st.session_state.game_over:
+        return
+
+    # Uusi sijainti
+    new_x = max(0, min(4, st.session_state.player_x + dx))
+    new_y = max(0, min(4, st.session_state.player_y + dy))
+    st.session_state.player_x = new_x
+    st.session_state.player_y = new_y
+
+    # Siirretään traktoreita satunnaisesti
+    new_tractors = []
+    for tx, ty in st.session_state.tractors:
+        tdx = random.choice([-1, 0, 1])
+        tdy = random.choice([-1, 0, 1])
+        nx = max(0, min(4, tx + tdx))
+        ny = max(0, min(4, ty + tdy))
+        new_tractors.append((nx, ny))
+    st.session_state.tractors = new_tractors
+
+    # Tarkistetaan törmäys traktoriin
+    if (new_x, new_y) in st.session_state.tractors:
+        st.session_state.lives -= 1
+        st.toast("⚠️ Törmäsit traktoriin! Menetit elämän.", icon="💥")
+        st.session_state.player_x = 2
+        st.session_state.player_y = 4
+        if st.session_state.lives <= 0:
+            st.session_state.game_over = True
+            return
+
+    # Tarkistetaan veden keräys
+    if (new_x, new_y) in st.session_state.water_dots:
+        st.session_state.water_dots.remove((new_x, new_y))
+        st.session_state.score += 10
+        st.toast("💧 Kastelupiste kerätty! +10 pistettä", icon="🎉")
+
+    # Jos kaikki vedet kerätty, täytetään rata uudelleen
+    if len(st.session_state.water_dots) == 0:
+        st.session_state.water_dots = [
+            (1, 0),
+            (2, 0),
+            (3, 0),
+            (0, 1),
+            (4, 1),
+            (0, 2),
+            (4, 2),
+            (0, 3),
+            (4, 3),
+            (1, 4),
+            (3, 4),
+        ]
+
+
+def restart_game():
+    st.session_state.player_x = 2
+    st.session_state.player_y = 4
+    st.session_state.score = 0
+    st.session_state.lives = 3
+    st.session_state.game_over = False
+    st.session_state.water_dots = [
+        (1, 0),
+        (2, 0),
+        (3, 0),
+        (0, 1),
+        (4, 1),
+        (0, 2),
+        (4, 2),
+        (0, 3),
+        (4, 3),
+        (1, 4),
+        (3, 4),
+    ]
+    st.session_state.tractors = [(1, 1), (3, 2), (2, 0)]
+
+
+# Tilastot
+col1, col2 = st.columns(2)
+with col1:
+    st.metric("💧 Kastelupisteet", st.session_state.score)
+with col2:
+    st.metric("❤️ Elämät", st.session_state.lives)
+
+st.markdown("---")
+
+if st.session_state.game_over:
+    st.error(
+        f"💥 PELI PÄÄTTYI! Aatoseksi ja Villeksi saavutitte {st.session_state.score} pistettä!"
+    )
+    st.button("🔄 Pelaa uudelleen", on_click=restart_game, type="primary")
+else:
+    # Piirretään pelikenttä (5x5 ruudukko)
+    grid_html = "
