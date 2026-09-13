@@ -8,4 +8,4 @@ st.set_page_config(
 st.title("🚜 Aatoksen ja Villen Forssa-Peli: Raviradan Kunnossapito 🐎")
 st.caption("Ohjaa vesiautoa nuolinäppäimillä tai WASD:lla. Kastele rata ja väistä traktoreita!")
 
-game_html = """
+game_html = '''
