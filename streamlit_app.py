@@ -1,4 +1,3 @@
-import textwrap
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -11,5 +10,13 @@ st.caption(
     "Aatoksen ja Villen tekemä peli: Ohjaa punaisella vesiautolla Forssan raviradalla, kastele rata ja väistä 3 punaista traktoria!"
 )
 
-# Pelikoodi ilman monirivisen merkkijonon syntaksiongelmia
-game_html = textwrap.dedent("""
+# Luodaan HTML-koodi turvallisesti ilman syntaksiongelmia
+game_html = "\n".join(
+    [
+        "",
+        "",
+        "",
+        "    ",
+        "",
+        "",
+        "
