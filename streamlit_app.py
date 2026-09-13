@@ -11,4 +11,12 @@ st.caption(
     " traktoreita!"
 )
 
-game_html = r"""
+html_parts = [
+    "",
+    "",
+    "",
+    '',
+    "",
+    "",
+    "",
+    '
