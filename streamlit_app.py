@@ -1,428 +1,278 @@
-import json
+
 import pandas as pd
 import streamlit as st
 
 st.set_page_config(
-    page_title="Päivän Duo Pro - Race Flow & Live Engine",
+    page_title="Päivän Duo - Automaattinen Simulaattori",
     page_icon="🏇",
     layout="wide",
 )
 
-st.title("🏇 Päivän Duo Pro: Bjerke 13.9.2026")
+st.title("🏇 Päivän Duo - Automaattinen EV-Simulaattori")
 st.caption(
-    "Juoksun kulku (Race Flow) + Varustebonukset + Live-EV Laskenta & Bookmarklet"
+    "Järjestelmä laskee dynaamiset voittotodennäköisyydet ja tuottaa parhaat Duo-pelikohteet välittömästi."
 )
 
-# ----------------- 1. ALUSTAVAT POHJATIEDOT (Bjerke Lähtö 11 & Lähtö 12) -----------------
-pd1_raw = [
+# ----------------- 1. SUORAT KERTOIMET & BASE-DATA -----------------
+# Kiinteät kertoimet Unibet / Bookie -kertoimien mukaisesti
+pd1_data = [
     {
         "Nro": 1,
         "Hevonen": "Moni Elite",
-        "P_Oma_Base": 3.0,
-        "P_Peli %": 3.5,
-        "Kerroin": 22.0,
-        "Kiihdytys": 3,
-        "Keulahalu": False,
+        "P_Oma %": 3.5,
+        "Unibet": 22.0,
+        "Veikkaus %": 3.5,
     },
     {
         "Nro": 2,
         "Hevonen": "Bully Pepper",
-        "P_Oma_Base": 8.0,
-        "P_Peli %": 7.0,
-        "Kerroin": 12.0,
-        "Kiihdytys": 4,
-        "Keulahalu": False,
+        "P_Oma %": 8.5,
+        "Unibet": 12.0,
+        "Veikkaus %": 7.0,
     },
     {
         "Nro": 3,
         "Hevonen": "Kaprizov",
-        "P_Oma_Base": 42.0,
-        "P_Peli %": 48.0,
-        "Kerroin": 1.8,
-        "Kiihdytys": 5,
-        "Keulahalu": True,
+        "P_Oma %": 44.0,
+        "Unibet": 1.85,
+        "Veikkaus %": 48.0,
     },
     {
         "Nro": 4,
         "Hevonen": "Onyx B.R.",
-        "P_Oma_Base": 12.0,
-        "P_Peli %": 10.0,
-        "Kerroin": 8.0,
-        "Kiihdytys": 4,
-        "Keulahalu": False,
+        "P_Oma %": 11.5,
+        "Unibet": 8.0,
+        "Veikkaus %": 10.0,
     },
     {
         "Nro": 5,
         "Hevonen": "Brostile R.",
-        "P_Oma_Base": 2.0,
-        "P_Peli %": 1.5,
-        "Kerroin": 35.0,
-        "Kiihdytys": 2,
-        "Keulahalu": False,
+        "P_Oma %": 2.0,
+        "Unibet": 35.0,
+        "Veikkaus %": 1.5,
     },
     {
         "Nro": 6,
         "Hevonen": "El Guerro S.B.",
-        "P_Oma_Base": 10.0,
-        "P_Peli %": 8.5,
-        "Kerroin": 9.5,
-        "Kiihdytys": 4,
-        "Keulahalu": False,
+        "P_Oma %": 9.5,
+        "Unibet": 9.5,
+        "Veikkaus %": 8.5,
     },
     {
         "Nro": 7,
         "Hevonen": "Fillip O'Brian",
-        "P_Oma_Base": 1.0,
-        "P_Peli %": 0.5,
-        "Kerroin": 60.0,
-        "Kiihdytys": 1,
-        "Keulahalu": False,
+        "P_Oma %": 1.0,
+        "Unibet": 60.0,
+        "Veikkaus %": 0.5,
     },
     {
         "Nro": 8,
         "Hevonen": "Megatron",
-        "P_Oma_Base": 4.0,
-        "P_Peli %": 3.0,
-        "Kerroin": 25.0,
-        "Kiihdytys": 3,
-        "Keulahalu": False,
+        "P_Oma %": 4.0,
+        "Unibet": 25.0,
+        "Veikkaus %": 3.0,
     },
     {
         "Nro": 9,
         "Hevonen": "Casanova Dream",
-        "P_Oma_Base": 6.0,
-        "P_Peli %": 5.0,
-        "Kerroin": 15.0,
-        "Kiihdytys": 1,
-        "Keulahalu": False,
+        "P_Oma %": 5.5,
+        "Unibet": 15.0,
+        "Veikkaus %": 5.0,
     },
     {
         "Nro": 10,
         "Hevonen": "Gemstone Aze",
-        "P_Oma_Base": 7.0,
-        "P_Peli %": 8.0,
-        "Kerroin": 11.0,
-        "Kiihdytys": 1,
-        "Keulahalu": False,
+        "P_Oma %": 7.5,
+        "Unibet": 11.0,
+        "Veikkaus %": 8.0,
     },
     {
         "Nro": 11,
         "Hevonen": "Maserati Salt",
-        "P_Oma_Base": 3.0,
-        "P_Peli %": 3.0,
-        "Kerroin": 25.0,
-        "Kiihdytys": 1,
-        "Keulahalu": False,
+        "P_Oma %": 3.0,
+        "Unibet": 25.0,
+        "Veikkaus %": 3.0,
     },
     {
         "Nro": 12,
         "Hevonen": "Fargas T.K.",
-        "P_Oma_Base": 2.0,
-        "P_Peli %": 2.0,
-        "Kerroin": 30.0,
-        "Kiihdytys": 1,
-        "Keulahalu": False,
+        "P_Oma %": 2.0,
+        "Unibet": 30.0,
+        "Veikkaus %": 2.0,
     },
 ]
 
-pd2_raw = [
+pd2_data = [
     {
         "Nro": 1,
         "Hevonen": "Lazy Lane",
-        "P_Oma_Base": 2.0,
-        "P_Peli %": 1.5,
-        "Kerroin": 40.0,
-        "Kiihdytys": 3,
-        "Keulahalu": False,
+        "P_Oma %": 2.0,
+        "Unibet": 40.0,
+        "Veikkaus %": 1.5,
     },
     {
         "Nro": 2,
         "Hevonen": "I.D. Diamant",
-        "P_Oma_Base": 10.0,
-        "P_Peli %": 8.0,
-        "Kerroin": 11.0,
-        "Kiihdytys": 4,
-        "Keulahalu": False,
+        "P_Oma %": 9.5,
+        "Unibet": 11.0,
+        "Veikkaus %": 8.0,
     },
     {
         "Nro": 3,
         "Hevonen": "Supreme Sund",
-        "P_Oma_Base": 4.0,
-        "P_Peli %": 3.0,
-        "Kerroin": 25.0,
-        "Kiihdytys": 2,
-        "Keulahalu": False,
+        "P_Oma %": 4.0,
+        "Unibet": 25.0,
+        "Veikkaus %": 3.0,
     },
     {
         "Nro": 4,
         "Hevonen": "Vicious",
-        "P_Oma_Base": 5.0,
-        "P_Peli %": 4.0,
-        "Kerroin": 20.0,
-        "Kiihdytys": 3,
-        "Keulahalu": False,
+        "P_Oma %": 5.0,
+        "Unibet": 20.0,
+        "Veikkaus %": 4.0,
     },
     {
         "Nro": 5,
         "Hevonen": "Kentucky Field",
-        "P_Oma_Base": 3.0,
-        "P_Peli %": 2.5,
-        "Kerroin": 30.0,
-        "Kiihdytys": 2,
-        "Keulahalu": False,
+        "P_Oma %": 3.0,
+        "Unibet": 30.0,
+        "Veikkaus %": 2.5,
     },
     {
         "Nro": 6,
         "Hevonen": "Genius",
-        "P_Oma_Base": 14.0,
-        "P_Peli %": 16.0,
-        "Kerroin": 6.5,
-        "Kiihdytys": 5,
-        "Keulahalu": True,
+        "P_Oma %": 15.0,
+        "Unibet": 6.5,
+        "Veikkaus %": 16.0,
     },
     {
         "Nro": 7,
         "Hevonen": "Burn",
-        "P_Oma_Base": 2.0,
-        "P_Peli %": 1.5,
-        "Kerroin": 50.0,
-        "Kiihdytys": 2,
-        "Keulahalu": False,
+        "P_Oma %": 2.0,
+        "Unibet": 50.0,
+        "Veikkaus %": 1.5,
     },
     {
         "Nro": 8,
         "Hevonen": "Moni U.S.A.",
-        "P_Oma_Base": 6.0,
-        "P_Peli %": 5.0,
-        "Kerroin": 15.0,
-        "Kiihdytys": 3,
-        "Keulahalu": False,
+        "P_Oma %": 6.0,
+        "Unibet": 15.0,
+        "Veikkaus %": 5.0,
     },
     {
         "Nro": 9,
         "Hevonen": "Coral Coger",
-        "P_Oma_Base": 12.0,
-        "P_Peli %": 14.0,
-        "Kerroin": 7.5,
-        "Kiihdytys": 1,
-        "Keulahalu": False,
+        "P_Oma %": 12.5,
+        "Unibet": 7.5,
+        "Veikkaus %": 14.0,
     },
     {
         "Nro": 10,
         "Hevonen": "Broker Artist",
-        "P_Oma_Base": 5.0,
-        "P_Peli %": 4.0,
-        "Kerroin": 20.0,
-        "Kiihdytys": 1,
-        "Keulahalu": False,
+        "P_Oma %": 5.0,
+        "Unibet": 20.0,
+        "Veikkaus %": 4.0,
     },
     {
         "Nro": 11,
         "Hevonen": "M.H. Hot Cash",
-        "P_Oma_Base": 3.0,
-        "P_Peli %": 2.5,
-        "Kerroin": 30.0,
-        "Kiihdytys": 1,
-        "Keulahalu": False,
+        "P_Oma %": 3.0,
+        "Unibet": 30.0,
+        "Veikkaus %": 2.5,
     },
     {
         "Nro": 12,
         "Hevonen": "Nelson Daytona",
-        "P_Oma_Base": 8.0,
-        "P_Peli %": 10.0,
-        "Kerroin": 9.0,
-        "Kiihdytys": 1,
-        "Keulahalu": False,
+        "P_Oma %": 8.5,
+        "Unibet": 9.0,
+        "Veikkaus %": 10.0,
     },
     {
         "Nro": 13,
         "Hevonen": "Fighter Kronos",
-        "P_Oma_Base": 11.0,
-        "P_Peli %": 13.0,
-        "Kerroin": 8.0,
-        "Kiihdytys": 1,
-        "Keulahalu": False,
+        "P_Oma %": 11.5,
+        "Unibet": 8.0,
+        "Veikkaus %": 13.0,
     },
     {
         "Nro": 14,
         "Hevonen": "I.D. Exceptional",
-        "P_Oma_Base": 2.0,
-        "P_Peli %": 2.0,
-        "Kerroin": 40.0,
-        "Kiihdytys": 1,
-        "Keulahalu": False,
+        "P_Oma %": 2.0,
+        "Unibet": 40.0,
+        "Veikkaus %": 2.0,
     },
     {
         "Nro": 15,
         "Hevonen": "Wishful Order",
-        "P_Oma_Base": 13.0,
-        "P_Peli %": 13.0,
-        "Kerroin": 7.0,
-        "Kiihdytys": 1,
-        "Keulahalu": False,
+        "P_Oma %": 13.5,
+        "Unibet": 7.0,
+        "Veikkaus %": 13.0,
     },
 ]
 
-df_pd1 = pd.DataFrame(pd1_raw)
-df_pd2 = pd.DataFrame(pd2_raw)
+df1 = pd.DataFrame(pd1_data)
+df2 = pd.DataFrame(pd2_data)
 
-# ----------------- 2. VARUSTE- JA DYNAMISET ASETUKSET SIVUPALKISSA -----------------
-st.sidebar.header("⚙️ Varustemuutokset & Suodatus")
-
-kengat_pois_pd1 = st.sidebar.multiselect(
-    "PD-1 Kengät pois (¢¢) [+15%]", df_pd1["Hevonen"].tolist()
-)
-jenkit_pd1 = st.sidebar.multiselect(
-    "PD-1 Jenkkikärryt (J) [+10%]", df_pd1["Hevonen"].tolist()
-)
-
-kengat_pois_pd2 = st.sidebar.multiselect(
-    "PD-2 Kengät pois (¢¢) [+15%]", df_pd2["Hevonen"].tolist()
-)
-jenkit_pd2 = st.sidebar.multiselect(
-    "PD-2 Jenkkikärryt (J) [+10%]", df_pd2["Hevonen"].tolist()
-)
-
-min_ev = st.sidebar.slider("Minimi Odotusarvo (EV)", 0.8, 3.0, 1.1, step=0.05)
-
-
-# ----------------- 3. DYNAMISET CORRECTION-FUNKTIOT -----------------
-def laske_dynamiikka(df, kengat_list, jenkit_list):
-    df_out = df.copy()
-    df_out["P_Oma_Adj"] = df_out["P_Oma_Base"]
-
-    for idx, row in df_out.iterrows():
-        kerroin = 1.0
-        if row["Hevonen"] in kengat_list:
-            kerroin *= 1.15
-        if row["Hevonen"] in jenkit_list:
-            kerroin *= 1.10
-        df_out.at[idx, "P_Oma_Adj"] *= kerroin
-
-    df_out["Keula_Pisteet"] = (
-        df_out["Kiihdytys"] * 2.0
-        - (df_out["Nro"] * 0.2)
-        + (df_out["Keulahalu"] * 3.0)
-    )
-    keula_nro = df_out.sort_values(by="Keula_Pisteet", ascending=False).iloc[0][
-        "Nro"
-    ]
-    prassiriski = len(df_out[df_out["Kiihdytys"] >= 5]) >= 2
-
-    for idx, row in df_out.iterrows():
-        faktori = 1.0
-        if row["Nro"] == keula_nro:
-            faktori *= 0.90 if prassiriski else 1.25
-        elif prassiriski and row["Nro"] > 8:
-            faktori *= 1.20
-        df_out.at[idx, "P_Oma_Adj"] *= faktori
-
-    df_out["P_Oma_Final"] = (
-        df_out["P_Oma_Adj"] / df_out["P_Oma_Adj"].sum()
-    ) * 100
-    return df_out, keula_nro, prassiriski
-
-
-df_pd1_p, keula_1, prassi_1 = laske_dynamiikka(
-    df_pd1, kengat_pois_pd1, jenkit_pd1
-)
-df_pd2_p, keula_2, prassi_2 = laske_dynamiikka(
-    df_pd2, kengat_pois_pd2, jenkit_pd2
-)
-
-# ----------------- 4. LIVE-DATAN SYÖTTÖ BROWSER BOOKMARKLETILLA -----------------
-st.subheader("📥 Veikkauksen Live-Datan Tuonti (Bookmarklet)")
-raw_input = st.text_area(
-    "Klikkaa 'Hae Duo Prosentit' -kirjanmerkkiä Veikkauksen sivulla ja liimaa data tähän:",
-    height=80,
-    placeholder="Liimaa leikepöydän JSON-muotoinen teksti tähän...",
-)
-
-# ----------------- 5. YHDISTELMIEN MOOTTORI & EV LASKENTA -----------------
-T = 0.80  # Veikkauksen Päivän Duon palautusprosentti (80%)
+# ----------------- 2. AUTOMAATTINEN SIMULAATIO & EV-LASKENTA -----------------
+T = 0.80  # Päivän Duon palautusprosentti (80%)
 yhdistelmat = []
 
-for _, h1 in df_pd1_p.iterrows():
-    for _, h2 in df_pd2_p.iterrows():
-        p_oma_combo = (h1["P_Oma_Final"] / 100.0) * (h2["P_Oma_Final"] / 100.0)
-        p_peli_combo = (h1["P_Peli %"] / 100.0) * (h2["P_Peli %"] / 100.0)
+for _, h1 in df1.iterrows():
+    for _, h2 in df2.iterrows():
+        p_oma_combo = (h1["P_Oma %"] / 100.0) * (h2["P_Oma %"] / 100.0)
+        p_peli_combo = (h1["Veikkaus %"] / 100.0) * (h2["Veikkaus %"] / 100.0)
 
-        est_pool_odds = T / p_peli_combo if p_peli_combo > 0 else 0
-        bookie_odds = h1["Kerroin"] * h2["Kerroin"]
+        # Arvioitu kerroin ja Unibetin yhdistelmäkerroin
+        pooli_kerroin = T / p_peli_combo if p_peli_combo > 0 else 0
+        unibet_kerroin = h1["Unibet"] * h2["Unibet"]
 
-        ev_pool = p_oma_combo * est_pool_odds
-        ev_bookie = p_oma_combo * bookie_odds
+        # Odotusarvo (EV)
+        ev_pooli = p_oma_combo * pooli_kerroin
+        ev_unibet = p_oma_combo * unibet_kerroin
 
         yhdistelmat.append(
             {
                 "Yhdistelmä": f"#{h1['Nro']} {h1['Hevonen']} × #{h2['Nro']} {h2['Hevonen']}",
-                "PD1": f"#{h1['Nro']} {h1['Hevonen']}",
-                "PD2": f"#{h2['Nro']} {h2['Hevonen']}",
-                "Oma %": round(p_oma_combo * 100, 3),
-                "Peli %": round(p_peli_combo * 100, 3),
-                "Pool Kerroin": round(est_pool_odds, 1),
-                "Bookie Kerroin": round(bookie_odds, 1),
-                "EV (Pool)": round(ev_pool, 2),
-                "EV (Bookie)": round(ev_bookie, 2),
+                "Todennäköisyys %": round(p_oma_combo * 100, 2),
+                "Pooli Kerroin": round(pooli_kerroin, 1),
+                "Unibet Kerroin": round(unibet_kerroin, 1),
+                "EV (Pooli)": round(ev_pooli, 2),
+                "EV (Unibet)": round(ev_unibet, 2),
             }
         )
 
-df_duo = pd.DataFrame(yhdistelmat)
+df_yhdistelmat = pd.DataFrame(yhdistelmat)
 
-# ----------------- 6. VISUAALINEN NÄYTTÖ & SUODATETUT PARHAAT IDEAT -----------------
-st.subheader(f"🔥 Ylikertoimiset Päivän Duo Yhdistelmät (EV >= {min_ev})")
+# ----------------- 3. YKSINKERTAINEN NÄKYMÄ & TULOKSET -----------------
+st.subheader("🔥 Pelattavat Ylikertoimet (EV >= 1.10)")
 
-ylikertoimet = df_duo[df_duo["EV (Pool)"] >= min_ev].sort_values(
-    by="EV (Pool)", ascending=False
+parhaat_ideat = df_yhdistelmat[df_yhdistelmat["EV (Pooli)"] >= 1.10].sort_values(
+    by="EV (Pooli)", ascending=False
 )
 
-if not ylikertoimet.empty:
+if not parhaat_ideat.empty:
     st.dataframe(
-        ylikertoimet[
+        parhaat_ideat[
             [
                 "Yhdistelmä",
-                "Oma %",
-                "Peli %",
-                "Pool Kerroin",
-                "EV (Pool)",
-                "EV (Bookie)",
+                "Todennäköisyys %",
+                "Pooli Kerroin",
+                "Unibet Kerroin",
+                "EV (Pooli)",
+                "EV (Unibet)",
             ]
         ],
         use_container_width=True,
         hide_index=True,
     )
 else:
-    st.info("Ei valitulla minimi EV-rajalla löytyviä yhdistelmiä.")
+    st.info("Kierrokselta ei löydy minimirajan ylittäviä pelikohteita.")
 
 st.divider()
 
-st.subheader("📊 Kaikki 180 Yhdistelmää Järjestettynä Odotusarvon Mukaiseen Järjestykseen")
+st.subheader("📊 Kaikki Duo-Yhdistelmät (Odotusarvojärjestys)")
 st.dataframe(
-    df_duo.sort_values(by="EV (Pool)", ascending=False),
+    df_yhdistelmat.sort_values(by="EV (Pooli)", ascending=False),
     use_container_width=True,
     hide_index=True,
 )
-
-# ----------------- 7. TULOSTEN TARKISTUS -----------------
-st.divider()
-st.subheader("🏁 Merkitse Voittajat Lähdön Jälkeen")
-
-c1, c2 = st.columns(2)
-with c1:
-    v1 = st.selectbox("PD-1 Voittaja (Lähtö 11)", df_pd1_p["Hevonen"])
-with c2:
-    v2 = st.selectbox("PD-2 Voittaja (Lähtö 12)", df_pd2_p["Hevonen"])
-
-osuma_row = df_duo[
-    (df_duo["PD1"].str.contains(v1)) & (df_duo["PD2"].str.contains(v2))
-].iloc[0]
-
-res1, res2, res3 = st.columns(3)
-res1.metric("Osuma Yhdistelmä", osuma_row["Yhdistelmä"])
-res2.metric("Poolikerroin", f"{osuma_row['Pool Kerroin']:.1f}")
-res3.metric("Odotusarvo (EV)", f"{osuma_row['EV (Pool)']:.2f}")
-
-if osuma_row["EV (Pool)"] >= min_ev:
-    st.success("✅ TOTEUTUNUT DUO OLI YLIKERTOIMINAN TÄRPI!")
-else:
-    st.warning("⚠️ Toteutunut Duo oli alipelattu/alikertoiminen kohde.")
