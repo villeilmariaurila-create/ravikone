@@ -11,4 +11,12 @@ st.caption(
     " traktoreita!"
 )
 
-html_code = """
+html_lines = [
+    "",
+    "",
+    "",
+    '',
+    "",
+    "",
+    "",
+    '
