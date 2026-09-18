@@ -3,27 +3,55 @@ import pandas as pd
 import streamlit as st
 
 st.set_page_config(
-    page_title="V85 Odotusarvo- ja Simulaatiotyökalu (Data-Edellä)",
+    page_title="V85 Odotusarvo- ja Simulaatiotyökalu (Kotirata Painotettu)",
     page_icon="🏇",
     layout="wide",
 )
 
-st.title("🏇 V85 Pääasiassa Data- ja Simulaatiovetoinen Työkalu")
+st.title("🏇 V85 Simulaatiotyökalu – Kotirata- ja Datapainotettu")
 st.caption(
-    "Färjestad – Malli luottaa ensisijaisesti kertoimiin ja matemaattiseen"
-    " simulaatioon, vihjeet kevyellä painolla."
+    "Färjestad – Mukana dynaaminen kotiradan hevosten lista, matemaattinen"
+    " simulaatio ja Unibetin kertoimet."
 )
 
+# ----------------- KOTIRADAN HEVOSLISTA (FÄRJESTAD) -----------------
+# Erillinen lista kotiradan hevosista, niiden arvioista ja perusteluista
+kotirata_hevostiedot = [
+    {
+        "Kohde": "V85-1",
+        "Hevonen": "#2 Mohawk",
+        "Kotirata_Bonus": 1.04,
+        "Perustelu": "Goopin valmennettava kilpailee kotiradallaan, iso etu.",
+    },
+    {
+        "Kohde": "V85-4",
+        "Hevonen": "#3 Grisle Tore G.L.",
+        "Kotirata_Bonus": 1.03,
+        "Perustelu": "Vahva paikallistuntemus ja sopiva profiili Färjestadiin.",
+    },
+    {
+        "Kohde": "V85-6",
+        "Hevonen": "#4 Cold Blaze",
+        "Kotirata_Bonus": 1.03,
+        "Perustelu": "Tottunut Färjestadin kurveihin ja olosuhteisiin.",
+    },
+    {
+        "Kohde": "V85-8",
+        "Hevonen": "#6 Great Old Dance",
+        "Kotirata_Bonus": 1.04,
+        "Perustelu": "Kotiradan stayer-taituri, hyötyy radan profiilista.",
+    },
+]
+df_kotirata = pd.DataFrame(kotirata_hevostiedot)
+
 # ----------------- SELITYSLAATIKKO KÄYTTÖLIITTYMÄSSÄ -----------------
-with st.expander(
-    "ℹ️ Miten simulaatio ja kevyt vihjepainotus yhdistetään?", expanded=False
-):
+with st.expander("ℹ️ Miten simulaatio ja kotiratapainotus toimivat?", expanded=False):
     st.markdown(
         """
     **Laskentalogiikka:**
-    * **Pääpaino Datassa**: Malli laskee voittotodennäköisyydet ensisijaisesti markkinakertoimien ja objektiivisen jakauman mukaan.
-    * **Vihjepainotus (Kevyt)**: Daniel Berglundin ja Jens Sjödénin näkemykset (kuten keulapaikan edut Färjestadin lyhyellä loppusuoralla) vaikuttavat vain maltillisella kertoimella arvioihin.
-    * **Odotusarvo (EV)**: `(Lopullinen Arvio % / 100) * Paras Kerroin`. Yli 1.0 arvot hakevat pelattavat yllättäjät.
+    * **Data-Arvio %**: Pohjautuu markkinakertoimiin ja objektiiviseen todennäköisyysjakaumaan.
+    * **Kotirata-Bonus**: Färjestadin kotiradalla kilpailevat hevoset saavat pienen paikallistuntemusbonuksen (erillisestä kotirata-listasta).
+    * **Odotusarvo (EV)**: `(Lopullinen Arvio % / 100) * Paras Kerroin`. Yli 1.0 arvot nostavat esiin parhaat pelikohteet.
     """
     )
 
@@ -39,7 +67,7 @@ num_simulations = st.sidebar.selectbox(
     "Monte Carlo -simulaatiot", [1000, 5000, 10000, 50000], index=2
 )
 
-# ----------------- V85 LÄHDÖT & DATAVETOISET ARVIOT -----------------
+# ----------------- V85 LÄHDÖT & PÄÄDATAT -----------------
 vihjeet_data = [
     # --- V85-1 ---
     {
@@ -49,10 +77,7 @@ vihjeet_data = [
         "Data_Arvio %": 55.0,
         "Vihje_Paino": 1.02,
         "Unibet": 2.65,
-        "Perustelu": (
-            "Selvä markkinasuosikki, Goopin tykki, mutta tekee painotuksen"
-            " mukaan ison työn[cite: 4]."
-        ),
+        "Perustelu": "Selvä markkinasuosikki, Goopin tykki kotiradallaan[cite: 4].",
     },
     {
         "Kohde": "V85-1",
@@ -61,9 +86,7 @@ vihjeet_data = [
         "Data_Arvio %": 8.0,
         "Vihje_Paino": 1.05,
         "Unibet": 5.00,
-        "Perustelu": (
-            "Kevyt vihjepuoltto: Nopea avaaja, barfota r/o ja Mats E Djuse."
-        ),
+        "Perustelu": "Nopea avaaja, barfota r/o ja Mats E Djuse.",
     },
     {
         "Kohde": "V85-1",
@@ -72,9 +95,7 @@ vihjeet_data = [
         "Data_Arvio %": 7.0,
         "Vihje_Paino": 1.02,
         "Unibet": 11.00,
-        "Perustelu": (
-            "💥 Jättiyllättäjä: Matemaattisesti aliarvostettu uusi regi[cite: 4]."
-        ),
+        "Perustelu": "💥 Jättiyllättäjä: Matemaattisesti aliarvostettu uusi regi[cite: 4].",
     },
     {
         "Kohde": "V85-1",
@@ -330,9 +351,26 @@ vihjeet_data = [
 
 df_vihjeet = pd.DataFrame(vihjeet_data)
 
-# --- LASKENTALOGIIKA (DATA + KEVYT VIHJEPAINOTUS) ---
+
+# --- YHDISTETÄÄN KOTIRADAN BONUS LOGIIKKAAN ---
+def get_kotirata_bonus(kohde, hevonen):
+    match = df_kotirata[
+        (df_kotirata["Kohde"] == kohde) & (df_kotirata["Hevonen"] == hevonen)
+    ]
+    if not match.empty:
+        return match.iloc[0]["Kotirata_Bonus"]
+    return 1.00
+
+
+df_vihjeet["Kotirata_Bonus"] = df_vihjeet.apply(
+    lambda row: get_kotirata_bonus(row["Kohde"], row["Hevonen"]), axis=1
+)
+
+# Lasketaan lopullinen arvio % (Data-Arvio * Vihjepaino * Kotirata-Bonus)
 df_vihjeet["Lopullinen Arvio %"] = (
-    df_vihjeet["Data_Arvio %"] * df_vihjeet["Vihje_Paino"]
+    df_vihjeet["Data_Arvio %"]
+    * df_vihjeet["Vihje_Paino"]
+    * df_vihjeet["Kotirata_Bonus"]
 )
 df_vihjeet["Arvio %"] = df_vihjeet.groupby("Kohde").apply(
     lambda x: x["Lopullinen Arvio %"]
@@ -360,8 +398,14 @@ if st.sidebar.button("Aja Simulaatio"):
     hit_rate = np.mean(sim_results) * 100
     st.sidebar.success(f"Simulaation osumatodennäköisyys: {hit_rate:.2f} %")
 
-# ----------------- NÄYTTÖ -----------------
-st.subheader("📊 Datavetoiset Odotusarvot (EV)")
+# ----------------- NÄYTTÖ: KOTIRADAN HEVOSLISTA -----------------
+st.subheader("🏠 Färjestadin Kotiradan Hevoset & Paikallisetu")
+st.dataframe(df_kotirata, use_container_width=True, hide_index=True)
+
+st.divider()
+
+# ----------------- PÄÄNÄYTTÖ -----------------
+st.subheader("📊 Datavetoiset Odotusarvot (EV) + Kotiratapainotus")
 st.dataframe(
     df_vihjeet[
         [
@@ -371,6 +415,7 @@ st.dataframe(
             "Arvio %",
             "Paras Kerroin",
             "EV",
+            "Kotirata_Bonus",
             "Perustelu",
         ]
     ].sort_values(by="EV", ascending=False),
