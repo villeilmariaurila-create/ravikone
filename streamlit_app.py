@@ -3,28 +3,27 @@ import pandas as pd
 import streamlit as st
 
 st.set_page_config(
-    page_title="V85 Ravianalyysi & Berglund-Malli",
+    page_title="V85 Odotusarvo- ja Simulaatiotyökalu (Data-Edellä)",
     page_icon="🏇",
     layout="wide",
 )
 
-st.title("🏇 V85 Keulapainotettu Odotusarvo- ja Simulaatiotyökalu")
+st.title("🏇 V85 Pääasiassa Data- ja Simulaatiovetoinen Työkalu")
 st.caption(
-    "Färjestad – Mukana Daniel Berglundin vihjeet, keulapainotus ja Unibetin"
-    " kertoimet."
+    "Färjestad – Malli luottaa ensisijaisesti kertoimiin ja matemaattiseen"
+    " simulaatioon, vihjeet kevyellä painolla."
 )
 
 # ----------------- SELITYSLAATIKKO KÄYTTÖLIITTYMÄSSÄ -----------------
 with st.expander(
-    "ℹ️ Miten Arvio % ja Keulapainotus lasketaan? (Klikkaa tästä)", expanded=False
+    "ℹ️ Miten simulaatio ja kevyt vihjepainotus yhdistetään?", expanded=False
 ):
     st.markdown(
         """
-    **Laskentalogiikan selitys:**
-    * **Arvio %**: Kuvaa hevosen lopullista, keulapaikalla, radan erityispiirteillä (lyhyt 177m loppusuora) ja asiantuntija-analyysillä korjattua voittotodennäköisyyttä. 
-    * **Keulapainotus (Spets-bonus)**: Korottaa todennäköisyyttä niillä hevosilla, joilla on parhaat mahdollisuudet päästä tai hallita keulapaikkaa.
-    * **Normalisointi**: Kohdekohtaiset prosentit lasketaan niin, että kunkin lähdön arvioiden summa on tasan 100 %.
-    * **Odotusarvo (EV)**: Lasketaan kaavalla `(Arvio % / 100) * Paras Kerroin`. Yli 1.0 arvot kertovat positiivisesta odotusarvosta.
+    **Laskentalogiikka:**
+    * **Pääpaino Datassa**: Malli laskee voittotodennäköisyydet ensisijaisesti markkinakertoimien ja objektiivisen jakauman mukaan.
+    * **Vihjepainotus (Kevyt)**: Daniel Berglundin ja Jens Sjödénin näkemykset (kuten keulapaikan edut Färjestadin lyhyellä loppusuoralla) vaikuttavat vain maltillisella kertoimella arvioihin.
+    * **Odotusarvo (EV)**: `(Lopullinen Arvio % / 100) * Paras Kerroin`. Yli 1.0 arvot hakevat pelattavat yllättäjät.
     """
     )
 
@@ -40,298 +39,300 @@ num_simulations = st.sidebar.selectbox(
     "Monte Carlo -simulaatiot", [1000, 5000, 10000, 50000], index=2
 )
 
-# ----------------- V85 LÄHDÖT & BERGLUNDIN TIEDOT -----------------
+# ----------------- V85 LÄHDÖT & DATAVETOISET ARVIOT -----------------
 vihjeet_data = [
     # --- V85-1 ---
     {
         "Kohde": "V85-1",
         "Hevonen": "#2 Mohawk",
         "Peliprosentti": 62.0,
-        "Perus_Arvio %": 50.0,
-        "Keula_Bonus": 1.05,
+        "Data_Arvio %": 55.0,
+        "Vihje_Paino": 1.02,
         "Unibet": 2.65,
         "Perustelu": (
-            "Ylipelattu jättisuosikki, tekee luultavasti työt ulkoa[cite: 4]."
+            "Selvä markkinasuosikki, Goopin tykki, mutta tekee painotuksen"
+            " mukaan ison työn[cite: 4]."
         ),
     },
     {
         "Kohde": "V85-1",
         "Hevonen": "#4 Global Grand Slam",
         "Peliprosentti": 6.0,
-        "Perus_Arvio %": 9.0,
-        "Keula_Bonus": 1.10,
+        "Data_Arvio %": 8.0,
+        "Vihje_Paino": 1.05,
         "Unibet": 5.00,
         "Perustelu": (
-            "Berglundin spetsfavorit, barfota r/o ensimmäistä kertaa ja Mats E"
-            " Djuse."
+            "Kevyt vihjepuoltto: Nopea avaaja, barfota r/o ja Mats E Djuse."
         ),
     },
     {
         "Kohde": "V85-1",
         "Hevonen": "#6 Kilifi",
         "Peliprosentti": 1.0,
-        "Perus_Arvio %": 11.0,
-        "Keula_Bonus": 1.05,
+        "Data_Arvio %": 7.0,
+        "Vihje_Paino": 1.02,
         "Unibet": 11.00,
-        "Perustelu": "💥 Jättiyllättäjä: Vahva uusi regi, nopea ja tehokas[cite: 4].",
+        "Perustelu": (
+            "💥 Jättiyllättäjä: Matemaattisesti aliarvostettu uusi regi[cite: 4]."
+        ),
     },
     {
         "Kohde": "V85-1",
         "Hevonen": "#3 Hola Que Tal",
         "Peliprosentti": 4.0,
-        "Perus_Arvio %": 10.0,
-        "Keula_Bonus": 1.00,
+        "Data_Arvio %": 6.0,
+        "Vihje_Paino": 1.00,
         "Unibet": 7.00,
-        "Perustelu": "Hyvä lähtöpaikka, Jorma Kontio vahvistuksena[cite: 4].",
+        "Perustelu": "Hyvä lähtöpaikka, Kontio ohjastaa[cite: 4].",
     },
     # --- V85-2 ---
     {
         "Kohde": "V85-2",
         "Hevonen": "#5 Nilla Lane",
         "Peliprosentti": 35.0,
-        "Perus_Arvio %": 32.0,
-        "Keula_Bonus": 1.20,
+        "Data_Arvio %": 34.0,
+        "Vihje_Paino": 1.05,
         "Unibet": 2.75,
-        "Perustelu": "Suosikki, hakee aktiivisesti keulapaikkaa[cite: 5].",
+        "Perustelu": "Keulapsykologia puoltaa, mutta lievä ylipaino markkinassa[cite: 5].",
     },
     {
         "Kohde": "V85-2",
         "Hevonen": "#6 Skylight",
         "Peliprosentti": 15.0,
-        "Perus_Arvio %": 25.0,
-        "Keula_Bonus": 1.05,
+        "Data_Arvio %": 22.0,
+        "Vihje_Paino": 1.02,
         "Unibet": 2.75,
-        "Perustelu": "Norjalainen huipputamma, vahva haastaja ulkoradoilta[cite: 5].",
+        "Perustelu": "Norjalainen kovuus, hyvä vastapaino suosikille[cite: 5].",
     },
     {
         "Kohde": "V85-2",
         "Hevonen": "#10 Monkey Wine",
         "Peliprosentti": 5.0,
-        "Perus_Arvio %": 22.0,
-        "Keula_Bonus": 1.00,
+        "Data_Arvio %": 15.0,
+        "Vihje_Paino": 1.02,
         "Unibet": 11.00,
-        "Perustelu": "💥 Yllättäjä: Wäjerstenin kova kiritykki[cite: 3, 5].",
+        "Perustelu": "💥 Yllättäjä: Wäjerstenin kiritykki hyvällä matemaattisella EV:llä[cite: 3, 5].",
     },
     {
         "Kohde": "V85-2",
         "Hevonen": "#9 Panthere d’Inverne",
         "Peliprosentti": 4.0,
-        "Perus_Arvio %": 21.0,
-        "Keula_Bonus": 1.00,
+        "Data_Arvio %": 14.0,
+        "Vihje_Paino": 1.00,
         "Unibet": 9.75,
-        "Perustelu": "💥 Yllättäjä: Kovan luokan tamma, revanssihaku[cite: 3, 5].",
+        "Perustelu": "💥 Yllättäjä: Vahva tamma, alipelattu marginaali[cite: 3, 5].",
     },
     # --- V85-3 ---
     {
         "Kohde": "V85-3",
         "Hevonen": "#3 Pelshin Boko",
         "Peliprosentti": 10.0,
-        "Perus_Arvio %": 30.0,
-        "Keula_Bonus": 1.15,
+        "Data_Arvio %": 28.0,
+        "Vihje_Paino": 1.05,
         "Unibet": 6.75,
-        "Perustelu": "Lugauerin tamma, Kontio rattaille, spetsideea[cite: 6].",
+        "Perustelu": "Lugauerin tamma, Kontio rattaille, vahva arvio[cite: 6].",
     },
     {
         "Kohde": "V85-3",
         "Hevonen": "#6 Luck Is For Losers",
         "Peliprosentti": 8.0,
-        "Perus_Arvio %": 28.0,
-        "Keula_Bonus": 1.10,
+        "Data_Arvio %": 26.0,
+        "Vihje_Paino": 1.02,
         "Unibet": 8.50,
-        "Perustelu": "Kolmen voiton putki, Mats E Djuse, viihtyy Färjestadissa[cite: 6].",
+        "Perustelu": "Viihtyy Färjestadissa, hyvä formi[cite: 6].",
     },
     {
         "Kohde": "V85-3",
         "Hevonen": "#10 Popup Pellini",
         "Peliprosentti": 3.0,
-        "Perus_Arvio %": 22.0,
-        "Keula_Bonus": 1.00,
+        "Data_Arvio %": 24.0,
+        "Vihje_Paino": 1.00,
         "Unibet": 11.00,
-        "Perustelu": "💥 Yllättäjä: Ikäluokkakarsinnoissa karittu kovuus[cite: 3, 6].",
+        "Perustelu": "💥 Yllättäjä: Ikäluokkakarsintojen kovuus tuottaa tulosta[cite: 3, 6].",
     },
     {
         "Kohde": "V85-3",
         "Hevonen": "#7 Lotusorchide",
         "Peliprosentti": 12.0,
-        "Perus_Arvio %": 20.0,
-        "Keula_Bonus": 1.05,
+        "Data_Arvio %": 22.0,
+        "Vihje_Paino": 1.00,
         "Unibet": 4.00,
-        "Perustelu": "Tasainen ja sitkeä nelivuotias[cite: 6].",
+        "Perustelu": "Tasainen suorittaja[cite: 6].",
     },
     # --- V85-4 ---
     {
         "Kohde": "V85-4",
         "Hevonen": "#3 Grisle Tore G.L.",
         "Peliprosentti": 33.0,
-        "Perus_Arvio %": 42.0,
-        "Keula_Bonus": 1.15,
+        "Data_Arvio %": 44.0,
+        "Vihje_Paino": 1.05,
         "Unibet": 2.20,
-        "Perustelu": "Berglundin varma spik! Valtava kehitys ja hirmukunto[cite: 7, 11].",
+        "Perustelu": "Vahva simulaatiopisteytys, selvä ykkönen tähän lähtöön[cite: 7, 11].",
     },
     {
         "Kohde": "V85-4",
         "Hevonen": "#7 Tangen Bork",
         "Peliprosentti": 33.0,
-        "Perus_Arvio %": 30.0,
-        "Keula_Bonus": 1.05,
+        "Data_Arvio %": 28.0,
+        "Vihje_Paino": 0.98,
         "Unibet": 4.25,
-        "Perustelu": "Tjomslandin huippuhevonen, mutta laukkahuolia[cite: 7, 11].",
+        "Perustelu": "Tjomslandin hevonen, mutta laukkariski painaa vähän vastaan[cite: 7, 11].",
     },
     {
         "Kohde": "V85-4",
         "Hevonen": "#4 Gigant Tider",
         "Peliprosentti": 10.0,
-        "Perus_Arvio %": 18.0,
-        "Keula_Bonus": 1.20,
+        "Data_Arvio %": 18.0,
+        "Vihje_Paino": 1.02,
         "Unibet": 6.25,
-        "Perustelu": "Spetsfavorit nuoresta iästään huolimatta[cite: 7, 11].",
+        "Perustelu": "Keulapotentiaali nostaa odotusarvoa[cite: 7, 11].",
     },
     {
         "Kohde": "V85-4",
         "Hevonen": "#6 Baias",
         "Peliprosentti": 5.0,
-        "Perus_Arvio %": 10.0,
-        "Keula_Bonus": 1.00,
+        "Data_Arvio %": 10.0,
+        "Vihje_Paino": 1.00,
         "Unibet": 10.50,
-        "Perustelu": "💥 Yllättäjä: Aliarvostettu haastaja elittiin[cite: 3, 7, 11].",
+        "Perustelu": "💥 Yllättäjä: Aliarvostettu eliittihevonen[cite: 3, 7, 11].",
     },
     # --- V85-5 ---
     {
         "Kohde": "V85-5",
         "Hevonen": "#5 Maverick K.W.",
         "Peliprosentti": 15.0,
-        "Perus_Arvio %": 45.0,
-        "Keula_Bonus": 1.25,
+        "Data_Arvio %": 42.0,
+        "Vihje_Paino": 1.08,
         "Unibet": 3.35,
-        "Perustelu": "Berglundin fräck spik! Ohittaa suosikin kiihdytyksessä[cite: 7].",
+        "Perustelu": "Matemaattisesti erinomainen EV ja vahva keulasauma[cite: 7].",
     },
     {
         "Kohde": "V85-5",
         "Hevonen": "#1 Fedorov",
         "Peliprosentti": 57.0,
-        "Perus_Arvio %": 25.0,
-        "Keula_Bonus": 0.85,
+        "Data_Arvio %": 28.0,
+        "Vihje_Paino": 0.95,
         "Unibet": 2.35,
-        "Perustelu": "Jättisuosikki, mutta innerspår Färjestadissa on riski[cite: 7].",
+        "Perustelu": "Ylipelattu suosikki sisäratahaasteiden vuoksi[cite: 7].",
     },
     {
         "Kohde": "V85-5",
         "Hevonen": "#6 Paw Patrol V.S.",
         "Peliprosentti": 8.0,
-        "Perus_Arvio %": 18.0,
-        "Keula_Bonus": 1.05,
+        "Data_Arvio %": 18.0,
+        "Vihje_Paino": 1.00,
         "Unibet": 7.00,
-        "Perustelu": "Reipas nousuvire, uusia varusteita[cite: 7].",
+        "Perustelu": "Nousuvireinen haastaja[cite: 7].",
     },
     {
         "Kohde": "V85-5",
         "Hevonen": "#10 Miguel",
         "Peliprosentti": 5.0,
-        "Perus_Arvio %": 12.0,
-        "Keula_Bonus": 1.00,
+        "Data_Arvio %": 12.0,
+        "Vihje_Paino": 1.00,
         "Unibet": 15.00,
-        "Perustelu": "💥 Yllättäjä: Kihlström rattaille, luokkaa taustalla[cite: 3, 7].",
+        "Perustelu": "💥 Yllättäjä: Kihlström ja kova taustaluokka[cite: 3, 7].",
     },
     # --- V85-6 ---
     {
         "Kohde": "V85-6",
         "Hevonen": "#4 Cold Blaze",
         "Peliprosentti": 59.0,
-        "Perus_Arvio %": 40.0,
-        "Keula_Bonus": 1.05,
+        "Data_Arvio %": 42.0,
+        "Vihje_Paino": 0.98,
         "Unibet": 2.20,
-        "Perustelu": "Suosikki, mutta epävarma vire ja herkkä juoksunkululle[cite: 8].",
+        "Perustelu": "Markkinasuosikki, mutta selvästi ylipelattu simulaatioon nähden[cite: 8].",
     },
     {
         "Kohde": "V85-6",
         "Hevonen": "#8 Oliver Transs R.",
         "Peliprosentti": 1.0,
-        "Perus_Arvio %": 32.0,
-        "Keula_Bonus": 1.00,
+        "Data_Arvio %": 32.0,
+        "Vihje_Paino": 1.05,
         "Unibet": 15.00,
-        "Perustelu": "💥 Jättiyllättäjä: Loistava haku pitkälle matkalle, barfota r/o[cite: 3, 8].",
+        "Perustelu": "💥 Jättiyllättäjä: Loistava EV pitkälle matkalle barfotabalanssilla[cite: 3, 8].",
     },
     {
         "Kohde": "V85-6",
         "Hevonen": "#2 Mr Explosive H.H.",
         "Peliprosentti": 10.0,
-        "Perus_Arvio %": 28.0,
-        "Keula_Bonus": 1.15,
+        "Data_Arvio %": 26.0,
+        "Vihje_Paino": 1.02,
         "Unibet": 7.00,
-        "Perustelu": "Spetskandidaatti, karkasi viimeksi yllättäjärenkaassa[cite: 8].",
+        "Perustelu": "Vahva ehdokas keulajuoksuun[cite: 8].",
     },
     # --- V85-7 ---
     {
         "Kohde": "V85-7",
         "Hevonen": "#3 Barack Face",
         "Peliprosentti": 15.0,
-        "Perus_Arvio %": 38.0,
-        "Keula_Bonus": 1.10,
+        "Data_Arvio %": 36.0,
+        "Vihje_Paino": 1.02,
         "Unibet": 5.75,
-        "Perustelu": "Positiivinen vire, Adrian Kolgjini, hyvä lähtöpaikka[cite: 9].",
+        "Perustelu": "Tasainen ja nousukuntoinen guld-hevonen[cite: 9].",
     },
     {
         "Kohde": "V85-7",
         "Hevonen": "#4 Get A Wish",
         "Peliprosentti": 20.0,
-        "Perus_Arvio %": 32.0,
-        "Keula_Bonus": 1.10,
+        "Data_Arvio %": 34.0,
+        "Vihje_Paino": 1.00,
         "Unibet": 4.50,
-        "Perustelu": "Rautainen kovuus Robert Berghin tallista[cite: 9].",
+        "Perustelu": "Rautainen kovuus[cite: 9].",
     },
     {
         "Kohde": "V85-7",
         "Hevonen": "#9 Loxahatchee",
         "Peliprosentti": 8.0,
-        "Perus_Arvio %": 30.0,
-        "Keula_Bonus": 1.00,
+        "Data_Arvio %": 30.0,
+        "Vihje_Paino": 1.02,
         "Unibet": 6.25,
-        "Perustelu": "💥 Yllättäjä: Jännittävä guld-debytantti, Mats E Djuse[cite: 3, 9].",
+        "Perustelu": "💥 Yllättäjä: Mielenkiintoinen debytantti isolla kertoimella[cite: 3, 9].",
     },
     # --- V85-8 ---
     {
         "Kohde": "V85-8",
         "Hevonen": "#6 Great Old Dance",
         "Peliprosentti": 38.0,
-        "Perus_Arvio %": 45.0,
-        "Keula_Bonus": 1.20,
+        "Data_Arvio %": 45.0,
+        "Vihje_Paino": 1.05,
         "Unibet": 3.00,
-        "Perustelu": "Stayerloppetin suosikki, Mats E Djuse ja loistava keulasauma[cite: 10].",
+        "Perustelu": "Stayerloppetin ykkössuokki simulaatiossa[cite: 10].",
     },
     {
         "Kohde": "V85-8",
         "Hevonen": "#15 Steady Express",
         "Peliprosentti": 20.0,
-        "Perus_Arvio %": 25.0,
-        "Keula_Bonus": 1.00,
+        "Data_Arvio %": 26.0,
+        "Vihje_Paino": 1.00,
         "Unibet": 4.25,
-        "Perustelu": "Vahva ja sitkeä fuxi pitkälle matkalle[cite: 10].",
+        "Perustelu": "Vahva fuxi pitkälle matkalle[cite: 10].",
     },
     {
         "Kohde": "V85-8",
         "Hevonen": "#12 King Okay",
         "Peliprosentti": 3.0,
-        "Perus_Arvio %": 18.0,
-        "Keula_Bonus": 1.00,
+        "Data_Arvio %": 17.0,
+        "Vihje_Paino": 1.00,
         "Unibet": 11.00,
-        "Perustelu": "💥 Yllättäjä: Vahva loppuvetäjä ruotsalaisradoilla[cite: 3, 10].",
+        "Perustelu": "💥 Yllättäjä: Loistava loppuvetäjä kovassa vauhdissa[cite: 3, 10].",
     },
     {
         "Kohde": "V85-8",
         "Hevonen": "#14 Southbeach Volo",
         "Peliprosentti": 2.0,
-        "Perus_Arvio %": 12.0,
-        "Keula_Bonus": 1.00,
+        "Data_Arvio %": 12.0,
+        "Vihje_Paino": 1.00,
         "Unibet": 17.50,
-        "Perustelu": "💥 Yllättäjä: Yllätyshaku pitkään loppuvetoon[cite: 3, 10].",
+        "Perustelu": "💥 Yllättäjä: Aliarvostettu stayer-kirijä[cite: 3, 10].",
     },
 ]
 
 df_vihjeet = pd.DataFrame(vihjeet_data)
 
-# --- LASKENTALOGIIKAN TOTEUTUS ---
+# --- LASKENTALOGIIKA (DATA + KEVYT VIHJEPAINOTUS) ---
 df_vihjeet["Lopullinen Arvio %"] = (
-    df_vihjeet["Perus_Arvio %"] * df_vihjeet["Keula_Bonus"]
+    df_vihjeet["Data_Arvio %"] * df_vihjeet["Vihje_Paino"]
 )
 df_vihjeet["Arvio %"] = df_vihjeet.groupby("Kohde").apply(
     lambda x: x["Lopullinen Arvio %"]
@@ -360,7 +361,7 @@ if st.sidebar.button("Aja Simulaatio"):
     st.sidebar.success(f"Simulaation osumatodennäköisyys: {hit_rate:.2f} %")
 
 # ----------------- NÄYTTÖ -----------------
-st.subheader("📊 Kaikki Kohteet & Keulapainotetut Odotusarvot (EV)")
+st.subheader("📊 Datavetoiset Odotusarvot (EV)")
 st.dataframe(
     df_vihjeet[
         [
@@ -381,7 +382,7 @@ st.divider()
 
 # 🔥 ALIPELATUT YLLÄTTÄJÄT LÄHDÖTTÄIN
 st.subheader(
-    "🔥 Alipelatut Yllättäjät Lähdöittäin (< 10 % Peliprosentti)"
+    "🔥 Matemaattisesti Alipelatut Yllättäjät (< 10 % Peliprosentti)"
 )
 df_surprises = df_vihjeet[df_vihjeet["Peliprosentti"] < 10.0]
 
