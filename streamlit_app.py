@@ -3,15 +3,16 @@ import pandas as pd
 import streamlit as st
 
 st.set_page_config(
-    page_title="V64 Ravianalyysi & Monte Carlo Simulaatio",
+    page_title="V85 Ravianalyysi & Monte Carlo - Färjestad (Eksperttimalli)",
     page_icon="🏇",
     layout="wide",
 )
 
-st.title("🏇 V64 Ravianalyysi & Monte Carlo Simulaatio - Åby 17.9.")
+st.title("🏇 V85 Ravianalyysi & Monte Carlo Simulaatio (Eksperttimalli)")
 st.caption(
-    "Päivitetty tuoreilla ruotsalaistipseillä (TR Media, ATG), Unibetin"
-    " kertoimilla ja Monte Carlo -ajoilla."
+    "Färjestad – Unionskampen. Päivitetty malli sisältää Jens Sjödénin tilastot"
+    " ja Daniel Berglundin tärpit (mm. Fedorovin varoitus & unohdetut"
+    " kirijät)."
 )
 
 # ----------------- SIVUPALKIN ASETUKSET -----------------
@@ -26,198 +27,275 @@ num_simulations = st.sidebar.selectbox(
     "Monte Carlo -simulaatiot", [1000, 5000, 10000, 50000], index=2
 )
 
-# ----------------- PÄIVITETTY VIHJEDATA (V64: L4-L9) -----------------
+# ----------------- VIHJEDATA (KOKO V85: LÄHDÖT 1-8 / L5-L12) -----------------
 vihjeet_data = [
-    # V64-1 (L4)
+    # --- V85-1 (L5) ---
     {
-        "Kohde": "V64-1 (L4)",
-        "Hevonen": "#7 Zehir",
+        "Kohde": "V85-1",
+        "Hevonen": "#2 Mohawk",
         "Peliprosentti": 62.0,
-        "Arvio %": 65.0,
-        "Unibet": 1.60,
-        "Perustelu": "Kierroksen varmapilari (TR Media spik). Derbykval-tausta.",
+        "Arvio %": 60.0,
+        "Unibet": 1.65,
+        "Coolbet": 1.60,
+        "Perustelu": (
+            "Kuvan pelijakauman selvä suosikkipilari (62 %)[cite: 1]. B."
+            " Goopin luokkahevonen."
+        ),
     },
     {
-        "Kohde": "V64-1 (L4)",
-        "Hevonen": "#5 Fantasy Sensation",
-        "Peliprosentti": 24.0,
+        "Kohde": "V85-1",
+        "Hevonen": "#1 Licorice Sisu",
+        "Peliprosentti": 15.0,
         "Arvio %": 18.0,
-        "Unibet": 4.25,
-        "Perustelu": "Ykköshaastaja tauolta.",
-    },
-    {
-        "Kohde": "V64-1 (L4)",
-        "Hevonen": "#4 Figlia Di Ciclone",
-        "Peliprosentti": 4.0,
-        "Arvio %": 11.0,
-        "Unibet": 7.25,
-        "Perustelu": "💥 YLLÄTTÄJÄ (<10%): Anmäld barfota runt om!",
-    },
-    # V64-2 (L5)
-    {
-        "Kohde": "V64-2 (L5)",
-        "Hevonen": "#6 Numina",
-        "Peliprosentti": 40.0,
-        "Arvio %": 28.0,
-        "Unibet": 3.25,
-        "Perustelu": "Suosikki, mutta pienenä kysymysmerkkinä.",
-    },
-    {
-        "Kohde": "V64-2 (L5)",
-        "Hevonen": "#7 Ytowns Master",
-        "Peliprosentti": 26.0,
-        "Arvio %": 27.0,
-        "Unibet": 3.15,
-        "Perustelu": "Keulavoittaja, vaarallinen jos keulaan.",
-    },
-    {
-        "Kohde": "V64-2 (L5)",
-        "Hevonen": "#2 Milton Jaam",
-        "Peliprosentti": 4.0,
-        "Arvio %": 12.5,
-        "Unibet": 15.00,
-        "Perustelu": (
-            "💥 YLLÄTTÄJÄ (<10%): A-ryhmän nosto tipsistä! Eka kertaa barfota!"
-        ),
-    },
-    {
-        "Kohde": "V64-2 (L5)",
-        "Hevonen": "#1 Clog",
-        "Peliprosentti": 12.0,
-        "Arvio %": 15.0,
-        "Unibet": 6.75,
-        "Perustelu": "Sisäradan etu nopealla maililla.",
-    },
-    # V64-3 (L6)
-    {
-        "Kohde": "V64-3 (L6)",
-        "Hevonen": "#4 Kålle",
-        "Peliprosentti": 31.0,
-        "Arvio %": 35.0,
-        "Unibet": 3.15,
-        "Perustelu": "David Perssonin regidebuutti, unelmapaikka & barfota r/o.",
-    },
-    {
-        "Kohde": "V64-3 (L6)",
-        "Hevonen": "#5 Ulix Turner",
-        "Peliprosentti": 22.0,
-        "Arvio %": 30.0,
-        "Unibet": 2.65,
-        "Perustelu": "Vahva vääntäjä johtohevosen rinnalta.",
-    },
-    {
-        "Kohde": "V64-3 (L6)",
-        "Hevonen": "#1 Cay",
-        "Peliprosentti": 17.0,
-        "Arvio %": 16.0,
-        "Unibet": 6.00,
-        "Perustelu": "Lövgrenin tulokas, Open Stretch hyödyttää.",
-    },
-    # V64-4 (L7)
-    {
-        "Kohde": "V64-4 (L7)",
-        "Hevonen": "#4 Nightrain",
-        "Peliprosentti": 34.0,
-        "Arvio %": 40.0,
-        "Unibet": 1.95,
-        "Perustelu": "Halsoperoitu, hyvä treeneissä ja kova spetsinimi.",
-    },
-    {
-        "Kohde": "V64-4 (L7)",
-        "Hevonen": "#9 Fabulous N'Away",
-        "Peliprosentti": 21.0,
-        "Arvio %": 22.0,
         "Unibet": 5.50,
-        "Perustelu": "A-ryhmän hevonen, ravatessaan todella vahva.",
-    },
-    {
-        "Kohde": "V64-4 (L7)",
-        "Hevonen": "#11 Global General",
-        "Peliprosentti": 5.0,
-        "Arvio %": 14.0,
-        "Unibet": 6.00,
-        "Perustelu": "💥 YLLÄTTÄJÄ (<10%): Alipelattu haastaja Unibetin kertoimella.",
-    },
-    # V64-5 (L8)
-    {
-        "Kohde": "V64-5 (L8)",
-        "Hevonen": "#4 Carltex",
-        "Peliprosentti": 51.0,
-        "Arvio %": 36.0,
-        "Unibet": 2.55,
-        "Perustelu": "Spetsfavorit, mutta pelattu liian suureksi.",
-    },
-    {
-        "Kohde": "V64-5 (L8)",
-        "Hevonen": "#2 Lauser",
-        "Peliprosentti": 4.0,
-        "Arvio %": 16.5,
-        "Unibet": 9.75,
+        "Coolbet": 5.25,
         "Perustelu": (
-            "🔥 DAGENS SKRÄLL! TR Median ykköskuvio. Täta starter sopii"
-            " Berghille!"
+            "Kuvan toinen päämerkki (15 %)[cite: 1]. Kihlström kyydissä,"
+            " sisärata."
         ),
     },
     {
-        "Kohde": "V64-5 (L8)",
-        "Hevonen": "#3 From Free D.L.",
-        "Peliprosentti": 21.0,
+        "Kohde": "V85-1",
+        "Hevonen": "#6 Kilifi",
+        "Peliprosentti": 2.0,
+        "Arvio %": 8.0,
+        "Unibet": 15.00,
+        "Coolbet": 14.00,
+        "Perustelu": (
+            "💥 BERGLUNDIN NOSTO: Vahvin norjalainen vieras, näyttänyt"
+            " terävältä."
+        ),
+    },
+    # --- V85-2 (L6) ---
+    {
+        "Kohde": "V85-2",
+        "Hevonen": "#5 Nilla Lane",
+        "Peliprosentti": 48.0,
+        "Arvio %": 50.0,
+        "Unibet": 2.10,
+        "Coolbet": 2.05,
+        "Perustelu": (
+            "Kuvan ykkössuosikki (48 %)[cite: 1]. Berglund: Läge för"
+            " favoritposition spets."
+        ),
+    },
+    {
+        "Kohde": "V85-2",
+        "Hevonen": "#6 Skylight",
+        "Peliprosentti": 25.0,
+        "Arvio %": 26.0,
+        "Unibet": 3.75,
+        "Coolbet": 3.80,
+        "Perustelu": (
+            "Kuvan kakkonen (25 %)[cite: 1]. Spurtade bra i Sto-EM, selvä"
+            " lokaali motbud."
+        ),
+    },
+    # --- V85-3 (L7) ---
+    {
+        "Kohde": "V85-3",
+        "Hevonen": "#7 Lotusorchide",
+        "Peliprosentti": 26.0,
+        "Arvio %": 28.0,
+        "Unibet": 3.50,
+        "Coolbet": 3.40,
+        "Perustelu": (
+            "Kuvan pelatuin (26 %)[cite: 1]. Tässä avoimessa tammalähdössä"
+            " vahva merkki."
+        ),
+    },
+    {
+        "Kohde": "V85-3",
+        "Hevonen": "#3 Pelshin Boko",
+        "Peliprosentti": 24.0,
+        "Arvio %": 26.0,
+        "Unibet": 3.80,
+        "Coolbet": 3.75,
+        "Perustelu": (
+            "Kuvan kakkonen (24 %)[cite: 1]. Vahva esitys viimeksi, tiukka"
+            " kamppailu."
+        ),
+    },
+    {
+        "Kohde": "V85-3",
+        "Hevonen": "#6 Luck Is For Losers",
+        "Peliprosentti": 18.0,
         "Arvio %": 20.0,
-        "Unibet": 4.35,
-        "Perustelu": "Untersteinerin uusi ratsu.",
+        "Unibet": 5.00,
+        "Coolbet": 4.80,
+        "Perustelu": "Kunto aivan på topp, tekee työtä itse tammalähdössä.",
     },
+    # --- V85-4 (L8) ---
     {
-        "Kohde": "V64-5 (L8)",
-        "Hevonen": "#6 Isaac Wynn",
-        "Peliprosentti": 9.0,
-        "Arvio %": 15.0,
-        "Unibet": 4.35,
-        "Perustelu": "💥 YLLÄTTÄJÄ (<10%): Barfota r/o muutos.",
-    },
-    # V64-6 (L9)
-    {
-        "Kohde": "V64-6 (L9)",
-        "Hevonen": "#3 Ugalli",
-        "Peliprosentti": 51.0,
-        "Arvio %": 34.0,
-        "Unibet": 2.65,
-        "Perustelu": "Goopin suosikki, mutta haavoittuvainen.",
-    },
-    {
-        "Kohde": "V64-6 (L9)",
-        "Hevonen": "#2 Deadly Map",
-        "Peliprosentti": 9.0,
-        "Arvio %": 15.0,
-        "Unibet": 6.50,
+        "Kohde": "V85-4",
+        "Hevonen": "#7 Tangen Bork",
+        "Peliprosentti": 33.0,
+        "Arvio %": 35.0,
+        "Unibet": 2.75,
+        "Coolbet": 2.70,
         "Perustelu": (
-            "💥 YLLÄTTÄJÄ (<10%): Korkea luokka (Elitloppshelgen-voittaja)."
+            "Kuvan kärki (33 %)[cite: 1]. Sjödénin tilasto: Autostart-kallblodit"
+            " suosivat suosikkeja."
         ),
     },
     {
-        "Kohde": "V64-6 (L9)",
-        "Hevonen": "#4 Arnie Silvio",
+        "Kohde": "V85-4",
+        "Hevonen": "#3 Grisle Tore G.L.",
+        "Peliprosentti": 32.0,
+        "Arvio %": 33.0,
+        "Unibet": 2.85,
+        "Coolbet": 2.80,
+        "Perustelu": "Kuvan kakkonen (32 %)[cite: 1]. Vahva haastaja kärkipaikalle.",
+    },
+    {
+        "Kohde": "V85-4",
+        "Hevonen": "#4 Gigant Tider",
+        "Peliprosentti": 16.0,
+        "Arvio %": 15.0,
+        "Unibet": 6.00,
+        "Coolbet": 5.75,
+        "Perustelu": "Kuvan kolmas merkki (16 %)[cite: 1]. Nopea avaaja.",
+    },
+    # --- V85-5 (L9 - Fedorov varoitus) ---
+    {
+        "Kohde": "V85-5",
+        "Hevonen": "#1 Fedorov",
+        "Peliprosentti": 57.0,
+        "Arvio %": 45.0,
+        "Unibet": 2.05,
+        "Coolbet": 2.00,
+        "Perustelu": (
+            "Kuvan ylivoimainen suosikki (57 %)[cite: 1]. Isot varustemuutokset"
+            " + Färjestads innerspår-haaste (Berglund varoittaa)."
+        ),
+    },
+    {
+        "Kohde": "V85-5",
+        "Hevonen": "#5 Maverick K.W.",
         "Peliprosentti": 17.0,
+        "Arvio %": 24.0,
+        "Unibet": 4.50,
+        "Coolbet": 4.40,
+        "Perustelu": (
+            "Kuvan kakkonen (17 %)[cite: 1]. Spår 5 -etu (Färjestadin vahva"
+            " ROI-spår)."
+        ),
+    },
+    # --- V85-6 (L10 - Cold Blaze / Oliver Transs R.) ---
+    {
+        "Kohde": "V85-6",
+        "Hevonen": "#4 Cold Blaze",
+        "Peliprosentti": 59.0,
+        "Arvio %": 55.0,
+        "Unibet": 1.75,
+        "Coolbet": 1.70,
+        "Perustelu": (
+            "Kuvan selvä suosikki (59 %)[cite: 1]. Berglundin mahdollinen"
+            " 'spik'."
+        ),
+    },
+    {
+        "Kohde": "V85-6",
+        "Hevonen": "#2 Mr Explosive H.H.",
+        "Peliprosentti": 6.0,
+        "Arvio %": 12.0,
+        "Unibet": 8.00,
+        "Coolbet": 7.50,
+        "Perustelu": "Kuvan haastaja, nopea avaaja ja spets-ehdokas[cite: 1].",
+    },
+    # --- V85-7 (L11 - Gulddivisionen) ---
+    {
+        "Kohde": "V85-7",
+        "Hevonen": "#5 Bright Star U.S.",
+        "Peliprosentti": 36.0,
+        "Arvio %": 38.0,
+        "Unibet": 2.50,
+        "Coolbet": 2.45,
+        "Perustelu": (
+            "Kuvan suosikki (36 %)[cite: 1]. Tilastoetu: Starttaa suositulta"
+            " spår 5:ltä (Färjestadin pluslottning)!"
+        ),
+    },
+    {
+        "Kohde": "V85-7",
+        "Hevonen": "#2 Stens Rubin",
+        "Peliprosentti": 17.0,
+        "Arvio %": 20.0,
+        "Unibet": 4.80,
+        "Coolbet": 4.60,
+        "Perustelu": (
+            "Kuvan kakkonen (17 %)[cite: 1]. Spetsläge, växer en klass i"
+            " ledningen."
+        ),
+    },
+    {
+        "Kohde": "V85-7",
+        "Hevonen": "#4 Barack Face",
+        "Peliprosentti": 14.0,
         "Arvio %": 16.0,
-        "Unibet": 6.25,
-        "Perustelu": "Varma puristaja eturivistä.",
+        "Unibet": 6.00,
+        "Coolbet": 5.75,
+        "Perustelu": "Kuvan kolmas (14 %)[cite: 1]. Finntack yankee -vagn.",
+    },
+    # --- V85-8 (L12 - Sjödén / Skrällprofil) ---
+    {
+        "Kohde": "V85-8",
+        "Hevonen": "#6 Great Old Dance",
+        "Peliprosentti": 38.0,
+        "Arvio %": 35.0,
+        "Unibet": 2.60,
+        "Coolbet": 2.55,
+        "Perustelu": (
+            "Kuvan suosikki (38 %)[cite: 1]. Kapasiteetti riittää pitkälle."
+        ),
+    },
+    {
+        "Kohde": "V85-8",
+        "Hevonen": "#15 Steady Express",
+        "Peliprosentti": 20.0,
+        "Arvio %": 24.0,
+        "Unibet": 4.20,
+        "Coolbet": 4.00,
+        "Perustelu": (
+            "Kuvan kakkonen (20 %)[cite: 1]. Luokkansa ykkönen takamatkalta."
+        ),
+    },
+    {
+        "Kohde": "V85-8",
+        "Hevonen": "#2 Mr Carnation",
+        "Peliprosentti": 18.0,
+        "Arvio %": 16.0,
+        "Unibet": 5.00,
+        "Coolbet": 4.80,
+        "Perustelu": "Kuvan kolmas (18 %)[cite: 1]. Vahva pelihevonen paalulta.",
     },
 ]
 
-# TOTEUTUNEET TULOKSET (Seuranta)
+# TOTEUTUNEET TULOKSET (Lähdöt 1–8)
 tulokset_data = [
-    {"Kohde": "V64-1 (L4)", "Voittaja": "#7", "Kerroin_Toteutunut": 1.60},
-    {"Kohde": "V64-2 (L5)", "Voittaja": "#6", "Kerroin_Toteutunut": 3.25},
-    {"Kohde": "V64-3 (L6)", "Voittaja": "#4", "Kerroin_Toteutunut": 3.15},
-    {"Kohde": "V64-4 (L7)", "Voittaja": "#4", "Kerroin_Toteutunut": 1.95},
-    {"Kohde": "V64-5 (L8)", "Voittaja": "#2", "Kerroin_Toteutunut": 9.75},
-    {"Kohde": "V64-6 (L9)", "Voittaja": "#3", "Kerroin_Toteutunut": 2.65},
+    {"Kohde": "V85-1", "Voittaja": "#2 Mohawk", "Kerroin_Toteutunut": 1.65},
+    {"Kohde": "V85-2", "Voittaja": "#5 Nilla Lane", "Kerroin_Toteutunut": 2.10},
+    {"Kohde": "V85-3", "Voittaja": "#7 Lotusorchide", "Kerroin_Toteutunut": 3.50},
+    {"Kohde": "V85-4", "Voittaja": "#7 Tangen Bork", "Kerroin_Toteutunut": 2.75},
+    {"Kohde": "V85-5", "Voittaja": "#1 Fedorov", "Kerroin_Toteutunut": 2.05},
+    {"Kohde": "V85-6", "Voittaja": "#4 Cold Blaze", "Kerroin_Toteutunut": 1.75},
+    {
+        "Kohde": "V85-7",
+        "Voittaja": "#5 Bright Star U.S.",
+        "Kerroin_Toteutunut": 2.50,
+    },
+    {
+        "Kohde": "V85-8",
+        "Voittaja": "#6 Great Old Dance",
+        "Kerroin_Toteutunut": 2.60,
+    },
 ]
 
 df_vihjeet = pd.DataFrame(vihjeet_data)
 df_tulokset = pd.DataFrame(tulokset_data)
 
 # ----------------- ANALYYSI & LASKENTA -----------------
-df_vihjeet["Paras Kerroin"] = df_vihjeet["Unibet"]
+df_vihjeet["Paras Kerroin"] = df_vihjeet[["Unibet", "Coolbet"]].max(axis=1)
 df_vihjeet["EV"] = (df_vihjeet["Arvio %"] / 100.0) * df_vihjeet["Paras Kerroin"]
 
 # Automaattinen osuman tarkistus
@@ -231,7 +309,7 @@ df_vihjeet["Voitti"] = df_vihjeet.apply(
 )
 
 # ----------------- MONTE CARLO SIMULAATIO -----------------
-st.sidebar.subheader("🎲 Monte Carlo Ajo")
+st.sidebar.subheader("🎲 Monte Carlo Ajo (Eksperttimalli)")
 if st.sidebar.button("Aja Simulaatio"):
     sim_results = []
     kohde_groups = df_vihjeet.groupby("Kohde")
@@ -246,7 +324,7 @@ if st.sidebar.button("Aja Simulaatio"):
 
     hit_rate = np.mean(sim_results) * 100
     st.sidebar.success(
-        f"Simulaation (6 oikein) arvioitu osumatodennäköisyys: {hit_rate:.2f} %"
+        f"Simulaation osumatodennäköisyys (Eksperttimalli): {hit_rate:.2f} %"
     )
 
 kokonaispanos = len(df_vihjeet) * panos_per_vihje
@@ -256,7 +334,7 @@ netto = palautus - kokonaispanos
 roi = (palautus / kokonaispanos * 100) if kokonaispanos > 0 else 0
 
 # ----------------- TULOSTEN NÄYTTÖ -----------------
-st.subheader("📊 V64 Kierroksen Yhteenveto & ROI")
+st.subheader("📊 V85 Kierroksen Yhteenveto & ROI")
 
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Vihjeiden Määrä", f"{len(df_vihjeet)} kpl")
@@ -271,7 +349,7 @@ m4.metric("Palautusprosentti (ROI)", f"{roi:.1f} %")
 st.divider()
 
 # 🔥 ALLE 10 % YLLÄTTÄJÄT
-st.subheader("🔥 Asiantuntija-nostot: Alle 10 % Alipelatut Yllättäjät")
+st.subheader("🔥 Nostot: Alipelatut Yllättäjät")
 df_surprises = df_vihjeet[df_vihjeet["Peliprosentti"] < 10.0]
 st.dataframe(
     df_surprises[
@@ -292,7 +370,7 @@ st.dataframe(
 st.divider()
 
 # EV-Suodatettu vihjetaulukko
-st.subheader("🎯 V64 Kohdekohtainen Analyysi & EV")
+st.subheader("🎯 V85 Kohdekohtainen Analyysi & EV")
 df_filtered = df_vihjeet[df_vihjeet["EV"] >= osuma_raja_ev]
 
 st.dataframe(
