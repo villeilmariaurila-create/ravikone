@@ -10,8 +10,8 @@ st.set_page_config(
 
 st.title("🏇 V85 Keulapainotettu Odotusarvo- ja Simulaatiotyökalu")
 st.caption(
-    "Färjestad – Analysaattori huomioi keulapaikan edun, tuoreet Unibetin"
-    " kertoimet ja laskee odotusarvot (EV)."
+    "Färjestad – Lähdöt 1–8 korjattu ja tarkistettu. Mukana Unibetin kertoimet"
+    " ja keulapainotus."
 )
 
 # ----------------- SELITYSLAATIKKO KÄYTTÖLIITTYMÄSSÄ -----------------
@@ -21,8 +21,8 @@ with st.expander(
     st.markdown(
         """
     **Laskentalogiikan selitys:**
-    * **Arvio %**: Kuvaa hevosen lopullista, keulapaikalla ja radan erityispiirteillä (esim. Färjestadin lähtöpaikat) korjattua voittotodennäköisyyttä. 
-    * **Keulapainotus (Spets-bonus)**: Hevosen perusarviota kerrotaan kertoimella, joka nostaa keulajuoksusta tai optimaalisesta asemasta hyötyvien hevosten todennäköisyyttä.
+    * **Arvio %**: Kuvaa hevosen lopullista, keulapaikalla ja radan erityispiirteillä korjattua voittotodennäköisyyttä. 
+    * **Keulapainotus (Spets-bonus)**: Hevosen perusarviota kerrotaan kertoimella, joka nostaa keulajuoksusta tai optimaalisesta asemasta hyötyvien todennäköisyyttä.
     * **Normalisointi**: Kohdekohtaiset prosentit lasketaan niin, että kunkin lähdön arvioiden summa on tasan 100 %.
     * **Odotusarvo (EV)**: Lasketaan kaavalla `(Arvio % / 100) * Paras Kerroin`. Yli 1.0 arvot kertovat positiivisesta odotusarvosta.
     """
@@ -40,7 +40,7 @@ num_simulations = st.sidebar.selectbox(
     "Monte Carlo -simulaatiot", [1000, 5000, 10000, 50000], index=2
 )
 
-# ----------------- KAIKKI 8 LÄHTÖÄ & TIEDOT -----------------
+# ----------------- KAIKKI 8 LÄHTÖÄ & TIEDOT (KORJATTU) -----------------
 vihjeet_data = [
     # --- V85-1 ---
     {
@@ -75,7 +75,7 @@ vihjeet_data = [
     },
     {
         "Kohde": "V85-2",
-        "Hevonen": "Urbina Southwind",
+        "Hevonen": "#2 Urbina Southwind",
         "Peliprosentti": 2.0,
         "Perus_Arvio %": 5.0,
         "Keula_Bonus": 1.00,
@@ -109,28 +109,35 @@ vihjeet_data = [
             "Gocciadoron tamma, testataan Finntack Yankee -kärryillä[cite: 6]."
         ),
     },
-    # --- V85-4 ---
+    # --- V85-4 (KORJATTU: Oikeat kylmäveriset & kertoimet) ---
     {
         "Kohde": "V85-4",
-        "Hevonen": "#1 Jaguar Ima",
-        "Peliprosentti": 4.0,
-        "Perus_Arvio %": 10.0,
-        "Keula_Bonus": 1.00,
-        "Unibet": 9.00,
-        "Perustelu": (
-            "💥 YLLÄTTÄJÄ: Berglundin passas – spurtasi viimeksi 1.11 viimeiset"
-            " 1100m."
-        ),
+        "Hevonen": "#3 Grisle Tore G.L.",
+        "Peliprosentti": 40.0,
+        "Perus_Arvio %": 40.0,
+        "Keula_Bonus": 1.15,
+        "Unibet": 2.20,
+        "Perustelu": "Kovan luokan suosikki tähän kylmäverisarjaan[cite: 7, 11].",
     },
     {
         "Kohde": "V85-4",
         "Hevonen": "#7 Tangen Bork",
         "Peliprosentti": 33.0,
         "Perus_Arvio %": 33.0,
-        "Keula_Bonus": 1.15,
+        "Keula_Bonus": 1.10,
         "Unibet": 4.25,
+        "Perustelu": "Tjomslandin huippuhevonen, haastaa tosissaan[cite: 7, 11].",
+    },
+    {
+        "Kohde": "V85-4",
+        "Hevonen": "#1 B.W.Sture",
+        "Peliprosentti": 5.0,
+        "Perus_Arvio %": 10.0,
+        "Keula_Bonus": 1.05,
+        "Unibet": 9.00,
         "Perustelu": (
-            "Tjomslandin huippuhevonen, kovan luokan suosikki[cite: 7]."
+            "💥 YLLÄTTÄJÄ: Mats E Djuse rattailla, hyvä sisäratahaku"
+            "[cite: 7, 11]."
         ),
     },
     # --- V85-5 ---
@@ -147,7 +154,7 @@ vihjeet_data = [
     },
     {
         "Kohde": "V85-5",
-        "Hevonen": "Miguel",
+        "Hevonen": "#10 Miguel",
         "Peliprosentti": 5.0,
         "Perus_Arvio %": 10.0,
         "Keula_Bonus": 1.10,
@@ -159,7 +166,7 @@ vihjeet_data = [
     },
     {
         "Kohde": "V85-5",
-        "Hevonen": "King Kong D.K.",
+        "Hevonen": "#11 King Kong D.K.",
         "Peliprosentti": 2.0,
         "Perus_Arvio %": 5.0,
         "Keula_Bonus": 1.05,
@@ -181,7 +188,7 @@ vihjeet_data = [
     },
     {
         "Kohde": "V85-6",
-        "Hevonen": "Obiwan Keeper",
+        "Hevonen": "#10 Obiwan Keeper",
         "Peliprosentti": 1.0,
         "Perus_Arvio %": 4.0,
         "Keula_Bonus": 1.00,
@@ -193,7 +200,7 @@ vihjeet_data = [
     },
     {
         "Kohde": "V85-6",
-        "Hevonen": "Maximus Vici",
+        "Hevonen": "#12 Maximus Vici",
         "Peliprosentti": 1.0,
         "Perus_Arvio %": 4.0,
         "Keula_Bonus": 1.00,
@@ -215,7 +222,7 @@ vihjeet_data = [
     },
     {
         "Kohde": "V85-7",
-        "Hevonen": "Follow Him",
+        "Hevonen": "#7 Follow Him",
         "Peliprosentti": 8.0,
         "Perus_Arvio %": 12.0,
         "Keula_Bonus": 1.05,
@@ -237,7 +244,7 @@ vihjeet_data = [
     },
     {
         "Kohde": "V85-8",
-        "Hevonen": "King Okay",
+        "Hevonen": "#12 King Okay",
         "Peliprosentti": 3.0,
         "Perus_Arvio %": 7.0,
         "Keula_Bonus": 1.00,
@@ -249,7 +256,7 @@ vihjeet_data = [
     },
     {
         "Kohde": "V85-8",
-        "Hevonen": "Southbeach Volo",
+        "Hevonen": "#14 Southbeach Volo",
         "Peliprosentti": 2.0,
         "Perus_Arvio %": 8.0,
         "Keula_Bonus": 1.00,
