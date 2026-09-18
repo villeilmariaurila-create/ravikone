@@ -3,19 +3,33 @@ import pandas as pd
 import streamlit as st
 
 st.set_page_config(
-    page_title="V85 Ravianalyysi & Keulapainotettu Simulaatio",
+    page_title="V85 Ravianalyysi & Keulapainotettu Malli",
     page_icon="🏇",
     layout="wide",
 )
 
-st.title("🏇 V85 Simulaatio & Odotusarvotyökalu (Keulapaikka Painotettu)")
+st.title("🏇 V85 Keulapainotettu Odotusarvo- ja Simulaatiotyökalu")
 st.caption(
-    "Färjestad – Malli huomioi nyt keulapaikan edun ja Unibetin viralliset"
-    " kertoimet."
+    "Färjestad – Analysaattori huomioi keulapaikan edun, tuoreet Unibetin"
+    " kertoimet ja laskee odotusarvot (EV)."
 )
 
+# ----------------- SELITYSLAATIKKO KÄYTTÖLIITTYMÄSSÄ -----------------
+with st.expander(
+    "ℹ️ Miten Arvio % ja Keulapainotus lasketaan? (Klikkaa tästä)", expanded=False
+):
+    st.markdown(
+        """
+    **Laskentalogiikan selitys:**
+    * **Arvio %**: Kuvaa hevosen lopullista, keulapaikalla ja radan erityispiirteillä (esim. Färjestadin lähtöpaikat) korjattua voittotodennäköisyyttä. 
+    * **Keulapainotus (Spets-bonus)**: Hevosen perusarviota kerrotaan kertoimella, joka nostaa keulajuoksusta tai optimaalisesta asemasta hyötyvien hevosten todennäköisyyttä.
+    * **Normalisointi**: Kohdekohtaiset prosentit lasketaan niin, että kunkin lähdön arvioiden summa on tasan 100 %.
+    * **Odotusarvo (EV)**: Lasketaan kaavalla `(Arvio % / 100) * Paras Kerroin`. Yli 1.0 arvot kertovat positiivisesta odotusarvosta.
+    """
+    )
+
 # ----------------- SIVUPALKIN ASETUKSET -----------------
-st.sidebar.header("⚙️ Pelin Asetukset")
+st.sidebar.header("⚙️ Simulaation Asetukset")
 panos_per_vihje = st.sidebar.number_input(
     "Panos per vihje (€)", min_value=1.0, value=10.0, step=1.0
 )
@@ -26,7 +40,7 @@ num_simulations = st.sidebar.selectbox(
     "Monte Carlo -simulaatiot", [1000, 5000, 10000, 50000], index=2
 )
 
-# ----------------- KAIKKI 8 LÄHTÖÄ & KEULAPAINOTUS -----------------
+# ----------------- KAIKKI 8 LÄHTÖÄ & TIEDOT -----------------
 vihjeet_data = [
     # --- V85-1 ---
     {
@@ -34,7 +48,7 @@ vihjeet_data = [
         "Hevonen": "#2 Mohawk",
         "Peliprosentti": 62.0,
         "Perus_Arvio %": 50.0,
-        "Keula_Bonus": 1.05,  # Vahva luokkahevonen, voi saada keulat tai voittaa ulkoa
+        "Keula_Bonus": 1.05,
         "Unibet": 2.65,
         "Perustelu": "Selvä suosikki, Goopin luokkahevonen[cite: 4].",
     },
@@ -43,7 +57,7 @@ vihjeet_data = [
         "Hevonen": "#3 Global Grand Slam",
         "Peliprosentti": 6.0,
         "Perus_Arvio %": 9.0,
-        "Keula_Bonus": 1.10,  # Nopea avaaja, barfota r/o
+        "Keula_Bonus": 1.10,
         "Unibet": 5.00,
         "Perustelu": (
             "💥 YLLÄTTÄJÄ: Ensimmäistä kertaa ilman kenkiä (barfota r/o)."
@@ -55,7 +69,7 @@ vihjeet_data = [
         "Hevonen": "#5 Nilla Lane",
         "Peliprosentti": 35.0,
         "Perus_Arvio %": 32.0,
-        "Keula_Bonus": 1.20,  # Erittäin vahva keulaehdokas, Berglundin nosto
+        "Keula_Bonus": 1.20,
         "Unibet": 2.75,
         "Perustelu": "Suosikki, hakee aktiivisesti keulapaikkaa[cite: 5].",
     },
@@ -113,7 +127,7 @@ vihjeet_data = [
         "Hevonen": "#7 Tangen Bork",
         "Peliprosentti": 33.0,
         "Perus_Arvio %": 33.0,
-        "Keula_Bonus": 1.15,  # Hyvin nopea voltista/autosta kylmäveriseksi
+        "Keula_Bonus": 1.15,
         "Unibet": 4.25,
         "Perustelu": (
             "Tjomslandin huippuhevonen, kovan luokan suosikki[cite: 7]."
@@ -125,7 +139,7 @@ vihjeet_data = [
         "Hevonen": "#1 Fedorov",
         "Peliprosentti": 57.0,
         "Perus_Arvio %": 44.0,
-        "Keula_Bonus": 0.90,  # Miinuskeula Färjestadin hankalasta innerspår-lähdöstä
+        "Keula_Bonus": 0.90,
         "Unibet": 2.35,
         "Perustelu": (
             "Jättisuosikki, mutta sisärata on riski Färjestadissa[cite: 7]."
@@ -195,7 +209,7 @@ vihjeet_data = [
         "Hevonen": "#5 Bright Star U.S.",
         "Peliprosentti": 36.0,
         "Perus_Arvio %": 35.0,
-        "Keula_Bonus": 1.15,  # Spår 5 -etu Färjestadissa (loistava keula-/asemapaikkariski)
+        "Keula_Bonus": 1.15,
         "Unibet": 5.75,
         "Perustelu": "Gulddivisionen-suosikki, spår 5 etu[cite: 9].",
     },
@@ -249,11 +263,10 @@ vihjeet_data = [
 
 df_vihjeet = pd.DataFrame(vihjeet_data)
 
-# Lasketaan lopullinen keulapainotettu arvio-% (normalisoidaan kohdekohtaisesti)
+# --- LASKENTALOGIIKAN TOTEUTUS ---
 df_vihjeet["Lopullinen Arvio %"] = (
     df_vihjeet["Perus_Arvio %"] * df_vihjeet["Keula_Bonus"]
 )
-# Normalisoidaan niin että jokaisen kohteen prosentit summan 100%
 df_vihjeet["Arvio %"] = df_vihjeet.groupby("Kohde").apply(
     lambda x: x["Lopullinen Arvio %"]
     / x["Lopullinen Arvio %"].sum()
@@ -265,9 +278,9 @@ df_vihjeet["EV"] = (df_vihjeet["Arvio %"] / 100.0) * df_vihjeet[
     "Paras Kerroin"
 ]
 
-# ----------------- MONTE CARLO SIMULAATIO KEULAPAINOTUKSELLA -----------------
-st.sidebar.subheader("🎲 Simulaatio (Keulapainotettu)")
-if st.sidebar.button("Aja Keulapainotettu Simulaatio"):
+# ----------------- MONTE CARLO SIMULAATIO -----------------
+st.sidebar.subheader("🎲 Monte Carlo Ajo")
+if st.sidebar.button("Aja Simulaatio"):
     sim_results = []
     kohde_groups = df_vihjeet.groupby("Kohde")
     for _ in range(num_simulations):
@@ -278,11 +291,10 @@ if st.sidebar.button("Aja Keulapainotettu Simulaatio"):
             row_win.append(group.iloc[winner_idx]["EV"] >= osuma_raja_ev)
         sim_results.append(all(row_win))
     hit_rate = np.mean(sim_results) * 100
-    st.sidebar.success(
-        f"Keulapainotettu osumatodennäköisyys: {hit_rate:.2f} %"
-    )
+    st.sidebar.success(f"Simulaation osumatodennäköisyys: {hit_rate:.2f} %")
 
-st.subheader("📊 Keulapainotetut Odotusarvot (EV)")
+# ----------------- NÄYTTÖ -----------------
+st.subheader("📊 Kaikki Kohteet & Keulapainotetut Odotusarvot (EV)")
 st.dataframe(
     df_vihjeet[
         [
@@ -301,9 +313,9 @@ st.dataframe(
 
 st.divider()
 
-# 🔥 YLLÄTTÄJÄT LÄHDÖTTÄIN
+# 🔥 ALIPELATUT YLLÄTTÄJÄT LÄHDÖTTÄIN
 st.subheader(
-    "🔥 Keulahuomioidut Yllättäjät Lähdöittäin (< 10 % Peliprosentti)"
+    "🔥 Alipelatut Yllättäjät Lähdöittäin (< 10 % Peliprosentti)"
 )
 df_surprises = df_vihjeet[df_vihjeet["Peliprosentti"] < 10.0]
 
