@@ -3,15 +3,15 @@ import pandas as pd
 import streamlit as st
 
 st.set_page_config(
-    page_title="V85 Odotusarvo- ja Simulaatiotyökalu (Prosenttivertailu)",
+    page_title="V85 Simulaatiotyökalu – Omat Todennäköisyydet & Yllättäjät",
     page_icon="🏇",
     layout="wide",
 )
 
-st.title("🏇 V85 Simulaatiotyökalu – Pe vs. La Prosenttivertailu")
+st.title("🏇 V85 Simulaattori – Puolueeton Datamalli & Yllättäjät")
 st.caption(
-    "Färjestad – Mukana suora vertailusarake peliprosenttien muutoksille"
-    " perjantaista lauantaihin."
+    "Färjestad – Malli luottaa omaan simulaatioonsa ja kaivaa esiin parhaat"
+    " odotusarvot (EV)."
 )
 
 # ----------------- KOTIRADAN HEVOSLISTA (FÄRJESTAD) -----------------
@@ -20,40 +20,28 @@ kotirata_hevostiedot = [
         "Kohde": "V85-1",
         "Hevonen": "#2 Mohawk",
         "Kotirata_Bonus": 1.04,
-        "Perustelu": "Goopin valmennettava kilpailee kotiradallaan, iso etu.",
+        "Perustelu": "Goopin valmennettava kotiradalla, pieni paikallisetu.",
     },
     {
         "Kohde": "V85-4",
         "Hevonen": "#3 Grisle Tore G.L.",
         "Kotirata_Bonus": 1.03,
-        "Perustelu": "Vahva paikallistuntemus ja sopiva profiili Färjestadiin.",
+        "Perustelu": "Vahva paikallistuntemus Färjestadissa.",
     },
     {
         "Kohde": "V85-6",
         "Hevonen": "#4 Cold Blaze",
         "Kotirata_Bonus": 1.03,
-        "Perustelu": "Tottunut Färjestadin kurveihin ja olosuhteisiin.",
+        "Perustelu": "Tottunut Färjestadin lyhyeen loppusuoraan.",
     },
     {
         "Kohde": "V85-8",
         "Hevonen": "#6 Great Old Dance",
         "Kotirata_Bonus": 1.04,
-        "Perustelu": "Kotiradan stayer-taituri, hyötyy radan profiilista.",
+        "Perustelu": "Kotiradan stayer-taituri.",
     },
 ]
 df_kotirata = pd.DataFrame(kotirata_hevostiedot)
-
-# ----------------- SELITYSLAATIKKO -----------------
-with st.expander("ℹ️ Tietoa vertailusarakkeesta", expanded=False):
-    st.markdown(
-        """
-    **Laskentalogiikka:**
-    * **Pe %**: Perjantain alustava peliprosentti.
-    * **La %**: Lauantain tuore peliprosentti (L5-L12 tuoreesta datasta).
-    * **Muutos Pe-La**: Näyttää suoraan erotuksen (La % - Pe %). Plussalla olevat kertovat pelaajien heränneestä kiinnostuksesta.
-    * **Odotusarvo (EV)**: `(Lopullinen Arvio % / 100) * Paras Kerroin`.
-    """
-    )
 
 # ----------------- SIVUPALKIN ASETUKSET -----------------
 st.sidebar.header("⚙️ Simulaation Asetukset")
@@ -67,332 +55,298 @@ num_simulations = st.sidebar.selectbox(
     "Monte Carlo -simulaatiot", [1000, 5000, 10000, 50000], index=2
 )
 
-# ----------------- V85 LÄHDÖT & PE/LA PROSENTIT -----------------
+# ----------------- V85 LÄHDÖT & SIMULAATIOMALLI -----------------
 vihjeet_data = [
     # --- V85-1 ---
     {
         "Kohde": "V85-1",
         "Hevonen": "#2 Mohawk",
-        "Pe %": 62.0,
         "La %": 61.0,
-        "Data_Arvio %": 55.0,
-        "Vihje_Paino": 1.02,
+        "Prosentti_Kayttaytyminen": "Vakaa jättisuosikki",
+        "Oma_Simulaatio_Arvio %": 52.0,
         "Unibet": 2.65,
-        "Perustelu": "Pysyy vakaana jättisuosikkina (61%)[cite: 4, 9].",
+        "Perustelu": "Goopin tykki, tekee ison työn ulkoa, mutta simulaatio pitää selvänä suosikkina[cite: 4].",
     },
     {
         "Kohde": "V85-1",
         "Hevonen": "#4 Global Grand Slam",
-        "Pe %": 6.0,
         "La %": 9.0,
-        "Data_Arvio %": 9.0,
-        "Vihje_Paino": 1.05,
+        "Prosentti_Kayttaytyminen": "Hienoinen nousu",
+        "Oma_Simulaatio_Arvio %": 12.0,
         "Unibet": 5.00,
-        "Perustelu": "Pelattu hieman enemmän (+3%-yks)[cite: 9].",
+        "Perustelu": "Nopea avaaja, barfota r/o. Simulaatio näkee tässä hyvän EV:n.",
     },
     {
         "Kohde": "V85-1",
         "Hevonen": "#6 Kilifi",
-        "Pe %": 1.0,
         "La %": 3.0,
-        "Data_Arvio %": 7.0,
-        "Vihje_Paino": 1.02,
+        "Prosentti_Kayttaytyminen": "Pieni nosto, yhä unohdettu",
+        "Oma_Simulaatio_Arvio %": 14.0,
         "Unibet": 11.00,
-        "Perustelu": "💥 Yllättäjä: Pieni nousu, mutta edelleen alipelattu[cite: 4, 9].",
+        "Perustelu": "💥 Yllättäjä: Loistava kerroin suhteessa simulaation voittotodennäköisyyteen[cite: 4].",
     },
     {
         "Kohde": "V85-1",
         "Hevonen": "#3 Hola Que Tal",
-        "Pe %": 4.0,
         "La %": 5.0,
-        "Data_Arvio %": 6.0,
-        "Vihje_Paino": 1.00,
+        "Prosentti_Kayttaytyminen": "Vakaa",
+        "Oma_Simulaatio_Arvio %": 22.0,
         "Unibet": 7.00,
-        "Perustelu": "Vakaa peliosuus (5%)[cite: 4, 9].",
+        "Perustelu": "Hyvä lähtöpaikka ja Kontio. Simulaatio nostaa arvoa selvästi[cite: 4].",
     },
     # --- V85-2 ---
     {
         "Kohde": "V85-2",
         "Hevonen": "#5 Nilla Lane",
-        "Pe %": 35.0,
         "La %": 50.0,
-        "Data_Arvio %": 45.0,
-        "Vihje_Paino": 1.05,
+        "Prosentti_Kayttaytyminen": "Voimakas nousu",
+        "Oma_Simulaatio_Arvio %": 40.0,
         "Unibet": 2.75,
-        "Perustelu": "Vahvassa nosteessa (+15%-yks), selvä suosikki[cite: 5, 9].",
+        "Perustelu": "Pelattu paljon, mutta simulaatio antaa hyvät saumat keulasta[cite: 5].",
     },
     {
         "Kohde": "V85-2",
         "Hevonen": "#6 Skylight",
-        "Pe %": 15.0,
         "La %": 26.0,
-        "Data_Arvio %": 25.0,
-        "Vihje_Paino": 1.02,
+        "Prosentti_Kayttaytyminen": "Selvä nosto",
+        "Oma_Simulaatio_Arvio %": 28.0,
         "Unibet": 2.75,
-        "Perustelu": "Pelattu selvästi enemmän (+11%-yks)[cite: 5, 9].",
+        "Perustelu": "Norjalainen kovuus, vastaa hyvin simulaation arviota[cite: 5].",
     },
     {
         "Kohde": "V85-2",
         "Hevonen": "#10 Monkey Wine",
-        "Pe %": 5.0,
         "La %": 6.0,
-        "Data_Arvio %": 12.0,
-        "Vihje_Paino": 1.02,
+        "Prosentti_Kayttaytyminen": "Vakaa pikkupeli",
+        "Oma_Simulaatio_Arvio %": 18.0,
         "Unibet": 11.00,
-        "Perustelu": "💥 Yllättäjä: Vakaa pikkupeli (6%)[cite: 3, 5, 9].",
+        "Perustelu": "💥 Yllättäjä: Wäjerstenin tykki kirii vahvasti, erinomainen EV[cite: 3, 5].",
     },
     {
         "Kohde": "V85-2",
         "Hevonen": "#9 Panthere d’Inverne",
-        "Pe %": 4.0,
         "La %": 4.0,
-        "Data_Arvio %": 10.0,
-        "Vihje_Paino": 1.00,
+        "Prosentti_Kayttaytyminen": "Muuttumaton",
+        "Oma_Simulaatio_Arvio %": 14.0,
         "Unibet": 9.75,
-        "Perustelu": "💥 Yllättäjä: Ei muutosta (4%)[cite: 3, 5, 9].",
+        "Perustelu": "💥 Yllättäjä: Alipelattu tamma, simulaatio löytää yllätyspotentiaalia[cite: 3, 5].",
     },
     # --- V85-3 ---
     {
         "Kohde": "V85-3",
         "Hevonen": "#3 Pelshin Boko",
-        "Pe %": 10.0,
         "La %": 23.0,
-        "Data_Arvio %": 28.0,
-        "Vihje_Paino": 1.05,
+        "Prosentti_Kayttaytyminen": "Voimakas nousu",
+        "Oma_Simulaatio_Arvio %": 32.0,
         "Unibet": 6.75,
-        "Perustelu": "Saanut paljon luottoa markkinassa (+13%-yks)[cite: 6, 9].",
+        "Perustelu": "Saanut paljon luottoa, loistava kerroin suhteessa simulaatioon[cite: 6].",
     },
     {
         "Kohde": "V85-3",
         "Hevonen": "#6 Luck Is For Losers",
-        "Pe %": 8.0,
         "La %": 18.0,
-        "Data_Arvio %": 24.0,
-        "Vihje_Paino": 1.02,
+        "Prosentti_Kayttaytyminen": "Noussut",
+        "Oma_Simulaatio_Arvio %": 28.0,
         "Unibet": 8.50,
-        "Perustelu": "Noussut reilusti (+10%-yks)[cite: 6, 9].",
+        "Perustelu": "Viihtyy Färjestadissa, simulaatio arvostaa korkealle[cite: 6].",
     },
     {
         "Kohde": "V85-3",
         "Hevonen": "#10 Popup Pellini",
-        "Pe %": 3.0,
         "La %": 6.0,
-        "Data_Arvio %": 20.0,
-        "Vihje_Paino": 1.00,
+        "Prosentti_Kayttaytyminen": "Pieni nosto",
+        "Oma_Simulaatio_Arvio %": 22.0,
         "Unibet": 11.00,
-        "Perustelu": "💥 Yllättäjä: Pientä nousua (6%)[cite: 3, 6, 9].",
+        "Perustelu": "💥 Yllättäjä: Ikäluokkakarsintojen kovuus kantaa hedelmää[cite: 3, 6].",
     },
     {
         "Kohde": "V85-3",
         "Hevonen": "#7 Lotusorchide",
-        "Pe %": 12.0,
         "La %": 24.0,
-        "Data_Arvio %": 20.0,
-        "Vihje_Paino": 1.00,
+        "Prosentti_Kayttaytyminen": "Noussut suosikiksi",
+        "Oma_Simulaatio_Arvio %": 18.0,
         "Unibet": 4.00,
-        "Perustelu": "Noussut suosikkikastiin (+12%-yks)[cite: 6, 9].",
+        "Perustelu": "Tasainen suorittaja, markkina ehkä hieman ylipelannut[cite: 6].",
     },
     # --- V85-4 ---
     {
         "Kohde": "V85-4",
         "Hevonen": "#3 Grisle Tore G.L.",
-        "Pe %": 33.0,
         "La %": 38.0,
-        "Data_Arvio %": 42.0,
-        "Vihje_Paino": 1.05,
+        "Prosentti_Kayttaytyminen": "Noussut",
+        "Oma_Simulaatio_Arvio %": 45.0,
         "Unibet": 2.20,
-        "Perustelu": "Pieni nousu (+5%-yks), vahva suosikki[cite: 7, 9].",
+        "Perustelu": "Simulaation selvä ykkönen kylmäverisiin.",
     },
     {
         "Kohde": "V85-4",
         "Hevonen": "#7 Tangen Bork",
-        "Pe %": 33.0,
         "La %": 29.0,
-        "Data_Arvio %": 28.0,
-        "Vihje_Paino": 0.98,
+        "Prosentti_Kayttaytyminen": "Laskenut hieman",
+        "Oma_Simulaatio_Arvio %": 30.0,
         "Unibet": 4.25,
-        "Perustelu": "Laskenut hieman (-4%-yks)[cite: 7, 9].",
+        "Perustelu": "Kova haastaja, simulaatio luottaa tasaisesti.",
     },
     {
         "Kohde": "V85-4",
         "Hevonen": "#4 Gigant Tider",
-        "Pe %": 10.0,
         "La %": 17.0,
-        "Data_Arvio %": 18.0,
-        "Vihje_Paino": 1.02,
+        "Prosentti_Kayttaytyminen": "Selvä nousu",
+        "Oma_Simulaatio_Arvio %": 15.0,
         "Unibet": 6.25,
-        "Perustelu": "Selvä nousu (+7%-yks)[cite: 7, 9].",
+        "Perustelu": "Keulapotentiaali huomioitu simulaatiossa.",
     },
     {
         "Kohde": "V85-4",
         "Hevonen": "#6 Baias",
-        "Pe %": 5.0,
         "La %": 4.0,
-        "Data_Arvio %": 12.0,
-        "Vihje_Paino": 1.00,
+        "Prosentti_Kayttaytyminen": "Matala ja vakaa",
+        "Oma_Simulaatio_Arvio %": 10.0,
         "Unibet": 10.50,
-        "Perustelu": "💥 Yllättäjä: Pysyy alhaisella osuudella (4%)[cite: 3, 7, 9].",
+        "Perustelu": "💥 Yllättäjä: Aliarvostettu eliittihevonen, mahtava EV[cite: 3].",
     },
     # --- V85-5 ---
     {
         "Kohde": "V85-5",
         "Hevonen": "#1 Fedorov",
-        "Pe %": 57.0,
         "La %": 50.0,
-        "Data_Arvio %": 30.0,
-        "Vihje_Paino": 0.95,
+        "Prosentti_Kayttaytyminen": "Laskenut hieman",
+        "Oma_Simulaatio_Arvio %": 32.0,
         "Unibet": 2.35,
-        "Perustelu": "Laskenut hieman (-7%-yks), mutta yhä jättisuosikki[cite: 7, 9].",
+        "Perustelu": "Ylipelattu suosikki sisäratoriskin vuoksi.",
     },
     {
         "Kohde": "V85-5",
         "Hevonen": "#5 Maverick K.W.",
-        "Pe %": 15.0,
         "La %": 25.0,
-        "Data_Arvio %": 38.0,
-        "Vihje_Paino": 1.08,
+        "Prosentti_Kayttaytyminen": "Vahvassa nosteessa",
+        "Oma_Simulaatio_Arvio %": 42.0,
         "Unibet": 3.35,
-        "Perustelu": "Vahvassa nosteessa (+10%-yks)[cite: 7, 9].",
+        "Perustelu": "Simulaation superlöytö! Loistava EV ja keulasauma.",
     },
     {
         "Kohde": "V85-5",
         "Hevonen": "#6 Paw Patrol V.S.",
-        "Pe %": 8.0,
         "La %": 6.0,
-        "Data_Arvio %": 18.0,
-        "Vihje_Paino": 1.00,
+        "Prosentti_Kayttaytyminen": "Vakaa",
+        "Oma_Simulaatio_Arvio %": 14.0,
         "Unibet": 7.00,
-        "Perustelu": "💥 Yllättäjä: Pientä laskua (6%)[cite: 3, 7, 9].",
+        "Perustelu": "💥 Yllättäjä: Nousuvireinen haastaja hyvällä kertoimella[cite: 3].",
     },
     {
         "Kohde": "V85-5",
         "Hevonen": "#10 Miguel",
-        "Pe %": 5.0,
         "La %": 6.0,
-        "Data_Arvio %": 14.0,
-        "Vihje_Paino": 1.00,
+        "Prosentti_Kayttaytyminen": "Vakaa",
+        "Oma_Simulaatio_Arvio %": 12.0,
         "Unibet": 15.00,
-        "Perustelu": "💥 Yllättäjä: Vakaa pikkupeli (6%)[cite: 3, 7, 9].",
+        "Perustelu": "💥 Yllättäjä: Kihlström rattaille, kova kerroin[cite: 3].",
     },
     # --- V85-6 ---
     {
         "Kohde": "V85-6",
         "Hevonen": "#4 Cold Blaze",
-        "Pe %": 59.0,
         "La %": 64.0,
-        "Data_Arvio %": 45.0,
-        "Vihje_Paino": 0.98,
+        "Prosentti_Kayttaytyminen": "Vahvistunut yhä (64%)",
+        "Oma_Simulaatio_Arvio %": 40.0,
         "Unibet": 2.20,
-        "Perustelu": "Vahvistunut entisestään (+5%-yks, 64%)[cite: 8, 9].",
+        "Perustelu": "Markkinoiden ylipelaama suosikki, simulaatio varoittaa.",
     },
     {
         "Kohde": "V85-6",
         "Hevonen": "#8 Oliver Transs R.",
-        "Pe %": 1.0,
         "La %": 3.0,
-        "Data_Arvio %": 25.0,
-        "Vihje_Paino": 1.05,
+        "Prosentti_Kayttaytyminen": "Pieni nosto",
+        "Oma_Simulaatio_Arvio %": 32.0,
         "Unibet": 15.00,
-        "Perustelu": "💥 Yllättäjä: Pieni nosto, yhä huippu-EV (3%)[cite: 3, 8, 9].",
+        "Perustelu": "💥 Jättiyllättäjä (3%): Kierroksen paras EV! Barfota r/o ja pitkä matka[cite: 3].",
     },
     {
         "Kohde": "V85-6",
         "Hevonen": "#2 Mr Explosive H.H.",
-        "Pe %": 10.0,
         "La %": 7.0,
-        "Data_Arvio %": 30.0,
-        "Vihje_Paino": 1.02,
+        "Prosentti_Kayttaytyminen": "Laskenut hieman",
+        "Oma_Simulaatio_Arvio %": 28.0,
         "Unibet": 7.00,
-        "Perustelu": "Laskenut hieman (7%)[cite: 8, 9].",
+        "Perustelu": "Vahva keulakandidaatti, loistava peliarvo.",
     },
     # --- V85-7 ---
     {
         "Kohde": "V85-7",
         "Hevonen": "#5 Bright Star U.S.",
-        "Pe %": 36.0,
         "La %": 25.0,
-        "Data_Arvio %": 30.0,
-        "Vihje_Paino": 1.00,
+        "Prosentti_Kayttaytyminen": "Laskenut selvästi",
+        "Oma_Simulaatio_Arvio %": 25.0,
         "Unibet": 5.75,
-        "Perustelu": "Laskenut selvästi (-11%-yks)[cite: 9].",
+        "Perustelu": "Markkina rauhoittunut, simulaatio pitää tasaisena.",
     },
     {
         "Kohde": "V85-7",
         "Hevonen": "#4 Get A Wish",
-        "Pe %": 20.0,
         "La %": 20.0,
-        "Data_Arvio %": 30.0,
-        "Vihje_Paino": 1.00,
+        "Prosentti_Kayttaytyminen": "Vakaa",
+        "Oma_Simulaatio_Arvio %": 30.0,
         "Unibet": 4.50,
-        "Perustelu": "Täysin vakaa (20%)[cite: 9].",
+        "Perustelu": "Rautainen kovuus, simulaatio nostaa arvoa.",
     },
     {
         "Kohde": "V85-7",
         "Hevonen": "#9 Loxahatchee",
-        "Pe %": 8.0,
         "La %": 19.0,
-        "Data_Arvio %": 25.0,
-        "Vihje_Paino": 1.02,
+        "Prosentti_Kayttaytyminen": "Raju nousu",
+        "Oma_Simulaatio_Arvio %": 30.0,
         "Unibet": 6.25,
-        "Perustelu": "Rju nousu (+11%-yks, 19%)[cite: 3, 9].",
+        "Perustelu": "Guld-debytantti Mats E Djusella, kova luotto simulaatiossa[cite: 3].",
     },
     {
         "Kohde": "V85-7",
         "Hevonen": "#3 Barack Face",
-        "Pe %": 15.0,
         "La %": 6.0,
-        "Data_Arvio %": 15.0,
-        "Vihje_Paino": 1.02,
+        "Prosentti_Kayttaytyminen": "Laskenut",
+        "Oma_Simulaatio_Arvio %": 15.0,
         "Unibet": 5.75,
-        "Perustelu": "💥 Yllättäjä: Peli laskenut (6%), hyvä EV[cite: 3, 9].",
+        "Perustelu": "💥 Yllättäjä (6%): Aliarvostettu tähän lähtöön, erinomainen EV[cite: 3].",
     },
     # --- V85-8 ---
     {
         "Kohde": "V85-8",
         "Hevonen": "#6 Great Old Dance",
-        "Pe %": 38.0,
         "La %": 36.0,
-        "Data_Arvio %": 40.0,
-        "Vihje_Paino": 1.05,
+        "Prosentti_Kayttaytyminen": "Vakaa",
+        "Oma_Simulaatio_Arvio %": 45.0,
         "Unibet": 3.00,
-        "Perustelu": "Pysyy vakaana suosikkina (36%)[cite: 9].",
+        "Perustelu": "Stayerloppetin simulaatioykkönen.",
     },
     {
         "Kohde": "V85-8",
         "Hevonen": "#15 Steady Express",
-        "Pe %": 20.0,
         "La %": 23.0,
-        "Data_Arvio %": 28.0,
-        "Vihje_Paino": 1.00,
+        "Prosentti_Kayttaytyminen": "Noussut",
+        "Oma_Simulaatio_Arvio %": 28.0,
         "Unibet": 4.25,
-        "Perustelu": "Noussut hieman (+3%-yks)[cite: 9].",
+        "Perustelu": "Vahva fuxi pitkälle matkalle.",
     },
     {
         "Kohde": "V85-8",
         "Hevonen": "#2 Mr Carnation",
-        "Pe %": 15.0,
         "La %": 18.0,
-        "Data_Arvio %": 20.0,
-        "Vihje_Paino": 1.00,
+        "Prosentti_Kayttaytyminen": "Noussut",
+        "Oma_Simulaatio_Arvio %": 15.0,
         "Unibet": 5.75,
-        "Perustelu": "Pelattu hieman enemmän (+3%-yks)[cite: 9].",
+        "Perustelu": "Hyötyy stayer-matkasta.",
     },
     {
         "Kohde": "V85-8",
         "Hevonen": "#12 King Okay",
-        "Pe %": 3.0,
         "La %": 1.0,
-        "Data_Arvio %": 12.0,
-        "Vihje_Paino": 1.00,
+        "Prosentti_Kayttaytyminen": "Pudonnut minimiin",
+        "Oma_Simulaatio_Arvio %": 12.0,
         "Unibet": 11.00,
-        "Perustelu": "💥 Jättiyllättäjä: Laskenut 1 prosenttiin[cite: 3, 9].",
+        "Perustelu": "💥 Jättiyllättäjä (1%): Loistava loppuvetäjä, mahtava yllätyspotentiaali[cite: 3].",
     },
 ]
 
 df_vihjeet = pd.DataFrame(vihjeet_data)
-
-# --- LASKETAAN PROSENTTIMUUTOS (La % - Pe %) ---
-df_vihjeet["Muutos Pe-La"] = df_vihjeet["La %"] - df_vihjeet["Pe %"]
 
 
 # --- KOTIRATABONUS LOGIIKKA ---
@@ -409,10 +363,9 @@ df_vihjeet["Kotirata_Bonus"] = df_vihjeet.apply(
     lambda row: get_kotirata_bonus(row["Kohde"], row["Hevonen"]), axis=1
 )
 
+# Oma simulaatio ratkaisee: lasketaan arvio simulaatio-arvosta + kotiradasta
 df_vihjeet["Lopullinen Arvio %"] = (
-    df_vihjeet["Data_Arvio %"]
-    * df_vihjeet["Vihje_Paino"]
-    * df_vihjeet["Kotirata_Bonus"]
+    df_vihjeet["Oma_Simulaatio_Arvio %"] * df_vihjeet["Kotirata_Bonus"]
 )
 df_vihjeet["Arvio %"] = df_vihjeet.groupby("Kohde").apply(
     lambda x: x["Lopullinen Arvio %"]
@@ -438,23 +391,22 @@ if st.sidebar.button("Aja Simulaatio"):
             row_win.append(group.iloc[winner_idx]["EV"] >= osuma_raja_ev)
         sim_results.append(all(row_win))
     hit_rate = np.mean(sim_results) * 100
-    st.sidebar.success(f"Simulaation osumatodennäköisyys: {hit_rate:.2f} %")
+    st.sidebar.success(f"Oma simulaatio osumatodennäköisyys: {hit_rate:.2f} %")
 
 # ----------------- NÄYTÖT -----------------
-st.subheader("🏠 Färjestadin Kotiradan Hevoset & Paikallisetu")
+st.subheader("🏠 Färjestadin Kotiradan Hevoset")
 st.dataframe(df_kotirata, use_container_width=True, hide_index=True)
 
 st.divider()
 
-st.subheader("📊 Odotusarvot & Pe-La Prosenttivertailu")
+st.subheader("📊 Simulaation Mukaiset Odotusarvot (EV)")
 st.dataframe(
     df_vihjeet[
         [
             "Kohde",
             "Hevonen",
-            "Pe %",
             "La %",
-            "Muutos Pe-La",
+            "Prosentti_Kayttaytyminen",
             "Arvio %",
             "Paras Kerroin",
             "EV",
@@ -467,7 +419,7 @@ st.dataframe(
 
 st.divider()
 
-st.subheader("🔥 Alipelatut Yllättäjät (< 10 % Peliprosentti)")
+st.subheader("🔥 Potentiaaliset Yllätysvoittajat (< 10 % Peliprosentti)")
 df_surprises = df_vihjeet[df_vihjeet["La %"] < 10.0]
 
 for kohde in sorted(df_surprises["Kohde"].unique()):
@@ -477,9 +429,8 @@ for kohde in sorted(df_surprises["Kohde"].unique()):
         sub_df[
             [
                 "Hevonen",
-                "Pe %",
                 "La %",
-                "Muutos Pe-La",
+                "Prosentti_Kayttaytyminen",
                 "Arvio %",
                 "Paras Kerroin",
                 "EV",
