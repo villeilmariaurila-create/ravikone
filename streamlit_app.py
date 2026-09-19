@@ -3,15 +3,14 @@ import pandas as pd
 import streamlit as st
 
 st.set_page_config(
-    page_title="V85 Simulaatiotyökalu – Numeromuotoiset Prosenttimuutokset",
+    page_title="V85 Simulaatiotyökalu – Järjestetty Kohteittain",
     page_icon="🏇",
     layout="wide",
 )
 
-st.title("🏇 V85 Simulaattori – Puolueeton Datamalli & Numeromuutokset")
+st.title("🏇 V85 Simulaattori – Puolueeton Datamalli (Järjestetty)")
 st.caption(
-    "Färjestad – Peliprosenttien muutokset esitetään nyt selkeässä"
-    " numeromuodossa (+/-)."
+    "Färjestad – Taulukot on järjestetty siististi kohteittain V85-1 -> V85-8."
 )
 
 # ----------------- KOTIRADAN HEVOSLISTA (FÄRJESTAD) -----------------
@@ -55,7 +54,7 @@ num_simulations = st.sidebar.selectbox(
     "Monte Carlo -simulaatiot", [1000, 5000, 10000, 50000], index=2
 )
 
-# ----------------- V85 LÄHDÖT & NUMEROMUOTOISET MUUTOKSET -----------------
+# ----------------- V85 LÄHDÖT & TIEDOT -----------------
 vihjeet_data = [
     # --- V85-1 ---
     {
@@ -377,11 +376,19 @@ df_vihjeet["EV"] = (df_vihjeet["Arvio %"] / 100.0) * df_vihjeet[
     "Paras Kerroin"
 ]
 
+# Järjestetään taulukko oletuksena kohteen (V85-1 -> V85-8) ja EV:n mukaan
+df_vihjeet["Kohde_Num"] = (
+    df_vihjeet["Kohde"].str.replace("V85-", "").astype(int)
+)
+df_vihjeet = df_vihjeet.sort_values(
+    by=["Kohde_Num", "EV"], ascending=[True, False]
+).drop(columns=["Kohde_Num"])
+
 # ----------------- MONTE CARLO SIMULAATIO -----------------
 st.sidebar.subheader("🎲 Monte Carlo Ajo")
 if st.sidebar.button("Aja Simulaatio"):
     sim_results = []
-    kohde_groups = df_vihjeet.groupby("Kohde")
+    kohde_groups = df_vihjeet.groupby("Kohde", sort=False)
     for _ in range(num_simulations):
         row_win = []
         for kohde, group in kohde_groups:
@@ -398,7 +405,9 @@ st.dataframe(df_kotirata, use_container_width=True, hide_index=True)
 
 st.divider()
 
-st.subheader("📊 Simulaation Mukaiset Odotusarvot (EV)")
+st.subheader(
+    "📊 Simulaation Mukaiset Odotusarvot (Järjestetty: V85-1 -> V85-8)"
+)
 st.dataframe(
     df_vihjeet[
         [
@@ -411,31 +420,31 @@ st.dataframe(
             "EV",
             "Perustelu",
         ]
-    ].sort_values(by="EV", ascending=False),
+    ],
     use_container_width=True,
     hide_index=True,
 )
 
 st.divider()
 
-st.subheader("🔥 Potentiaaliset Yllätysvoittajat (< 10 % Peliprosentti)")
+st.subheader(
+    "🔥 Potentiaaliset Yllätysvoittajat (< 10 % Peliprosentti, Järjestetty)"
+)
 df_surprises = df_vihjeet[df_vihjeet["La %"] < 10.0]
 
-for kohde in sorted(df_surprises["Kohde"].unique()):
-    st.markdown(f"### 📌 {kohde}")
-    sub_df = df_surprises[df_surprises["Kohde"] == kohde]
-    st.dataframe(
-        sub_df[
-            [
-                "Hevonen",
-                "La %",
-                "Prosentti_Muutos",
-                "Arvio %",
-                "Paras Kerroin",
-                "EV",
-                "Perustelu",
-            ]
-        ].sort_values(by="EV", ascending=False),
-        use_container_width=True,
-        hide_index=True,
-    )
+st.dataframe(
+    df_surprises[
+        [
+            "Kohde",
+            "Hevonen",
+            "La %",
+            "Prosentti_Muutos",
+            "Arvio %",
+            "Paras Kerroin",
+            "EV",
+            "Perustelu",
+        ]
+    ],
+    use_container_width=True,
+    hide_index=True,
+)
