@@ -10,7 +10,7 @@ st.set_page_config(
 
 st.title("🏇 GS75 / V85 Simulaattori – Gävle (25.9.2026)")
 st.caption(
-    "Data päivitetty tuoreimmalla pelijakaumalla, Gävlen lähtölistoilla sekä valmentajahaastatteluilla."
+    "Data päivitetty Veikkauksen pelijakaumalla, Gävlen lähtölistoilla sekä valmentajahaastatteluilla."
 )
 
 # ----------------- KOTIRADAN HEVOSLISTA (GÄVLE) -----------------
@@ -48,13 +48,13 @@ num_simulations = st.sidebar.selectbox(
     "Monte Carlo -simulaatiot", [1000, 5000, 10000, 50000], index=2
 )
 
-# ----------------- GS75 / V85 LÄHDÖT & TIEDOT PAINOTUKSILLA (PÄIVITETTY PELIJAKAUMA) -----------------
+# ----------------- GS75 / V85 LÄHDÖT & TIEDOT PAINOTUKSILLA (VEIKKAUS PROSENTIT) -----------------
 vihjeet_data = [
     # --- GS75-1 (Lähtö 4) ---
     {
         "Kohde": "GS75-1",
         "Hevonen": "#1 Norheim Tor",
-        "La %": 9.0,
+        "Veikkaus %": 9.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 6.0,
         "Kengitys_Bonus": 1.00,
@@ -65,7 +65,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-1",
         "Hevonen": "#2 Komnes Fina",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 3.0,
         "Kengitys_Bonus": 1.00,
@@ -76,7 +76,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-1",
         "Hevonen": "#3 Kattelbo Elon",
-        "La %": 3.0,
+        "Veikkaus %": 3.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 14.0,
         "Kengitys_Bonus": 1.00,
@@ -87,7 +87,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-1",
         "Hevonen": "#4 Py Viking",
-        "La %": 15.0,
+        "Veikkaus %": 15.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 16.0,
         "Kengitys_Bonus": 1.00,
@@ -98,7 +98,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-1",
         "Hevonen": "#5 Grisle Balder G.L.",
-        "La %": 4.0,
+        "Veikkaus %": 4.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 9.0,
         "Kengitys_Bonus": 1.00,
@@ -109,7 +109,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-1",
         "Hevonen": "#6 Andre Walter J.M.",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -120,7 +120,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-1",
         "Hevonen": "#7 Ängsrask",
-        "La %": 67.0,
+        "Veikkaus %": 67.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 50.0,
         "Kengitys_Bonus": 1.00,
@@ -132,7 +132,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-2",
         "Hevonen": "#1 Don Fanucci Zet",
-        "La %": 86.0,
+        "Veikkaus %": 86.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 78.0,
         "Kengitys_Bonus": 1.05,  # Barfota r/o
@@ -143,7 +143,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-2",
         "Hevonen": "#2 Santos de Castella",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 3.0,
         "Kengitys_Bonus": 1.00,
@@ -154,7 +154,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-2",
         "Hevonen": "#3 Dark Roadster",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -165,7 +165,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-2",
         "Hevonen": "#4 Sourire Frö",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -176,7 +176,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-2",
         "Hevonen": "#5 Steady Roc",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 3.0,
         "Kengitys_Bonus": 1.00,
@@ -187,7 +187,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-2",
         "Hevonen": "#6 Parveny",
-        "La %": 8.0,
+        "Veikkaus %": 8.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 10.0,
         "Kengitys_Bonus": 1.00,
@@ -198,7 +198,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-2",
         "Hevonen": "#7 Nephtys Boko",
-        "La %": 2.0,
+        "Veikkaus %": 2.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -210,7 +210,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#1 Oppgårdens Brunte",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 3.0,
         "Kengitys_Bonus": 1.00,
@@ -221,7 +221,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#2 Marodin",
-        "La %": 3.0,
+        "Veikkaus %": 3.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 10.0,
         "Kengitys_Bonus": 1.00,
@@ -232,7 +232,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#3 Burman",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 4.0,
         "Kengitys_Bonus": 1.00,
@@ -243,7 +243,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#4 Trö Hav",
-        "La %": 17.0,
+        "Veikkaus %": 17.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 8.0,
         "Kengitys_Bonus": 1.00,
@@ -254,7 +254,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#5 Mötje Meir",
-        "La %": 0.0,
+        "Veikkaus %": 0.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 1.0,
         "Kengitys_Bonus": 1.00,
@@ -265,7 +265,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#6 Höstbo Elina",
-        "La %": 0.0,
+        "Veikkaus %": 0.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 1.0,
         "Kengitys_Bonus": 1.00,
@@ -276,7 +276,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#7 Ingen",
-        "La %": 5.0,
+        "Veikkaus %": 5.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 7.0,
         "Kengitys_Bonus": 1.00,
@@ -287,7 +287,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#8 Guli Kasper",
-        "La %": 4.0,
+        "Veikkaus %": 4.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 11.0,
         "Kengitys_Bonus": 1.02,  # Kengitysmuutos
@@ -298,7 +298,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#9 Pyseidon",
-        "La %": 35.0,
+        "Veikkaus %": 35.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 40.0,
         "Kengitys_Bonus": 1.05,  # Barfota fram
@@ -309,7 +309,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#10 Tore E.",
-        "La %": 5.0,
+        "Veikkaus %": 5.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 3.0,
         "Kengitys_Bonus": 1.00,
@@ -320,7 +320,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#11 Hulte Jannina",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -331,7 +331,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#12 Trönö Borken",
-        "La %": 26.0,
+        "Veikkaus %": 26.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 18.0,
         "Kengitys_Bonus": 1.00,
@@ -342,7 +342,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-3",
         "Hevonen": "#13 Orrgårns Tycko",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -354,7 +354,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-4",
         "Hevonen": "#1 Inkallad",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 14.0,
         "Kengitys_Bonus": 1.00,
@@ -365,7 +365,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-4",
         "Hevonen": "#2 Kjölstad Gutten",
-        "La %": 11.0,
+        "Veikkaus %": 11.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 5.0,
         "Kengitys_Bonus": 1.00,
@@ -376,7 +376,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-4",
         "Hevonen": "#3 L.Q.Laban",
-        "La %": 2.0,
+        "Veikkaus %": 2.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 3.0,
         "Kengitys_Bonus": 0.98,  # Normaali balanssi (-2%)
@@ -387,7 +387,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-4",
         "Hevonen": "#4 Tekno Ture",
-        "La %": 2.0,
+        "Veikkaus %": 2.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 4.0,
         "Kengitys_Bonus": 1.00,
@@ -398,7 +398,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-4",
         "Hevonen": "#5 Sauron",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 1.0,
         "Kengitys_Bonus": 1.00,
@@ -409,7 +409,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-4",
         "Hevonen": "#6 Lomeglimt",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 3.0,
         "Kengitys_Bonus": 1.02,  # Bootsit pois (+2%)
@@ -420,7 +420,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-4",
         "Hevonen": "#7 Bäcklös Borken",
-        "La %": 35.0,
+        "Veikkaus %": 35.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 35.0,
         "Kengitys_Bonus": 1.02,  # Rautakengät (+2%)
@@ -431,7 +431,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-4",
         "Hevonen": "#8 Alf",
-        "La %": 4.0,
+        "Veikkaus %": 4.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 9.0,
         "Kengitys_Bonus": 1.00,
@@ -442,7 +442,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-4",
         "Hevonen": "#9 Järvsö Jan",
-        "La %": 27.0,
+        "Veikkaus %": 27.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 7.0,
         "Kengitys_Bonus": 1.00,
@@ -453,7 +453,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-4",
         "Hevonen": "#10 Troll Knut",
-        "La %": 17.0,
+        "Veikkaus %": 17.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 23.0,
         "Kengitys_Bonus": 1.00,
@@ -465,7 +465,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-5",
         "Hevonen": "#1 Mary Wadd",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -476,7 +476,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-5",
         "Hevonen": "#2 Global Deadline",
-        "La %": 3.0,
+        "Veikkaus %": 3.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 4.0,
         "Kengitys_Bonus": 1.00,
@@ -487,7 +487,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-5",
         "Hevonen": "#3 Xanthis Kimberly",
-        "La %": 27.0,
+        "Veikkaus %": 27.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 32.0,
         "Kengitys_Bonus": 1.00,
@@ -498,7 +498,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-5",
         "Hevonen": "#4 Noa Transs R.",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -509,7 +509,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-5",
         "Hevonen": "#5 Elin Avant",
-        "La %": 6.0,
+        "Veikkaus %": 6.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 14.0,
         "Kengitys_Bonus": 1.00,
@@ -520,7 +520,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-5",
         "Hevonen": "#6 Ecuador Broline",
-        "La %": 26.0,
+        "Veikkaus %": 26.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 20.0,
         "Kengitys_Bonus": 1.00,
@@ -531,7 +531,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-5",
         "Hevonen": "#7 Bilbao Ace",
-        "La %": 5.0,
+        "Veikkaus %": 5.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 7.0,
         "Kengitys_Bonus": 1.00,
@@ -542,7 +542,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-5",
         "Hevonen": "#8 Evita Jacase",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 1.0,
         "Kengitys_Bonus": 1.00,
@@ -553,7 +553,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-5",
         "Hevonen": "#9 Pralines",
-        "La %": 30.0,
+        "Veikkaus %": 30.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 18.0,
         "Kengitys_Bonus": 1.00,
@@ -565,7 +565,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#1 Belse Tösen",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 1.5,
         "Kengitys_Bonus": 0.97,  # Kengät jalkaan (-3%)
@@ -576,7 +576,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#2 Sol Flamma",
-        "La %": 2.0,
+        "Veikkaus %": 2.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -587,7 +587,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#3 Gangsi",
-        "La %": 0.0,
+        "Veikkaus %": 0.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 1.0,
         "Kengitys_Bonus": 1.00,
@@ -598,7 +598,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#4 Hög Decibel",
-        "La %": 5.0,
+        "Veikkaus %": 5.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 5.0,
         "Kengitys_Bonus": 1.00,
@@ -609,7 +609,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#5 Klack Tea",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 1.0,
         "Kengitys_Bonus": 1.00,
@@ -620,7 +620,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#6 Lille Rose G.L.",
-        "La %": 14.0,
+        "Veikkaus %": 14.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 9.0,
         "Kengitys_Bonus": 1.00,
@@ -631,7 +631,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#7 Eldida",
-        "La %": 3.0,
+        "Veikkaus %": 3.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 4.0,
         "Kengitys_Bonus": 1.00,
@@ -642,7 +642,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#8 Lysjö Isa",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 7.0,
         "Kengitys_Bonus": 1.00,
@@ -653,7 +653,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#9 Lokatt",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -664,7 +664,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#10 Myllkärr Christina",
-        "La %": 0.0,
+        "Veikkaus %": 0.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 3.0,
         "Kengitys_Bonus": 1.00,
@@ -675,7 +675,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#11 Guli Stina",
-        "La %": 2.0,
+        "Veikkaus %": 2.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 14.0,
         "Kengitys_Bonus": 0.97,  # Kengät takaisin (-3%)
@@ -686,7 +686,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#12 Hulte Annika",
-        "La %": 40.0,
+        "Veikkaus %": 40.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 32.0,
         "Kengitys_Bonus": 1.00,
@@ -697,7 +697,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#13 Tekno Tana",
-        "La %": 26.0,
+        "Veikkaus %": 26.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 16.0,
         "Kengitys_Bonus": 1.02,  # Etukengättömyys (+2%)
@@ -708,7 +708,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-6",
         "Hevonen": "#14 Ethel",
-        "La %": 4.0,
+        "Veikkaus %": 4.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -720,7 +720,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-7",
         "Hevonen": "#1 Guli Hektor",
-        "La %": 2.0,
+        "Veikkaus %": 2.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 11.0,
         "Kengitys_Bonus": 1.00,
@@ -731,7 +731,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-7",
         "Hevonen": "#2 Guldhagens Pirat",
-        "La %": 3.0,
+        "Veikkaus %": 3.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 9.0,
         "Kengitys_Bonus": 1.00,
@@ -742,7 +742,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-7",
         "Hevonen": "#3 Klack Vidar",
-        "La %": 7.0,
+        "Veikkaus %": 7.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 13.0,
         "Kengitys_Bonus": 1.00,
@@ -753,7 +753,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-7",
         "Hevonen": "#4 G.G.Qurre",
-        "La %": 0.0,
+        "Veikkaus %": 0.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -764,7 +764,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-7",
         "Hevonen": "#5 Guli Em",
-        "La %": 53.0,
+        "Veikkaus %": 53.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 22.0,
         "Kengitys_Bonus": 1.00,
@@ -775,7 +775,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-7",
         "Hevonen": "#6 Eld Prinsen",
-        "La %": 2.0,
+        "Veikkaus %": 2.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 5.0,
         "Kengitys_Bonus": 1.00,
@@ -786,7 +786,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-7",
         "Hevonen": "#7 Pyrotek",
-        "La %": 24.0,
+        "Veikkaus %": 24.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 24.0,
         "Kengitys_Bonus": 1.00,
@@ -797,7 +797,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-7",
         "Hevonen": "#8 Hibovalle",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 4.0,
         "Kengitys_Bonus": 1.00,
@@ -808,7 +808,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-7",
         "Hevonen": "#9 Guldhagens Oscar",
-        "La %": 2.0,
+        "Veikkaus %": 2.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 3.0,
         "Kengitys_Bonus": 1.00,
@@ -819,7 +819,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-7",
         "Hevonen": "#10 Gör Som Jag Vill",
-        "La %": 4.0,
+        "Veikkaus %": 4.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 4.0,
         "Kengitys_Bonus": 1.00,
@@ -830,7 +830,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-7",
         "Hevonen": "#11 Blomsterprinsen",
-        "La %": 2.0,
+        "Veikkaus %": 2.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 2.0,
         "Kengitys_Bonus": 1.00,
@@ -841,7 +841,7 @@ vihjeet_data = [
     {
         "Kohde": "GS75-7",
         "Hevonen": "#12 Höstbo Wille",
-        "La %": 1.0,
+        "Veikkaus %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 3.0,
         "Kengitys_Bonus": 1.00,
@@ -868,7 +868,7 @@ df_vihjeet["Kotirata_Bonus"] = df_vihjeet.apply(
     lambda row: get_kotirata_bonus(row["Kohde"], row["Hevonen"]), axis=1
 )
 
-# LASKETAAN LOPULLINEN ARVIO KAIKILLA PAINOTUKSILLA:
+# LASKETAAN LOPULLINEN ARVIO KAIKILLA PAINOTUKSILLA TAASTALLA:
 df_vihjeet["Lopullinen Arvio %"] = (
     df_vihjeet["Oma_Simulaatio_Arvio %"]
     * df_vihjeet["Kotirata_Bonus"]
@@ -926,12 +926,9 @@ st.dataframe(
         [
             "Kohde",
             "Hevonen",
-            "La %",
+            "Veikkaus %",
             "Prosentti_Muutos",
             "Arvio %",
-            "Kotirata_Bonus",
-            "Kengitys_Bonus",
-            "Karryt_Bonus",
             "Paras Kerroin",
             "EV",
             "Perustelu",
@@ -944,19 +941,16 @@ st.dataframe(
 st.divider()
 
 st.subheader("🔥 Potentiaaliset Yllättäjät (< 10 % Peliprosentti)")
-df_surprises = df_vihjeet[df_vihjeet["La %"] < 10.0]
+df_surprises = df_vihjeet[df_vihjeet["Veikkaus %"] < 10.0]
 
 st.dataframe(
     df_surprises[
         [
             "Kohde",
             "Hevonen",
-            "La %",
+            "Veikkaus %",
             "Prosentti_Muutos",
             "Arvio %",
-            "Kotirata_Bonus",
-            "Kengitys_Bonus",
-            "Karryt_Bonus",
             "Paras Kerroin",
             "EV",
             "Perustelu",
