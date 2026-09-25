@@ -868,7 +868,7 @@ df_vihjeet["Kotirata_Bonus"] = df_vihjeet.apply(
     lambda row: get_kotirata_bonus(row["Kohde"], row["Hevonen"]), axis=1
 )
 
-# LASKETAAN LOPULLINEN ARVIO KAIKILLA PAINOTUKSILLA TAASTALLA:
+# LASKETAAN LOPULLINEN ARVIO KAIKILLA PAINOTUKSILLA TAUSTALLA:
 df_vihjeet["Lopullinen Arvio %"] = (
     df_vihjeet["Oma_Simulaatio_Arvio %"]
     * df_vihjeet["Kotirata_Bonus"]
@@ -914,37 +914,18 @@ if st.sidebar.button("Aja Simulaatio"):
         sim_results.append(all(row_win))
     st.sidebar.success("Simulaatio ajettu onnistuneesti!")
 
-# ----------------- PARHAAT NOSTOT - LAATIKKO -----------------
-st.subheader("🔥 Parhaat nostot & Tärpit (Gävle 25.9.)")
-
-# Lasketaan erotus arvio % vs veikkaus %
+# ----------------- PARHAAT ALLE 10% IDEAT - LAATIKKO -----------------
 df_vihjeet["Erotus %"] = df_vihjeet["Arvio %"] - df_vihjeet["Veikkaus %"]
-
-# Suodatetaan isoimmat alipelatut ja varmat
-pankit = df_vihjeet[df_vihjeet["Arvio %"] >= 40.0].sort_values(
-    by="Arvio %", ascending=False
-)
-alipelatut_ideat = df_vihjeet[
-    (df_vihjeet["Veikkaus %"] < 15.0) & (df_vihjeet["Erotus %"] > 5.0)
+alipelatut_alle_10 = df_vihjeet[
+    (df_vihjeet["Veikkaus %"] < 10.0) & (df_vihjeet["Erotus %"] > 3.0)
 ].sort_values(by="Erotus %", ascending=False)
 
-col_pankki, col_idea = st.columns(2)
-
-with col_pankki:
-    st.info("📌 **Kierroksen Kestävimmät Pankit**")
-    for _, row in pankit.head(2).iterrows():
-        st.write(
-            f"• **{row['Kohde']}**: **{row['Hevonen']}** (Arvio: **{row['Arvio %']:.1f}%** | Veikkaus: {row['Veikkaus %']:.0f}%)"
-        )
-        st.caption(f"_{row['Perustelu']}_")
-
-with col_idea:
-    st.success("💡 **Parhaat Alipelatut Ideat**")
-    for _, row in alipelatut_ideat.head(3).iterrows():
-        st.write(
-            f"• **{row['Kohde']}**: **{row['Hevonen']}** (Arvio: **{row['Arvio %']:.1f}%** vs Veikkaus: **{row['Veikkaus %']:.0f}%** -> **+{row['Erotus %']:.1f}%**)"
-        )
-        st.caption(f"_{row['Perustelu']}_")
+st.success("💡 **Parhaat Alipelatut Ideat (< 10% Pelijakauma)**")
+for _, row in alipelatut_alle_10.head(4).iterrows():
+    st.write(
+        f"• **{row['Kohde']}**: **{row['Hevonen']}** (Arvio: **{row['Arvio %']:.1f}%** vs Veikkaus: **{row['Veikkaus %']:.0f}%** -> Erotus: **+{row['Erotus %']:.1f}%**)"
+    )
+    st.caption(f"_{row['Perustelu']}_")
 
 st.divider()
 
