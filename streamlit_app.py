@@ -10,7 +10,7 @@ st.set_page_config(
 
 st.title("🏇 GS75 / V85 Simulaattori – Gävle (25.9.2026)")
 st.caption(
-    "Data päivitetty Gävlen lähtölistojen, varustemuutosten ja Travrondenin kommenttien pohjalta."
+    "Data päivitetty Gävlen lähtölistojen, valmentajahaastattelujen ja varustepainotusten pohjalta."
 )
 
 # ----------------- KOTIRADAN HEVOSLISTA (GÄVLE) -----------------
@@ -19,19 +19,19 @@ kotirata_hevostiedot = [
         "Kohde": "GS75-1",
         "Hevonen": "#3 Kattelbo Elon",
         "Kotirata_Bonus": 1.03,
-        "Perustelu": "Gävlen kotiradan valmennettava.",
+        "Perustelu": "Gävlen kotiradan valmennettava, etu tutusta radasta ja lyhyestä kuljetuksesta.",
     },
     {
         "Kohde": "GS75-3",
         "Hevonen": "#1 Oppgårdens Brunte",
         "Kotirata_Bonus": 1.03,
-        "Perustelu": "Kylin Blom kotiradallaan.",
+        "Perustelu": "Oskar Kylin Blom kotiradallaan, tutut olosuhteet.",
     },
     {
         "Kohde": "GS75-5",
         "Hevonen": "#3 Xanthis Kimberly",
         "Kotirata_Bonus": 1.04,
-        "Perustelu": "Gävlen kotiradan tamma, hakee keulaan.",
+        "Perustelu": "Gävlen kotiradan tamma, hyötyy kotikentän rutiinista spets-ajossa.",
     },
 ]
 df_kotirata = pd.DataFrame(kotirata_hevostiedot)
@@ -48,7 +48,7 @@ num_simulations = st.sidebar.selectbox(
     "Monte Carlo -simulaatiot", [1000, 5000, 10000, 50000], index=2
 )
 
-# ----------------- GS75 / V85 LÄHDÖT & VARUSTETIEDOT (GÄVLE 25.9.) -----------------
+# ----------------- GS75 / V85 LÄHDÖT & TIEDOT PAINOTUKSILLA (GÄVLE 25.9.) -----------------
 vihjeet_data = [
     # --- GS75-1 (Lähtö 4) ---
     {
@@ -60,7 +60,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Tog pengar i Derbyt, 40m etumatka Ängsraskiin.",
+        "Perustelu": "Derby-rahoittaja. 40m etumatka Ängsraskiin nähden antaa pienen taktisen edun.",
     },
     {
         "Kohde": "GS75-1",
@@ -71,7 +71,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Tasainen suorittaja, vaikea riittää aivan kärkeen.",
+        "Perustelu": "Tasaisen varma puurtaja ilma terävintä huippua. Vaikea riittää aivan kärkeen.",
     },
     {
         "Kohde": "GS75-1",
@@ -82,7 +82,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Derby-karsintavoittaja, ratahiitti alla sairastelun jälkeen.",
+        "Perustelu": "🏠 Kotiratanosto (+3%). Derby-karsintavoittaja, ratahiitti alla sairastelun jälkeen.",
     },
     {
         "Kohde": "GS75-1",
@@ -93,7 +93,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Vahva suorittaja, pystyy kamppailemaan kärkisijoista.",
+        "Perustelu": "Vahva suorittaja, treenaa hyvin sairastelun jälkeen. Pystyy kamppailemaan kärjessä.",
     },
     {
         "Kohde": "GS75-1",
@@ -104,7 +104,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Enemmän vahva kuin nopea, lyhyt matka ei paras etu.",
+        "Perustelu": "Voitti viimeksi, mutta enemmän vahva kuin nopea. Lyhyt matka verottaa mahdollisuuksia.",
     },
     {
         "Kohde": "GS75-1",
@@ -115,7 +115,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Tarvitsee lisää terävyyttä kovassa seurassa.",
+        "Perustelu": "Tarvitsee lisää terävyyttä ja nopeutta näin kovassa seurassa.",
     },
     {
         "Kohde": "GS75-1",
@@ -126,7 +126,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "💥 Ikäluokkatähti ja Derby-voittaja, valtava voittosauma.",
+        "Perustelu": "💥 Ruotsin Derby-voittaja ja ikäluokkatähti. Takamatkasta huolimatta luokka on omaa luokkaansa.",
     },
     # --- GS75-2 (Lähtö 5) ---
     {
@@ -138,7 +138,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.05,  # Barfota r/o
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "💥 Maailmanluokan tähti, kengittä (barfota r/o). Voitti Kouvolassa leikitellen.",
+        "Perustelu": "💥 Maailmanluokan tähti. Kenkätön balanssi (barfota r/o +5%) takaa ylivoimaisen vauhdin.",
     },
     {
         "Kohde": "GS75-2",
@@ -149,7 +149,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Nopea avaaja, mutta terävyys kadonnut iän myötä.",
+        "Perustelu": "Nopea avaaja, mutta parhaan terän kadottanut iän myötä. Totosijatoiveet.",
     },
     {
         "Kohde": "GS75-2",
@@ -160,7 +160,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Sairasteli talvella, ajetaan kiltisti selässä.",
+        "Perustelu": "Sairasteli talvella, valmentaja ilmoittaa kiltin selkäjuoksun. Ei asiaa voittotaistoon.",
     },
     {
         "Kohde": "GS75-2",
@@ -171,7 +171,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Hyödyllinen suorittaja, ahdas juoksurata haittaa.",
+        "Perustelu": "Hyödyllinen veteraani, mutta ahdas nelosrata voltissa tuottaa pienen laukkariskin.",
     },
     {
         "Kohde": "GS75-2",
@@ -182,7 +182,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Tasainen ja varma suorittaja koviin lähtöihin.",
+        "Perustelu": "Tasainen suorittaja koviin lähtöihin, hakee puhdasta rahasijaa.",
     },
     {
         "Kohde": "GS75-2",
@@ -193,7 +193,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Kova avaaja juoksuradalta, ottanee keulat aluksi.",
+        "Perustelu": "Tulossa loistavassa iskussa. Tulinen avaaja juoksuradalta ja ottanee keulat aluksi.",
     },
     {
         "Kohde": "GS75-2",
@@ -204,7 +204,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Hyödyllinen tamma, orien kohtaaminen tekee tiukkaa.",
+        "Perustelu": "Rehti tamma, mutta kovan orieliitin kohtaaminen tekee voittamisesta haastavaa.",
     },
     # --- GS75-3 (Lähtö 6) ---
     {
@@ -216,7 +216,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Vahva ja hidas kiihtymään, 3140m sopii matkana.",
+        "Perustelu": "🏠 Kotiratabonus (+3%). Vahva ja hidas kiihtymään, 3140m matka suosii voimakkaita ominaisuuksia.",
     },
     {
         "Kohde": "GS75-3",
@@ -227,7 +227,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Mennyt tasaisen varmasti, matka sopii erinomaisesti.",
+        "Perustelu": "Mennnyt tasaisen varmasti. Erinomainen fysiikka ja pitkä matka sopivat täydellisesti.",
     },
     {
         "Kohde": "GS75-3",
@@ -238,7 +238,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Purottanut tasaisesti ilman terävintä kärkeä.",
+        "Perustelu": "Tasainen puurtaja ilman terävintä voittokärkeä. Elokuussa vastaava matka oli liikaa.",
     },
     {
         "Kohde": "GS75-3",
@@ -249,7 +249,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Uusi tulokas Tjomslandille, elää voimillaan.",
+        "Perustelu": "Tjomslandin uusi orlov-tulokas Norjasta. Elää täysin voimillaan, 3140m leipälaji.",
     },
     {
         "Kohde": "GS75-3",
@@ -260,7 +260,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Vauhtia löytyy mutta erittäin laukkaherkkä.",
+        "Perustelu": "Vauhtia loytyy taustalta, mutta kärsii suurista laukkariskeistä.",
     },
     {
         "Kohde": "GS75-3",
@@ -271,7 +271,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Joutui hiittiin toistuvien laukkojen vuoksi.",
+        "Perustelu": "Joutui hiittiradoille toistuvien laukkojen vuoksi. Vain pieni rahasijatoive.",
     },
     {
         "Kohde": "GS75-3",
@@ -282,7 +282,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Voittanut aiemmin pitkällä matkalla (3140m).",
+        "Perustelu": "Voittanut aiemmin täydellä 3140m matkalla Gävlessä. Ravilla potentiaalinen yllättäjä.",
     },
     {
         "Kohde": "GS75-3",
@@ -293,7 +293,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.02,  # Kengitysmuutos
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Uusi valmennus (Pihlström) ja kengitystä muutetaan taakse.",
+        "Perustelu": "Uusi valmennus (Pihlström) ja muutos takakengitykseen (+2%). Pitkä matka suosii.",
     },
     {
         "Kohde": "GS75-3",
@@ -304,7 +304,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.05,  # Barfota fram
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "💥 Hienossa kunnossa, kenkätön balanssi edessä toiminut loistavasti.",
+        "Perustelu": "💥 Kenkätön etubalanssi (+5%) tehnyt ihmeitä. Voitti elokussa vastaavan 3160m matkan leikitellen.",
     },
     {
         "Kohde": "GS75-3",
@@ -315,7 +315,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Palaa tauolta, Mats E Djuse vahvistaa rattailla.",
+        "Perustelu": "Palaa tauolta. Mats E Djuse vahvistaa ohjastusta selvästi.",
     },
     {
         "Kohde": "GS75-3",
@@ -326,7 +326,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Halpa voitto aiemmin, vaikea paikka voltissa.",
+        "Perustelu": "Halpa voitto aiemmin, matka ja voltin paikka tekevät tehtävästä raskaan.",
     },
     {
         "Kohde": "GS75-3",
@@ -337,7 +337,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Erittäin vahva karhu 3000 metrille, ykköshaastaja.",
+        "Perustelu": "Vahva karhu 3000 metrille. Sairastelun jälkeen hoidettu ja treenaa lujaa. Ykköshaastaja.",
     },
     {
         "Kohde": "GS75-3",
@@ -348,7 +348,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Varma suorittaja, mutta 60m pakki on liikaa.",
+        "Perustelu": "Rehti suorittaja, mutta 60 metrin taka-matka on liikaa näin tiiviissä lähdössä.",
     },
     # --- GS75-4 (Lähtö 7) ---
     {
@@ -360,7 +360,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Voitti helposti spetsistä maanantaina, loistopaikka.",
+        "Perustelu": "Voitti maantaina keulasta kevyesti. Loistopaikka sisäradalla antaa etulyöntiaseman.",
     },
     {
         "Kohde": "GS75-4",
@@ -371,7 +371,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Hyvä voitto viimeksi, mutta taso nousee kovasti.",
+        "Perustelu": "Hieno voitto viimestä, mutta kohde on nyt huomattavasti kovempi.",
     },
     {
         "Kohde": "GS75-4",
@@ -379,10 +379,10 @@ vihjeet_data = [
         "La %": 2.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 3.0,
-        "Kengitys_Bonus": 0.98,  # Normaali balanssi takaisin
+        "Kengitys_Bonus": 0.98,  # Normaali balanssi (-2%)
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Palataan normaaliin balanssiin helpotuksen jälkeen.",
+        "Perustelu": "Palataan normaaliin kengitykseen epäonnistuneen kevennyksen jälkeen. Tasaisuus valttia.",
     },
     {
         "Kohde": "GS75-4",
@@ -393,7 +393,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Enemmän vahva kuin nopea, totokandidaatti.",
+        "Perustelu": "Enemmän vahva kuin nopea, lyhyt matka ei paras valtti sprintissä.",
     },
     {
         "Kohde": "GS75-4",
@@ -404,7 +404,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Mött halpoja porukoita, pitää parantaa ennätystä.",
+        "Perustelu": "Vahvat tulokset helpoissa lähdöissä, vaatii merkittävää ennätysparannusta.",
     },
     {
         "Kohde": "GS75-4",
@@ -412,10 +412,10 @@ vihjeet_data = [
         "La %": 2.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 3.0,
-        "Kengitys_Bonus": 1.02,  # Bootseja kevennetty
+        "Kengitys_Bonus": 1.02,  # Bootsit pois (+2%)
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Humörbetonad, riisutaan bootseista tähän lähtöön.",
+        "Perustelu": "Humörbetonad hevonen. Bootsien riisunta (+2%) tuo toivottua keveyttä kinttuihin.",
     },
     {
         "Kohde": "GS75-4",
@@ -423,10 +423,10 @@ vihjeet_data = [
         "La %": 38.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 35.0,
-        "Kengitys_Bonus": 1.02,  # Järnskor ympäriinsä
+        "Kengitys_Bonus": 1.02,  # Rautakengät (+2%)
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "💥 Kulltopp, treenaa kovaa. Paluu rautakenkiin toimii paremmin.",
+        "Perustelu": "💥 Ikäluokkatähti, treenaa kovaa. Paluu rautakenkiin (+2%) tuo kaivattua ravivarmuutta. Spetsfavorit.",
     },
     {
         "Kohde": "GS75-4",
@@ -437,7 +437,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Hyvä uran alku, norjan Derby-kävijä.",
+        "Perustelu": "Hieno uran alku, norjan Derby-finaalikävijä. Sopivammassa seurassa vaarallinen.",
     },
     {
         "Kohde": "GS75-4",
@@ -448,7 +448,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Aloitti 4 voitolla, vaikeampi karkelo nyt.",
+        "Perustelu": "Aloitti 4 rapsakalla voitolla, Kriterium-kisoissa kunto notkahti.",
     },
     {
         "Kohde": "GS75-4",
@@ -459,7 +459,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Molemmin puolin Kriterium-finaalisti, päähaastaja.",
+        "Perustelu": "Kriterium-finaalisti molemmin puolin koti- ja norjankisoissa. Päähaastaja takamatkasta huolimatta.",
     },
     # --- GS75-5 (Lähtö 8) ---
     {
@@ -471,7 +471,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Hyvä paikka, mutta riittävyys kärkitaistoon tiukalla.",
+        "Perustelu": "Hyvä lähtöpaikka sisällä, tavoitteena puhdas rahasija.",
     },
     {
         "Kohde": "GS75-5",
@@ -482,7 +482,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Viron menestyjä, hyvä paikka yllättää totosijalle.",
+        "Perustelu": "Viron menestyjä, hyvä paikka eturivissä yllättää totokamppailuun.",
     },
     {
         "Kohde": "GS75-5",
@@ -493,7 +493,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "💥 Ikäluokkaeliittiä, nopea avaaja ja valmentaja ajaa keulasta.",
+        "Perustelu": "💥 Kotiratabonus (+4%). Ikäluokkaeliittiä, tulinen avaaja ja Kylin Blom ajaa piikkipaikalta.",
     },
     {
         "Kohde": "GS75-5",
@@ -504,7 +504,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Monté/sulky -yhdistelijä, kova porukka vastassa.",
+        "Perustelu": "Monté/sulky -suorittaja, kärki menee tässä lähdössä liian lujaa.",
     },
     {
         "Kohde": "GS75-5",
@@ -515,7 +515,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Kapabel tamma, hoidettu viime kisan jälkeen. Haastaja.",
+        "Perustelu": "Kapabel tamma, hoidettu viime kisan jälkeen ja treenaa lujaa. Vahva haastaja.",
     },
     {
         "Kohde": "GS75-5",
@@ -526,7 +526,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Mennnyt kovaa ikäluokkalähdöissä, passaava tehtävä.",
+        "Perustelu": "Gårdiksen Derbystoet-karsija. Sopivampi tammalähtö ja kamppailee voitoista.",
     },
     {
         "Kohde": "GS75-5",
@@ -537,7 +537,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Keulavoitto viimeksi Östersundissa, ulkorata haittaa.",
+        "Perustelu": "Keulavoitto Östersundissa, ulkoradan lähtöpaikka tekee reissusta haastavan.",
     },
     {
         "Kohde": "GS75-5",
@@ -548,7 +548,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Ulkopaikalta vaikea ehtiä terävimpään kärkeen.",
+        "Perustelu": "Kasiradalta mahdoton ehtiä kärkitaisteluun kovassa seurassa.",
     },
     {
         "Kohde": "GS75-5",
@@ -559,7 +559,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "💥 Örjan Kihlström selässä taka-alalta, erittäin mielenkiintoinen.",
+        "Perustelu": "💥 Örjan Kihlström selässä takarivistä, erittäin iskukykyinen valjakko.",
     },
     # --- GS75-6 (Lähtö 9) ---
     {
@@ -568,10 +568,10 @@ vihjeet_data = [
         "La %": 1.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 1.5,
-        "Kengitys_Bonus": 0.97,  # Kengät jalkaan
+        "Kengitys_Bonus": 0.97,  # Kengät jalkaan (-3%)
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Laukannut kahdesti, juoksee nyt kengät jalassa.",
+        "Perustelu": "Laukannut kahdesti. Juoksee kengät jalassa (-3%), hakee sisäratareissua.",
     },
     {
         "Kohde": "GS75-6",
@@ -582,7 +582,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Ajoittain hyvä vauhti, mutta kunto ailahtelee.",
+        "Perustelu": "Vauhtia löytää ajoittain, mutta suoritusvarmuus ailahtelee.",
     },
     {
         "Kohde": "GS75-6",
@@ -593,7 +593,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Pieni tamma, joka hakee lähinnä pikkurahoja.",
+        "Perustelu": "Pieni tamma, joka tyytyy pikkurahoihin kovempien rinnalla.",
     },
     {
         "Kohde": "GS75-6",
@@ -604,7 +604,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Varma suorittaja, SM-kisa oli liian kova.",
+        "Perustelu": "Varma suorittaja, SM-lähtö oli liian kova karkelo.",
     },
     {
         "Kohde": "GS75-6",
@@ -615,7 +615,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Juoksee usein, mutta kärki menee liian kovaa.",
+        "Perustelu": "Juoksee usein omissa sarjoissaan, mutta kärki menee liian lujaa.",
     },
     {
         "Kohde": "GS75-6",
@@ -626,7 +626,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Hyvä aika viimeksi, kunto nousussa.",
+        "Perustelu": "Uusi hieno aika viimeksi, kunto selvästi nousussa.",
     },
     {
         "Kohde": "GS75-6",
@@ -637,7 +637,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Mats E Djuse vahvistuksena kärryillä, yllätysvalmis.",
+        "Perustelu": "Mats E Djuse vahvistuksena kärryillä, mielenkiintoinen yllättäjä.",
     },
     {
         "Kohde": "GS75-6",
@@ -648,7 +648,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Örjan Kihlström rattaille, parantaa aina otteitaan.",
+        "Perustelu": "Örjan Kihlström ohjastajana tuo aina irtopisteitä.",
     },
     {
         "Kohde": "GS75-6",
@@ -659,7 +659,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Tasoituksen keskellä, hakee rahasijaa.",
+        "Perustelu": "Tasoituksen keskellä pussitusvaara, hakee rahasijaa.",
     },
     {
         "Kohde": "GS75-6",
@@ -670,7 +670,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Vahva tamma, mutta voittaa harvoin.",
+        "Perustelu": "Vahva tamma, voittaa valitettavan harvoin.",
     },
     {
         "Kohde": "GS75-6",
@@ -678,10 +678,10 @@ vihjeet_data = [
         "La %": 12.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 14.0,
-        "Kengitys_Bonus": 0.97,  # Kengät takaisin SM:n jälkeen
+        "Kengitys_Bonus": 0.97,  # Kengät takaisin (-3%)
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Nuoruuden tähti, kengät jalassa jälleen SM-kisan jälkeen.",
+        "Perustelu": "Nuoruuden tähti, kengät jalkaan SM:n jälkeen (-3%). Platschans.",
     },
     {
         "Kohde": "GS75-6",
@@ -692,7 +692,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "💥 Vahva SM-kolmonen, laskee sopivaan tehtävään. Ykkössuosikki.",
+        "Perustelu": "💥 Vahva SM-kolmonen, laskee sopivampaan tammalähtöön. Ykkössuosikki.",
     },
     {
         "Kohde": "GS75-6",
@@ -700,10 +700,10 @@ vihjeet_data = [
         "La %": 18.0,
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 16.0,
-        "Kengitys_Bonus": 1.02,  # Mahdollinen etukengättömyys
-        "Karryt_Bonus": 1.02,  # Hybridikärryt
+        "Kengitys_Bonus": 1.02,  # Etukengättömyys (+2%)
+        "Karryt_Bonus": 1.02,  # Hybridikärryt (+2%)
         "Unibet": None,
-        "Perustelu": "Erittäin vahva, mahdollisesti etukengittä ja hybridikärryillä.",
+        "Perustelu": "Erittäin vahva. Mahdolliset etukengättömyys ja hybridikärryt tuovat lisäpotkua (+4%).",
     },
     {
         "Kohde": "GS75-6",
@@ -714,7 +714,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "60m pakki tekee tehtävästä lähes mahdottoman.",
+        "Perustelu": "60 metrin taka-matkalta tehtävä on äärimmäisen raskas.",
     },
     # --- GS75-7 (Lähtö 10) ---
     {
@@ -726,7 +726,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Vahva loppukiri viimeksi, pussitusvaara ykkösradalla.",
+        "Perustelu": "Upea kiri viimestä, ykkösradalla pieni pussituksen riski.",
     },
     {
         "Kohde": "GS75-7",
@@ -768,9 +768,9 @@ vihjeet_data = [
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 22.0,
         "Kengitys_Bonus": 1.00,
-        "Karryt_Bonus": 1.04,  # Amerikansk vagn
+        "Karryt_Bonus": 1.04,  # Amerikansk vagn (+4%)
         "Unibet": None,
-        "Perustelu": "💥 Hienossa iskussa, voitti Färjestadissa. Jenkkikärryt perään!",
+        "Perustelu": "💥 Hienossa iskussa, voitti Färjestadissa. Jenkkikärryt perään autolähtöön (+4%)!",
     },
     {
         "Kohde": "GS75-7",
@@ -790,9 +790,9 @@ vihjeet_data = [
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 24.0,
         "Kengitys_Bonus": 1.00,
-        "Karryt_Bonus": 1.04,  # Amerikansk vagn
+        "Karryt_Bonus": 1.04,  # Amerikansk vagn (+4%)
         "Unibet": None,
-        "Perustelu": "💥 Pihlström luottaa voittoon, hyötyy autolähdöstä ja jenkkikärryistä!",
+        "Perustelu": "💥 Pihlström luottaa voittoon! Hyötyy autolähdöstä ja jenkkikärryistä (+4%).",
     },
     {
         "Kohde": "GS75-7",
@@ -803,7 +803,7 @@ vihjeet_data = [
         "Kengitys_Bonus": 1.00,
         "Karryt_Bonus": 1.00,
         "Unibet": None,
-        "Perustelu": "Saanut huonon paikan spårtrappassa, vaatii tuuria.",
+        "Perustelu": "Saanut huonon paikan spårtrappassa, vaatii tuuria pussiin jäämättä.",
     },
     {
         "Kohde": "GS75-7",
@@ -823,9 +823,9 @@ vihjeet_data = [
         "Prosentti_Muutos": 0,
         "Oma_Simulaatio_Arvio %": 4.0,
         "Kengitys_Bonus": 1.00,
-        "Karryt_Bonus": 1.03,  # Amerikansk vagn
+        "Karryt_Bonus": 1.03,  # Amerikansk vagn (+3%)
         "Unibet": None,
-        "Perustelu": "Ravi parantunut, autolähtö ja jenkkikärryt takarivistä sopivat.",
+        "Perustelu": "Ravi parantunut, autolähtö ja jenkkikärryt (+3%) takarivistä sopivat.",
     },
     {
         "Kohde": "GS75-7",
@@ -869,7 +869,6 @@ df_vihjeet["Kotirata_Bonus"] = df_vihjeet.apply(
 )
 
 # LASKETAAN LOPULLINEN ARVIO KAIKILLA PAINOTUKSILLA:
-# (Oma arvio * Kotirata_Bonus * Kengitys_Bonus * Karryt_Bonus)
 df_vihjeet["Lopullinen Arvio %"] = (
     df_vihjeet["Oma_Simulaatio_Arvio %"]
     * df_vihjeet["Kotirata_Bonus"]
@@ -892,7 +891,7 @@ df_vihjeet["EV"] = np.where(
     0.0,
 )
 
-# Järjestetään taulukko kohteittain
+# JÄRJESTETÄÄN TAULUKKO LÄHDÖITTÄIN (GS75-1 -> GS75-7) JA SITTEN ARVIO % MUKAAN:
 if "Kohde" in df_vihjeet.columns and not df_vihjeet.empty:
     df_vihjeet["Kohde_Num"] = (
         df_vihjeet["Kohde"].str.extract(r"(\d+)").astype(float)
@@ -930,6 +929,7 @@ st.dataframe(
             "La %",
             "Prosentti_Muutos",
             "Arvio %",
+            "Kotirata_Bonus",
             "Kengitys_Bonus",
             "Karryt_Bonus",
             "Paras Kerroin",
@@ -954,6 +954,7 @@ st.dataframe(
             "La %",
             "Prosentti_Muutos",
             "Arvio %",
+            "Kotirata_Bonus",
             "Kengitys_Bonus",
             "Karryt_Bonus",
             "Paras Kerroin",
