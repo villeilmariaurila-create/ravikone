@@ -914,6 +914,40 @@ if st.sidebar.button("Aja Simulaatio"):
         sim_results.append(all(row_win))
     st.sidebar.success("Simulaatio ajettu onnistuneesti!")
 
+# ----------------- PARHAAT NOSTOT - LAATIKKO -----------------
+st.subheader("🔥 Parhaat nostot & Tärpit (Gävle 25.9.)")
+
+# Lasketaan erotus arvio % vs veikkaus %
+df_vihjeet["Erotus %"] = df_vihjeet["Arvio %"] - df_vihjeet["Veikkaus %"]
+
+# Suodatetaan isoimmat alipelatut ja varmat
+pankit = df_vihjeet[df_vihjeet["Arvio %"] >= 40.0].sort_values(
+    by="Arvio %", ascending=False
+)
+alipelatut_ideat = df_vihjeet[
+    (df_vihjeet["Veikkaus %"] < 15.0) & (df_vihjeet["Erotus %"] > 5.0)
+].sort_values(by="Erotus %", ascending=False)
+
+col_pankki, col_idea = st.columns(2)
+
+with col_pankki:
+    st.info("📌 **Kierroksen Kestävimmät Pankit**")
+    for _, row in pankit.head(2).iterrows():
+        st.write(
+            f"• **{row['Kohde']}**: **{row['Hevonen']}** (Arvio: **{row['Arvio %']:.1f}%** | Veikkaus: {row['Veikkaus %']:.0f}%)"
+        )
+        st.caption(f"_{row['Perustelu']}_")
+
+with col_idea:
+    st.success("💡 **Parhaat Alipelatut Ideat**")
+    for _, row in alipelatut_ideat.head(3).iterrows():
+        st.write(
+            f"• **{row['Kohde']}**: **{row['Hevonen']}** (Arvio: **{row['Arvio %']:.1f}%** vs Veikkaus: **{row['Veikkaus %']:.0f}%** -> **+{row['Erotus %']:.1f}%**)"
+        )
+        st.caption(f"_{row['Perustelu']}_")
+
+st.divider()
+
 # ----------------- NÄYTÖT -----------------
 st.subheader("🏠 Gävlen Kotiradan Hevoset")
 st.dataframe(df_kotirata, use_container_width=True, hide_index=True)
