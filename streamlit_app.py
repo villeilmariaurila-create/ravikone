@@ -1,9 +1,18 @@
 import numpy as np
 import pandas as pd
+import streamlit as st
 
-# Asetetaan satunnaissiemen toistettavuutta varten
+# Streamlit sivun asetukset
+st.set_page_config(
+    page_title="V85 Åby Simulaattori", page_icon="🏇", layout="wide"
+)
+
+st.title("🏇 V85 Åby - Monte Carlo Simulaattori & Peli-ideat")
+st.markdown(
+    "Tämä sovellus simuloi V85-kierroksen 100 000 kertaa ja laskee odotusarvot (EV) Unibetin kertoimille."
+)
+
 np.random.seed(42)
-
 NUM_SIMULATIONS = 100000
 
 # Kaikkien kohteiden V85-1 - V85-8 tiedot
@@ -643,6 +652,7 @@ races_data = [
     ],
 ]
 
+# Ajetaan simulaatio
 results_list = []
 
 for race_idx, race in enumerate(races_data, 1):
@@ -681,19 +691,15 @@ for race_idx, race in enumerate(races_data, 1):
 
 df_results = pd.DataFrame(results_list)
 
-# Tulostetaan tulokset suoraan tekstimuodossa terminaaliin/konsoliin
-print("=== V85 SIMULAATION TULOKSET ===")
-for kohde in df_results["Kohde"].unique():
-    print(f"\n--- {kohde} ---")
-    sub_df = df_results[df_results["Kohde"] == kohde]
-    for _, row in sub_df.iterrows():
-        print(
-            f"{row['Hevonen']:<22} | Veikkaus: {row['Veikkaus %']:>4}% | Simu: {row['Simuloinnin Voitto %']:>5}% | Odds: {str(row['Unibet Odds']):>5} | EV: {row['EV']:>4} | {row['Peli-idea']}"
-        )
-
-print("\n\n=== NOSTOT: ALLE 10 % PELATUT HELMET (EV >= 1.0) ===")
+# Streamlit Käyttöliittymä
+st.subheader("🔥 Parhaat alle 10 % pelatut peli-ideat (EV >= 1.0)")
 gems = df_results[df_results["Peli-idea"] == "🔥 YLIKERROIN (<10%)"]
-for _, row in gems.iterrows():
-    print(
-        f"{row['Kohde']} - {row['Hevonen']:<22} | Kerroin: {row['Unibet Odds']:>5} | EV: {row['EV']:>4} | Simu-%: {row['Simuloinnin Voitto %']}%"
-    )
+st.dataframe(gems, use_container_width=True)
+
+st.subheader("📋 Kaikkien kohteiden simulaatiotulokset")
+selected_race = st.selectbox(
+    "Valitse kohde:", df_results["Kohde"].unique(), index=0
+)
+st.dataframe(
+    df_results[df_results["Kohde"] == selected_race], use_container_width=True
+)
