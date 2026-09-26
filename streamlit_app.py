@@ -676,6 +676,12 @@ for race_idx, race in enumerate(races_data, 1):
         is_under_10 = h["Veikkaus %"] < 10.0
         is_value = ev >= 1.0
 
+        status = "-"
+        if is_value and is_under_10:
+            status = "🔥 YLIKERROIN (<10%)"
+        elif is_value:
+            status = "💥 Hyvä EV (>=1.0)"
+
         results_list.append(
             {
                 "Kohde": f"V85-{race_idx}",
@@ -684,22 +690,26 @@ for race_idx, race in enumerate(races_data, 1):
                 "Simu Voitto %": round(s_prob, 2),
                 "Unibet Kerroin": odds if odds is not None else "-",
                 "EV (Odotusarvo)": round(ev, 2),
-                "Status": "🔥 YLIKERROIN (<10%)"
-                if (is_under_10 and is_value)
-                else ("💥 Hyvä EV" if is_value else "-"),
+                "Status": status,
             }
         )
 
 df_results = pd.DataFrame(results_list)
 
-# --- Käyttöliittymä ---
-st.subheader("🔥 Parhaat alle 10 % pelatut peli-ideat (EV >= 1.0)")
-gems = df_results[df_results["Status"] == "🔥 YLIKERROIN (<10%)"]
-st.dataframe(gems, use_container_width=True)
+# --- Käyttöliittymä Streamlitissä ---
+st.subheader("🔥 Kaikkien kohteiden parhaat peli-ideat (EV >= 1.0)")
+st.markdown(
+    "Alla näet kaikkien 8 kohteen hevoset, joiden odotusarvo (EV) on positiivinen. Liekkimerkintä 🔥 tarkoittaa alle 10 % pelattua yllättäjää."
+)
 
-st.subheader("📋 Kaikkien kohteiden simulaatiotulokset")
+value_gems = df_results[df_results["EV (Odotusarvo)"] >= 1.0]
+st.dataframe(value_gems, use_container_width=True)
+
+st.divider()
+
+st.subheader("📋 Valitse kohde tarkempaa simulaatiota varten")
 selected_race = st.selectbox(
-    "Valitse kohde tarkasteltavaksi:", df_results["Kohde"].unique(), index=0
+    "Valitse kohde:", df_results["Kohde"].unique(), index=0
 )
 st.dataframe(
     df_results[df_results["Kohde"] == selected_race], use_container_width=True
