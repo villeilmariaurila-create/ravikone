@@ -1,13 +1,12 @@
 import numpy as np
 import pandas as pd
 
-# Set random seed for reproducibility
+# Asetetaan satunnaissiemen toistettavuutta varten
 np.random.seed(42)
 
-# Global simulation settings
 NUM_SIMULATIONS = 100000
 
-# Complete dataset for V85-1 to V85-8
+# Kaikkien kohteiden V85-1 - V85-8 tiedot
 races_data = [
     # --- V85-1 ---
     [
@@ -644,23 +643,17 @@ races_data = [
     ],
 ]
 
-# Monte Carlo Simulation Function
 results_list = []
 
 for race_idx, race in enumerate(races_data, 1):
-    names = [h["Hevonen"] for h in race]
     base_probs = np.array([h["Veikkaus %"] for h in race], dtype=float)
     bonuses = np.array([h["Bonus"] for h in race], dtype=float)
     unibet_odds = [h["Unibet"] for h in race]
 
-    # Adjusted probability weights
     adj_weights = base_probs * bonuses
     adj_probs = adj_weights / np.sum(adj_weights)
 
-    # Run Monte Carlo sampling
-    wins = np.random.choice(
-        len(race), size=NUM_SIMULATIONS, p=adj_probs
-    )
+    wins = np.random.choice(len(race), size=NUM_SIMULATIONS, p=adj_probs)
     win_counts = np.bincount(wins, minlength=len(race))
     sim_probs = (win_counts / NUM_SIMULATIONS) * 100.0
 
@@ -669,7 +662,6 @@ for race_idx, race in enumerate(races_data, 1):
         odds = unibet_odds[i]
         ev = (s_prob / 100.0) * odds if odds is not None else 0.0
 
-        # Mark value picks (< 10% play percentage & EV >= 1.0)
         is_under_10 = h["Veikkaus %"] < 10.0
         is_value = ev >= 1.0
 
@@ -680,31 +672,28 @@ for race_idx, race in enumerate(races_data, 1):
                 "Veikkaus %": h["Veikkaus %"],
                 "Simuloinnin Voitto %": round(s_prob, 2),
                 "Unibet Odds": odds if odds is not None else "-",
-                "EV (Odotusarvo)": round(ev, 2),
-                "Peli-idea (<10% & EV>=1.0)": "🔥 OMA PELI-IDEA"
+                "EV": round(ev, 2),
+                "Peli-idea": "🔥 YLIKERROIN (<10%)"
                 if (is_under_10 and is_value)
-                else ("💥 Korkea EV" if is_value else "-"),
+                else ("💥 Hyvä EV" if is_value else "-"),
             }
         )
 
-# Create DataFrame
 df_results = pd.DataFrame(results_list)
 
-# Display Results
-pd.set_option("display.max_rows", None)
-pd.set_option("display.max_columns", None)
-pd.set_option("display.width", 1000)
+# Tulostetaan tulokset suoraan tekstimuodossa terminaaliin/konsoliin
+print("=== V85 SIMULAATION TULOKSET ===")
+for kohde in df_results["Kohde"].unique():
+    print(f"\n--- {kohde} ---")
+    sub_df = df_results[df_results["Kohde"] == kohde]
+    for _, row in sub_df.iterrows():
+        print(
+            f"{row['Hevonen']:<22} | Veikkaus: {row['Veikkaus %']:>4}% | Simu: {row['Simuloinnin Voitto %']:>5}% | Odds: {str(row['Unibet Odds']):>5} | EV: {row['EV']:>4} | {row['Peli-idea']}"
+        )
 
-print("=" * 80)
-print("               V85 ÅBY - MASTER SIMULAATION TULOKSET                 ")
-print("=" * 80)
-print(df_results.to_string(index=False))
-
-# Filter out under 10% value gems
-print("\n" + "=" * 80)
-print("          PARHAAT ALLE 10 % PELATUT PELI-IDEAT (EV >= 1.0)           ")
-print("=" * 80)
-gems = df_results[
-    df_results["Peli-idea (<10% & EV>=1.0)"] == "🔥 OMA PELI-IDEA"
-]
-print(gems.to_string(index=False))
+print("\n\n=== NOSTOT: ALLE 10 % PELATUT HELMET (EV >= 1.0) ===")
+gems = df_results[df_results["Peli-idea"] == "🔥 YLIKERROIN (<10%)"]
+for _, row in gems.iterrows():
+    print(
+        f"{row['Kohde']} - {row['Hevonen']:<22} | Kerroin: {row['Unibet Odds']:>5} | EV: {row['EV']:>4} | Simu-%: {row['Simuloinnin Voitto %']}%"
+    )
