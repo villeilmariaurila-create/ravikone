@@ -2,14 +2,15 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-# Streamlit sivun asetukset
+# Streamlit-sivun määritykset
 st.set_page_config(
-    page_title="V85 Åby Simulaattori", page_icon="🏇", layout="wide"
+    page_title="V85 Åby - Monte Carlo Simulaattori", page_icon="🏇", layout="wide"
 )
 
 st.title("🏇 V85 Åby - Monte Carlo Simulaattori & Peli-ideat")
 st.markdown(
-    "Tämä sovellus simuloi V85-kierroksen 100 000 kertaa ja laskee odotusarvot (EV) Unibetin kertoimille."
+    "Tämä ammattimainen simulaattori ajaa 100 000 Monte Carlo -kierrosta jokaiselle kohteelle. "
+    "Malli huomioi ratsastus- ja varustebonukset, Åbyn Open Stretch -edun, Veikkauksen pelijakauman sekä Unibetin kertoimet."
 )
 
 np.random.seed(42)
@@ -652,7 +653,7 @@ races_data = [
     ],
 ]
 
-# Ajetaan simulaatio
+# Monte Carlo -laskenta
 results_list = []
 
 for race_idx, race in enumerate(races_data, 1):
@@ -680,10 +681,10 @@ for race_idx, race in enumerate(races_data, 1):
                 "Kohde": f"V85-{race_idx}",
                 "Hevonen": h["Hevonen"],
                 "Veikkaus %": h["Veikkaus %"],
-                "Simuloinnin Voitto %": round(s_prob, 2),
-                "Unibet Odds": odds if odds is not None else "-",
-                "EV": round(ev, 2),
-                "Peli-idea": "🔥 YLIKERROIN (<10%)"
+                "Simu Voitto %": round(s_prob, 2),
+                "Unibet Kerroin": odds if odds is not None else "-",
+                "EV (Odotusarvo)": round(ev, 2),
+                "Status": "🔥 YLIKERROIN (<10%)"
                 if (is_under_10 and is_value)
                 else ("💥 Hyvä EV" if is_value else "-"),
             }
@@ -691,14 +692,14 @@ for race_idx, race in enumerate(races_data, 1):
 
 df_results = pd.DataFrame(results_list)
 
-# Streamlit Käyttöliittymä
+# --- Käyttöliittymä ---
 st.subheader("🔥 Parhaat alle 10 % pelatut peli-ideat (EV >= 1.0)")
-gems = df_results[df_results["Peli-idea"] == "🔥 YLIKERROIN (<10%)"]
+gems = df_results[df_results["Status"] == "🔥 YLIKERROIN (<10%)"]
 st.dataframe(gems, use_container_width=True)
 
 st.subheader("📋 Kaikkien kohteiden simulaatiotulokset")
 selected_race = st.selectbox(
-    "Valitse kohde:", df_results["Kohde"].unique(), index=0
+    "Valitse kohde tarkasteltavaksi:", df_results["Kohde"].unique(), index=0
 )
 st.dataframe(
     df_results[df_results["Kohde"] == selected_race], use_container_width=True
