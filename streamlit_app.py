@@ -1,7 +1,12 @@
 import pandas as pd
+import streamlit as st
 
-# --- SOLVALLA V85 - KOKO AINEISTO (LÄHDÖT 5–12 / V85-1–V85-8) ---
+# --- STREAMLIT-SIVUN ASETUKSET ---
+st.set_page_config(page_title="Solvalla V85 Analysaattori", layout="wide")
 
+st.title("🏇 Solvalla V85 - Täydellinen Analyysi & Peli-ideat")
+
+# --- SOLVALLA V85 - KOKO AINEISTO (V85-1 – V85-8) ---
 data = [
     # ==================== V85-1 (Solvalla L5, 2140a) ====================
     {"Kohde": "V85-1", "Hevonen": "#1 Catch and Go", "Veikkaus_%": 41.0, "Unibet": None, "Bonus": 1.15, "Perustelu": "💥 MAXIMOITU VIRITYS! Ekaa kertaa jenkit, kokolaput & vetolaput. Keulasuosikki."},
@@ -116,7 +121,7 @@ data = [
     {"Kohde": "V85-8", "Hevonen": "#12 Intro", "Veikkaus_%": 41.0, "Unibet": None, "Bonus": 1.10, "Perustelu": "💥 KLASSIG FAVORIT! Nära seger senast, spår 12 rasittaa."}
 ]
 
-# --- ALGORITMI & LASKENNAKSELI ---
+# --- LASKENNALLISET VAHVISTUKSET ---
 df = pd.DataFrame(data)
 
 # 1. Painotetun suhteellisen todennäköisyyden laskeminen varustebonusten avulla
@@ -126,28 +131,37 @@ df['Arvioitu_Prob_%'] = df.groupby('Kohde')['Painotettu_Peliosuus'].transform(la
 # 2. Odotusarvon (EV) laskeminen Unibetin kertoimille
 df['EV'] = df.apply(lambda row: (row['Arvioitu_Prob_%'] / 100) * row['Unibet'] if row['Unibet'] is not None else None, axis=1)
 
-# --- TULOSTUS ---
-print("==========================================================================")
-print("             SOLVALLA V85 - TÄYDELLINEN ANALYYSI & PELI-IDEAT             ")
-print("==========================================================================")
+# --- STREAMLIT-KÄYTTÖLIITTYMÄN TULOSTUS ---
 
-for kohde, group in df.groupby('Kohde'):
-    print(f"\n--- {kohde} ---")
-    sorted_group = group.sort_values(by='Arvioitu_Prob_%', ascending=False)
-    for _, r in sorted_group.iterrows():
-        ev_str = f" | EV: {r['EV']:.2f}" if r['EV'] is not None else ""
-        unibet_str = f" | Unibet: {r['Unibet']}" if r['Unibet'] is not None else ""
-        perustelu_str = f"\n    -> {r['Perustelu']}" if 'Perustelu' in r and pd.notna(r['Perustelu']) else ""
-        print(f"{r['Hevonen']:<22} | Veikkaus: {r['Veikkaus_%']:>5.1f}% | Arvio: {r['Arvioitu_Prob_%']:>5.1f}%{unibet_str}{ev_str}{perustelu_str}")
-
-# Tulostetaan suurimman odotusarvon pelikohteet (EV > 1.10)
-print("\n==========================================================================")
-print("               TOP YLIKERTOIMET OMAAVAT VALINNAT (EV > 1.10)               ")
-print("==========================================================================")
+# Ylikertoimien nosto sivun alkuun
+st.header("🎯 Parhaat Ylikertoimet & Peli-ideat (EV > 1.10)")
 top_ev = df[df['EV'] > 1.10].sort_values(by='EV', ascending=False)
+
 if not top_ev.empty:
     for _, r in top_ev.iterrows():
-        print(f"[{r['Kohde']}] {r['Hevonen']} | Arvio: {r['Arvioitu_Prob_%']:.1f}% | Kerroin: {r['Unibet']} | EV: {r['EV']:.2f}")
-        print(f" -> {r['Perustelu']}\n")
+        st.success(f"**[{r['Kohde']}] {r['Hevonen']}** | Arvio: **{r['Arvioitu_Prob_%']:.1f}%** | Kerroin: **{r['Unibet']}** | EV: **{r['EV']:.2f}**\n\n_{r['Perustelu']}_")
 else:
-    print("Ei yksittäisiä Unibet-ylikertoimia saatavilla tässä aineistossa.")
+    st.info("Ei yksittäisiä Unibet-ylikertoimia saatavilla tässä aineistossa.")
+
+st.divider()
+
+# Kohdekohtainen tarkastelu
+st.header("📊 Kohdekohtainen Analyysi (V85-1 – V85-8)")
+
+kohteet = df['Kohde'].unique()
+selected_kohde = st.selectbox("Valitse kohde tarkasteluun:", kohteet)
+
+kohde_df = df[df['Kohde'] == selected_kohde].sort_values(by='Arvioitu_Prob_%', ascending=False)
+
+st.subheader(f"Kohteen {selected_kohde} ranking & arviot:")
+
+# Muotoillaan taulukko siististi
+display_df = kohde_df[['Hevonen', 'Veikkaus_%', 'Arvioitu_Prob_%', 'Unibet', 'EV', 'Perustelu']].copy()
+display_df.columns = ['Hevonen', 'Veikkaus %', 'Arvio %', 'Unibet Kerroin', 'EV', 'Perustelu']
+
+st.dataframe(display_df, use_container_width=True)
+
+# Yhteenvetotekstit valitusta kohteesta
+st.markdown("### Hevosten perustelut:")
+for _, r in kohde_df.iterrows():
+    st.write(f"• **{r['Hevonen']}** (Arvio {r['Arvioitu_Prob_%']:.1f}%): {r['Perustelu']}")
