@@ -3,128 +3,86 @@ import pandas as pd
 import streamlit as st
 
 # --- STREAMLIT-SIVUN ASETUKSET ---
-st.set_page_config(page_title="Solvalla V85 Voittokone", layout="wide")
+st.set_page_config(page_title="Solvalla V5 Voittokone", layout="wide")
 
-st.title("🏇 Solvalla V85 - Optimoitu Voittosimulaattori & Analyysi")
-st.caption("Päivitetyt peliprosentit ja varustemuutokset täysin oikeilla lähtölistoilla.")
+st.title("🏇 Solvalla V5 - Täydellinen Voittosimulaattori & Analyysi")
+st.caption("Fokus vain V5-kohteissa (Lähdöt L8, L9, L10, L11, L12) täysin tarkistetuilla lähtölistoilla.")
 
-# --- KOKO TARKISTETTU V85-AINEISTO (Täsmälleen Veikkauksen ruutujen mukainen) ---
+# --- KOKO V5-AINEISTO (LÄHDÖT L8 – L12) ---
 data = [
-    # ==================== V85-1 / L5 (2140a) ====================
-    {"Kohde": "V85-1", "Lähtö": "L5", "Hevonen": "#1 Catch and Go", "Veikkaus_%": 6.0, "Bonus": 1.25, "Perustelu": "💥 Ekaa kertaa jenkit + kokolaput + vetolaput. Keulasuosikki."},
-    {"Kohde": "V85-1", "Lähtö": "L5", "Hevonen": "#2 Pure Games", "Veikkaus_%": 43.0, "Bonus": 1.00, "Perustelu": "Suosikki ilman uusia varusteviilauksia."},
-    {"Kohde": "V85-1", "Lähtö": "L5", "Hevonen": "#3 Com Best", "Veikkaus_%": 1.0, "Bonus": 1.08, "Perustelu": "Voitti viimeksi selvästi kovan nipun. Kuntopiikki!"},
-    {"Kohde": "V85-1", "Lähtö": "L5", "Hevonen": "#4 Long Night Out", "Veikkaus_%": 0.0, "Bonus": 1.02, "Perustelu": "Aiemmissa keskinäisissä jäänyt hieman puristukseen."},
-    {"Kohde": "V85-1", "Lähtö": "L5", "Hevonen": "#5 Vulcan Tile", "Veikkaus_%": 24.0, "Bonus": 1.02, "Perustelu": "Tasainen suorittaja."},
-    {"Kohde": "V85-1", "Lähtö": "L5", "Hevonen": "#6 Steady Spender", "Veikkaus_%": 1.0, "Bonus": 1.15, "Perustelu": "💥 JÄTTI-VARUSTEBONUS! Kengättä ympärinsä."},
-    {"Kohde": "V85-1", "Lähtö": "L5", "Hevonen": "#7 Nanda Devi Cut", "Veikkaus_%": 3.0, "Bonus": 1.06, "Perustelu": "Huippukiri Com Bestin takana viimeksi."},
-    {"Kohde": "V85-1", "Lähtö": "L5", "Hevonen": "#8 Dalton Russell", "Veikkaus_%": 1.0, "Bonus": 1.00, "Perustelu": "Ulkorata rasittaa."},
-    {"Kohde": "V85-1", "Lähtö": "L5", "Hevonen": "#9 Revanche Boko", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Takarivistä vaikeaa."},
-    {"Kohde": "V85-1", "Lähtö": "L5", "Hevonen": "#10 Tennessee H.C.", "Veikkaus_%": 4.0, "Bonus": 1.02, "Perustelu": "Tarvitsee kovaa ylivauhtia."},
-    {"Kohde": "V85-1", "Lähtö": "L5", "Hevonen": "#11 City Slicker", "Veikkaus_%": 4.0, "Bonus": 1.02, "Perustelu": "Hyvä kapasiteetti, paikka 11 painaa."},
-    {"Kohde": "V85-1", "Lähtö": "L5", "Hevonen": "#12 Ideal Kronos", "Veikkaus_%": 13.0, "Bonus": 1.00, "Perustelu": "Paha paikka 12."},
+    # ==================== V5-1 / L8 (2140a - Svensk Trav-Oaks Kval 1) ====================
+    {"Kohde": "V5-1", "Lähtö": "L8", "Hevonen": "#1 Fatal Attraction", "Veikkaus_%": 4.0, "Bonus": 1.00, "Perustelu": "Smyygaa sisäradalta tarkan reissun."},
+    {"Kohde": "V5-1", "Lähtö": "L8", "Hevonen": "#2 I See Tail Lights", "Veikkaus_%": 37.0, "Bonus": 1.12, "Perustelu": "💥 LÄHDÖN SUOSIKKI! Hirmuisessa iskussa (1.10,9a edellisen voiton aika)."},
+    {"Kohde": "V5-1", "Lähtö": "L8", "Hevonen": "#3 Tidig Tooma", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Sisäradalta mukaan."},
+    {"Kohde": "V5-1", "Lähtö": "L8", "Hevonen": "#4 Jula Donatella", "Veikkaus_%": 2.0, "Bonus": 1.06, "Perustelu": "Ekaa kertaa ilman etukenkiä (barfota fram)."},
+    {"Kohde": "V5-1", "Lähtö": "L8", "Hevonen": "#5 Illicit Hooch", "Veikkaus_%": 1.0, "Bonus": 1.08, "Perustelu": "Barfota runt om & blinkers -viritys."},
+    {"Kohde": "V5-1", "Lähtö": "L8", "Hevonen": "#6 Bo Katan", "Veikkaus_%": 0.0, "Bonus": 1.02, "Perustelu": "Keskiradalta haastavaa."},
+    {"Kohde": "V5-1", "Lähtö": "L8", "Hevonen": "#7 Mellby Orkide", "Veikkaus_%": 24.0, "Bonus": 1.18, "Perustelu": "💥 JÄTTI-VARUSTEBONUS! Redén riisuu kengät ekaa kertaa (barfota runt om) + Örjan Kihlström."},
+    {"Kohde": "V5-1", "Lähtö": "L8", "Hevonen": "#8 Cruiser", "Veikkaus_%": 1.0, "Bonus": 1.02, "Perustelu": "Huippusuku, ulkorata rasittaa."},
+    {"Kohde": "V5-1", "Lähtö": "L8", "Hevonen": "#9 Zeebreeze", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Takarivistä vaikeaa."},
+    {"Kohde": "V5-1", "Lähtö": "L8", "Hevonen": "#10 Procope", "Veikkaus_%": 1.0, "Bonus": 1.00, "Perustelu": "Outsider."},
+    {"Kohde": "V5-1", "Lähtö": "L8", "Hevonen": "#11 Navy Cut", "Veikkaus_%": 3.0, "Bonus": 1.02, "Perustelu": "Hyvä kiri alla."},
+    {"Kohde": "V5-1", "Lähtö": "L8", "Hevonen": "#12 Klara Godiva", "Veikkaus_%": 0.0, "Bonus": 1.08, "Perustelu": "🔥 TAULUAAN PAREMPI! Laukkasi varman voiton sijoituksen sivu suun."},
 
-    # ==================== V85-2 / L6 (2140a) ====================
-    {"Kohde": "V85-2", "Lähtö": "L6", "Hevonen": "#1 Screen Time Limit", "Veikkaus_%": 1.0, "Bonus": 1.08, "Perustelu": "Sisäradalta tarkka reissu."},
-    {"Kohde": "V85-2", "Lähtö": "L6", "Hevonen": "#2 S.G.Empress", "Veikkaus_%": 25.0, "Bonus": 1.18, "Perustelu": "💥 H2H-DOMINAATTORI! Lyönyt luokkansa tammat toistuvasti."},
-    {"Kohde": "V85-2", "Lähtö": "L6", "Hevonen": "#3 Melba Westwood", "Veikkaus_%": 4.0, "Bonus": 1.04, "Perustelu": "Nappipaikalta asemiin."},
-    {"Kohde": "V85-2", "Lähtö": "L6", "Hevonen": "#4 First Class U.S.", "Veikkaus_%": 2.0, "Bonus": 1.05, "Perustelu": "Mukaan kakkosketjuun."},
-    {"Kohde": "V85-2", "Lähtö": "L6", "Hevonen": "#5 Ballerina", "Veikkaus_%": 0.0, "Bonus": 1.12, "Perustelu": "🔥 Ekaa kertaa ilman kaikkia kenkiä."},
-    {"Kohde": "V85-2", "Lähtö": "L6", "Hevonen": "#6 S.G.Dacota", "Veikkaus_%": 11.0, "Bonus": 1.02, "Perustelu": "Tasainen suorittaja."},
-    {"Kohde": "V85-2", "Lähtö": "L6", "Hevonen": "#7 Fly The Coup", "Veikkaus_%": 11.0, "Bonus": 1.00, "Perustelu": "Rata 7 verottaa."},
-    {"Kohde": "V85-2", "Lähtö": "L6", "Hevonen": "#8 Matchmadeinheaven", "Veikkaus_%": 0.0, "Bonus": 1.04, "Perustelu": "Kapasiteettia on, rata 8 haastava."},
-    {"Kohde": "V85-2", "Lähtö": "L6", "Hevonen": "#9 Blast Off", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Takarivistä."},
-    {"Kohde": "V85-2", "Lähtö": "L6", "Hevonen": "#10 Great Pride", "Veikkaus_%": 44.0, "Bonus": 1.05, "Perustelu": "Suosikki takarivistä."},
-    {"Kohde": "V85-2", "Lähtö": "L6", "Hevonen": "#11 Good Habit", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Kaukana kärjestä."},
-    {"Kohde": "V85-2", "Lähtö": "L6", "Hevonen": "#12 Cantilena", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Iskukylmä paikka."},
+    # ==================== V5-2 / L9 (2640a - Kriterium-karsinta) ====================
+    {"Kohde": "V5-2", "Lähtö": "L9", "Hevonen": "#1 Coloneltomparker", "Veikkaus_%": 52.0, "Bonus": 1.15, "Perustelu": "💥 SELKEÄ KEULASUOSIKKI & VARMA! Vahva 2640m matkalla."},
+    {"Kohde": "V5-2", "Lähtö": "L9", "Hevonen": "#2 Bravo Desoto", "Veikkaus_%": 2.0, "Bonus": 1.06, "Perustelu": "Första barfota fram, tarkan reissun saaja suosikin takana."},
+    {"Kohde": "V5-2", "Lähtö": "L9", "Hevonen": "#3 Ulix Turner", "Veikkaus_%": 2.0, "Bonus": 1.10, "Perustelu": "🔥 SKRÄLLBUD! Jepson ratissa, ekaa kertaa barfota runt om."},
+    {"Kohde": "V5-2", "Lähtö": "L9", "Hevonen": "#4 Reagan Boko", "Veikkaus_%": 6.0, "Bonus": 1.02, "Perustelu": "Tehnyt tasaisia esityksiä."},
+    {"Kohde": "V5-2", "Lähtö": "L9", "Hevonen": "#5 Yardbird", "Veikkaus_%": 5.0, "Bonus": 1.00, "Perustelu": "Hyvässä kunnossa."},
+    {"Kohde": "V5-2", "Lähtö": "L9", "Hevonen": "#6 Banzai Brodde", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Ulkoreunalta haastavaa."},
+    {"Kohde": "V5-2", "Lähtö": "L9", "Hevonen": "#7 Zarajevo Games", "Veikkaus_%": 28.0, "Bonus": 1.12, "Perustelu": "💥 PÄÄHAASTAJA! Voittanut 5/8 startistaan."},
+    {"Kohde": "V5-2", "Lähtö": "L9", "Hevonen": "#8 Vancouver Tile", "Veikkaus_%": 0.0, "Bonus": 1.02, "Perustelu": "Björn Goop ratissa, rata 8 haittaa."},
+    {"Kohde": "V5-2", "Lähtö": "L9", "Hevonen": "#9 John McClane", "Veikkaus_%": 0.0, "Bonus": 1.08, "Perustelu": "Ekaa kertaa barfota runt om ja rycktussar."},
+    {"Kohde": "V5-2", "Lähtö": "L9", "Hevonen": "#10 Wingait Stefan", "Veikkaus_%": 2.0, "Bonus": 1.00, "Perustelu": "Voittanut 4/5, takarivi haittaa."},
+    {"Kohde": "V5-2", "Lähtö": "L9", "Hevonen": "#11 Po Tay Toes", "Veikkaus_%": 3.0, "Bonus": 1.10, "Perustelu": "🔥 SPÄNNANDE UTMANARE! Voittanut 3/4 ja ekaa kertaa barfota fram."},
 
-    # ==================== V85-3 / L7 (2140a) ====================
-    {"Kohde": "V85-3", "Lähtö": "L7", "Hevonen": "#1 Oriana Boko", "Veikkaus_%": 47.0, "Bonus": 1.08, "Perustelu": "💥 Vahva suosikki sisäradalta."},
-    {"Kohde": "V85-3", "Lähtö": "L7", "Hevonen": "#2 Lavender", "Veikkaus_%": 2.0, "Bonus": 1.00, "Perustelu": "Sisäradalta asemiin."},
-    {"Kohde": "V85-3", "Lähtö": "L7", "Hevonen": "#3 Charma", "Veikkaus_%": 19.0, "Bonus": 1.15, "Perustelu": "💥 Barfota runt om ekaa kertaa + Kihlström."},
-    {"Kohde": "V85-3", "Lähtö": "L7", "Hevonen": "#4 Osken", "Veikkaus_%": 6.0, "Bonus": 1.12, "Perustelu": "🔥 ALIPELATTU! Vahvat keulajuoksut alla."},
-    {"Kohde": "V85-3", "Lähtö": "L7", "Hevonen": "#5 Clean Community", "Veikkaus_%": 1.0, "Bonus": 1.00, "Perustelu": "Perussuorittaja."},
-    {"Kohde": "V85-3", "Lähtö": "L7", "Hevonen": "#6 Valnes Penny", "Veikkaus_%": 3.0, "Bonus": 1.08, "Perustelu": "Goop ratissa ja barfota fram."},
-    {"Kohde": "V85-3", "Lähtö": "L7", "Hevonen": "#7 Unicum", "Veikkaus_%": 0.0, "Bonus": 1.02, "Perustelu": "Ulkopuolelta haastavaa."},
-    {"Kohde": "V85-3", "Lähtö": "L7", "Hevonen": "#8 Nightingale", "Veikkaus_%": 2.0, "Bonus": 1.00, "Perustelu": "Rata 8 rasittaa."},
-    {"Kohde": "V85-3", "Lähtö": "L7", "Hevonen": "#9 Egerie", "Veikkaus_%": 1.0, "Bonus": 1.02, "Perustelu": "Takarivin merkki."},
-    {"Kohde": "V85-3", "Lähtö": "L7", "Hevonen": "#10 Quina", "Veikkaus_%": 4.0, "Bonus": 1.00, "Perustelu": "Takaa vaikeaa."},
-    {"Kohde": "V85-3", "Lähtö": "L7", "Hevonen": "#11 Lilium Sisu", "Veikkaus_%": 12.0, "Bonus": 1.00, "Perustelu": "Pelattu takarivistä."},
-    {"Kohde": "V85-3", "Lähtö": "L7", "Hevonen": "#12 S.G.Eye Candy", "Veikkaus_%": 4.0, "Bonus": 1.00, "Perustelu": "Synkkä paikka."},
+    # ==================== V5-3 / L10 (2640a - Kriterium-karsinta) ====================
+    {"Kohde": "V5-3", "Lähtö": "L10", "Hevonen": "#1 In Fine Fettle", "Veikkaus_%": 4.0, "Bonus": 1.04, "Perustelu": "Kengättä edestä & jenkit."},
+    {"Kohde": "V5-3", "Lähtö": "L10", "Hevonen": "#2 Thor Tooma", "Veikkaus_%": 1.0, "Bonus": 1.00, "Perustelu": "Smyygaa sisällä."},
+    {"Kohde": "V5-3", "Lähtö": "L10", "Hevonen": "#3 Bourbon Phantasy", "Veikkaus_%": 4.0, "Bonus": 1.10, "Perustelu": "🔥 Wäjerstenin oma valinta hyvältä paikalta."},
+    {"Kohde": "V5-3", "Lähtö": "L10", "Hevonen": "#4 Kodiak Zet", "Veikkaus_%": 76.0, "Bonus": 1.20, "Perustelu": "💥 KOKO ILLAN PÄÄVARMA & GIGA-SUOSIKKI! Ekaa kertaa ilman takakenkiä & jenkit."},
+    {"Kohde": "V5-3", "Lähtö": "L10", "Hevonen": "#5 Baby Love", "Veikkaus_%": 1.0, "Bonus": 1.12, "Perustelu": "Barfota runt om & jenkit ekaa kertaa."},
+    {"Kohde": "V5-3", "Lähtö": "L10", "Hevonen": "#6 Neutron Star", "Veikkaus_%": 11.0, "Bonus": 1.06, "Perustelu": "💥 PÄÄHAASTAJA! Ilman etukenkiä sitkeä kuolemanpaikkajyrä."},
+    {"Kohde": "V5-3", "Lähtö": "L10", "Hevonen": "#7 Crew Lane", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Haastava paikka."},
+    {"Kohde": "V5-3", "Lähtö": "L10", "Hevonen": "#8 Bys Arigato", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Kaukana kärjestä."},
+    {"Kohde": "V5-3", "Lähtö": "L10", "Hevonen": "#9 Prince of Euro", "Veikkaus_%": 1.0, "Bonus": 1.10, "Perustelu": "🔥 Luokkaa löytyy, ekaa kertaa barfota runt om."},
+    {"Kohde": "V5-3", "Lähtö": "L10", "Hevonen": "#10 Pivot Caigoo", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Takarivistä."},
+    {"Kohde": "V5-3", "Lähtö": "L10", "Hevonen": "#11 First Festive Vir", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Takaa vaikeaa."},
+    {"Kohde": "V5-3", "Lähtö": "L10", "Hevonen": "#12 Xanthis Lewis", "Veikkaus_%": 1.0, "Bonus": 1.00, "Perustelu": "Kunto piikissä, paha paikka."},
 
-    # ==================== V85-4 / L8 (2140a - Svensk Trav-Oaks Kval 1) ====================
-    {"Kohde": "V85-4", "Lähtö": "L8", "Hevonen": "#1 Fatal Attraction", "Veikkaus_%": 4.0, "Bonus": 1.00, "Perustelu": "Smyygaa innerspårilta, hyvä paikka."},
-    {"Kohde": "V85-4", "Lähtö": "L8", "Hevonen": "#2 I See Tail Lights", "Veikkaus_%": 37.0, "Bonus": 1.12, "Perustelu": "💥 LÄHDÖN SUOSIKKI! Hirmuisessa iskussa (1.10,9a edellisen voiton aika)."},
-    {"Kohde": "V85-4", "Lähtö": "L8", "Hevonen": "#3 Tidig Tooma", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Ajoissa sisälle."},
-    {"Kohde": "V85-4", "Lähtö": "L8", "Hevonen": "#4 Jula Donatella", "Veikkaus_%": 2.0, "Bonus": 1.06, "Perustelu": "Ekaa kertaa ilman etukenkiä (barfota fram)."},
-    {"Kohde": "V85-4", "Lähtö": "L8", "Hevonen": "#5 Illicit Hooch", "Veikkaus_%": 1.0, "Bonus": 1.08, "Perustelu": "Barfota runt om & blinkers -tuplaviritys."},
-    {"Kohde": "V85-4", "Lähtö": "L8", "Hevonen": "#6 Bo Katan", "Veikkaus_%": 0.0, "Bonus": 1.02, "Perustelu": "Keskiradalta mukaan."},
-    {"Kohde": "V85-4", "Lähtö": "L8", "Hevonen": "#7 Mellby Orkide", "Veikkaus_%": 24.0, "Bonus": 1.18, "Perustelu": "💥 JÄTTI-VARUSTEBONUS! Redén riisuu kengät ekaa kertaa (barfota runt om) + Örjan Kihlström."},
-    {"Kohde": "V85-4", "Lähtö": "L8", "Hevonen": "#8 Cruiser", "Veikkaus_%": 1.0, "Bonus": 1.02, "Perustelu": "Huippusuku, rata 8 rasittaa."},
-    {"Kohde": "V85-4", "Lähtö": "L8", "Hevonen": "#9 Zeebreeze", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Vaikea tehtävä."},
-    {"Kohde": "V85-4", "Lähtö": "L8", "Hevonen": "#10 Procope", "Veikkaus_%": 1.0, "Bonus": 1.00, "Perustelu": "Outsider takarivistä."},
-    {"Kohde": "V85-4", "Lähtö": "L8", "Hevonen": "#11 Navy Cut", "Veikkaus_%": 3.0, "Bonus": 1.02, "Perustelu": "Hyvä kiri alla keskinäisissä vauhdeissa."},
-    {"Kohde": "V85-4", "Lähtö": "L8", "Hevonen": "#12 Klara Godiva", "Veikkaus_%": 0.0, "Bonus": 1.08, "Perustelu": "🔥 TAULUAAN MUCH PAREMPI! Laukkasi varman voiton viime metreillä."},
+    # ==================== V5-4 / L11 (2140a - Oaks-karsinta 2) ====================
+    {"Kohde": "V5-4", "Lähtö": "L11", "Hevonen": "#1 Unrestricted", "Veikkaus_%": 11.0, "Bonus": 1.04, "Perustelu": "Hyvä paikka sisällä."},
+    {"Kohde": "V5-4", "Lähtö": "L11", "Hevonen": "#2 Backwood Gisella", "Veikkaus_%": 29.0, "Bonus": 1.15, "Perustelu": "💥 LÄHDÖN PÄÄKEULAHÄST! Vahva suorittaja."},
+    {"Kohde": "V5-4", "Lähtö": "L11", "Hevonen": "#3 La Nova", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Odotellaan parannusta."},
+    {"Kohde": "V5-4", "Lähtö": "L11", "Hevonen": "#4 Free Time Trot", "Veikkaus_%": 3.0, "Bonus": 1.06, "Perustelu": "Tasaisen varma."},
+    {"Kohde": "V5-4", "Lähtö": "L11", "Hevonen": "#5 Lavender", "Veikkaus_%": 1.0, "Bonus": 1.00, "Perustelu": "Keskiradalta mukaan."},
+    {"Kohde": "V5-4", "Lähtö": "L11", "Hevonen": "#6 Scarfo Pellini", "Veikkaus_%": 1.0, "Bonus": 1.02, "Perustelu": "Lupauksia herättävä."},
+    {"Kohde": "V5-4", "Lähtö": "L11", "Hevonen": "#7 Screen Time Limit", "Veikkaus_%": 21.0, "Bonus": 1.00, "Perustelu": "Haastaja ulkoreunalta."},
+    {"Kohde": "V5-4", "Lähtö": "L11", "Hevonen": "#8 S.G.Empress", "Veikkaus_%": 19.0, "Bonus": 1.02, "Perustelu": "Luokkaa löytyy, rata 8 haittaa."},
+    {"Kohde": "V5-4", "Lähtö": "L11", "Hevonen": "#9 Egerie", "Veikkaus_%": 13.0, "Bonus": 1.00, "Perustelu": "Hyvin pelattu takarivistä."},
+    {"Kohde": "V5-4", "Lähtö": "L11", "Hevonen": "#10 Hawthorne Effect", "Veikkaus_%": 1.0, "Bonus": 1.14, "Perustelu": "🔥 H2H-SUPERLÖYTÖ OCH YLLÄTTÄJÄ!"},
+    {"Kohde": "V5-4", "Lähtö": "L11", "Hevonen": "#11 Great Pride", "Veikkaus_%": 1.0, "Bonus": 1.02, "Perustelu": "Takarivistä."},
+    {"Kohde": "V5-4", "Lähtö": "L11", "Hevonen": "#12 S.G.Dacota", "Veikkaus_%": 1.0, "Bonus": 1.00, "Perustelu": "Paha paikka 12."},
 
-    # ==================== V85-5 / L9 (2640a - Kriterium-karsinta) ====================
-    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#1 Coloneltomparker", "Veikkaus_%": 52.0, "Bonus": 1.15, "Perustelu": "💥 SELKEÄ LÄHDÖN SUOSIKKI & KEULAHÄST! Vahva 2640m matkalla."},
-    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#2 Bravo Desoto", "Veikkaus_%": 2.0, "Bonus": 1.06, "Perustelu": "Första barfota fram, tarkan reissun saaja."},
-    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#3 Ulix Turner", "Veikkaus_%": 2.0, "Bonus": 1.10, "Perustelu": "🔥 SKRÄLLBUD! Carl Johan Jepson ratissa, ekaa kertaa barfota runt om."},
-    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#4 Reagan Boko", "Veikkaus_%": 6.0, "Bonus": 1.02, "Perustelu": "Tehnyt tasaisia esityksiä."},
-    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#5 Yardbird", "Veikkaus_%": 5.0, "Bonus": 1.00, "Perustelu": "Kunnossa, mutta kova lähtö."},
-    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#6 Banzai Brodde", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Ulkoreunalta vaikeaa."},
-    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#7 Zarajevo Games", "Veikkaus_%": 28.0, "Bonus": 1.12, "Perustelu": "💥 PÄÄHAASTAJA! Voittanut 5/8 startistaan, paha vastus."},
-    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#8 Vancouver Tile", "Veikkaus_%": 0.0, "Bonus": 1.02, "Perustelu": "Björn Goop ratissa, rata 8 rasittaa."},
-    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#9 John McClane", "Veikkaus_%": 0.0, "Bonus": 1.08, "Perustelu": "Ekaa kertaa barfota runt om ja rycktussar."},
-    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#10 Wingait Stefan", "Veikkaus_%": 2.0, "Bonus": 1.00, "Perustelu": "Voittanut 4/5, takarivi haittaa."},
-    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#11 Po Tay Toes", "Veikkaus_%": 3.0, "Bonus": 1.10, "Perustelu": "🔥 SPÄNNANDE UTMANARE! Voittanut 3/4 ja ekaa kertaa barfota fram."},
-
-    # ==================== V85-6 / L10 (2640a - Kriterium-karsinta) ====================
-    {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#1 In Fine Fettle", "Veikkaus_%": 4.0, "Bonus": 1.04, "Perustelu": "Kengättä edestä & jenkit."},
-    {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#2 Thor Tooma", "Veikkaus_%": 1.0, "Bonus": 1.00, "Perustelu": "Smyygaa sisällä."},
-    {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#3 Bourbon Phantasy", "Veikkaus_%": 4.0, "Bonus": 1.10, "Perustelu": "🔥 Wäjerstenin oma valinta hyvältä paikalta."},
-    {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#4 Kodiak Zet", "Veikkaus_%": 76.0, "Bonus": 1.20, "Perustelu": "💥 KOKO ILLAN PÄÄVARMA & H2H-DOMINAATTORI! Ekaa kertaa ilman takakenkiä & jenkkikärryt."},
-    {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#5 Baby Love", "Veikkaus_%": 1.0, "Bonus": 1.12, "Perustelu": "Barfota runt om & jenkit ekaa kertaa."},
-    {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#6 Neutron Star", "Veikkaus_%": 11.0, "Bonus": 1.06, "Perustelu": "💥 PÄÄHAASTAJA! Ilman etukenkiä sitkeä kuolemanpaikkajyrä."},
-    {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#7 Crew Lane", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Haastava paikka."},
-    {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#8 Bys Arigato", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Kaukana kärjestä."},
-    {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#9 Prince of Euro", "Veikkaus_%": 1.0, "Bonus": 1.10, "Perustelu": "🔥 Luokkaa löytyy, ekaa kertaa barfota runt om."},
-    {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#10 Pivot Caigoo", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Takarivistä."},
-    {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#11 First Festive Vir", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Takaa vaikeaa."},
-    {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#12 Xanthis Lewis", "Veikkaus_%": 1.0, "Bonus": 1.00, "Perustelu": "Kunto piikissä, paha paikka."},
-
-    # ==================== V85-7 / L11 (2640a) ====================
-    {"Kohde": "V85-7", "Lähtö": "L11", "Hevonen": "#1 Unrestricted", "Veikkaus_%": 11.0, "Bonus": 1.04, "Perustelu": "Hyvä paikka sisällä."},
-    {"Kohde": "V85-7", "Lähtö": "L11", "Hevonen": "#2 Backwood Gisella", "Veikkaus_%": 29.0, "Bonus": 1.15, "Perustelu": "💥 LÄHDÖN PÄÄKEULAHÄST! Vahva suorittaja."},
-    {"Kohde": "V85-7", "Lähtö": "L11", "Hevonen": "#3 La Nova", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Odotellaan parannusta."},
-    {"Kohde": "V85-7", "Lähtö": "L11", "Hevonen": "#4 Free Time Trot", "Veikkaus_%": 3.0, "Bonus": 1.06, "Perustelu": "Tasaisen varma."},
-    {"Kohde": "V85-7", "Lähtö": "L11", "Hevonen": "#5 Lavender", "Veikkaus_%": 1.0, "Bonus": 1.00, "Perustelu": "Keskiradalta mukaan."},
-    {"Kohde": "V85-7", "Lähtö": "L11", "Hevonen": "#6 Scarfo Pellini", "Veikkaus_%": 1.0, "Bonus": 1.02, "Perustelu": "Lupauksia herättävä."},
-    {"Kohde": "V85-7", "Lähtö": "L11", "Hevonen": "#7 Screen Time Limit", "Veikkaus_%": 21.0, "Bonus": 1.00, "Perustelu": "Haastaja ulkoreunalta."},
-    {"Kohde": "V85-7", "Lähtö": "L11", "Hevonen": "#8 S.G.Empress", "Veikkaus_%": 19.0, "Bonus": 1.02, "Perustelu": "Luokkaa löytyy, rata 8 haittaa."},
-    {"Kohde": "V85-7", "Lähtö": "L11", "Hevonen": "#9 Egerie", "Veikkaus_%": 13.0, "Bonus": 1.00, "Perustelu": "Hyvin pelattu takarivistä."},
-    {"Kohde": "V85-7", "Lähtö": "L11", "Hevonen": "#10 Hawthorne Effect", "Veikkaus_%": 1.0, "Bonus": 1.14, "Perustelu": "🔥 H2H-SUPERLÖYTÖ OCH YLLÄTTÄJÄ!"},
-    {"Kohde": "V85-7", "Lähtö": "L11", "Hevonen": "#11 Great Pride", "Veikkaus_%": 1.0, "Bonus": 1.02, "Perustelu": "Takarivistä."},
-    {"Kohde": "V85-7", "Lähtö": "L11", "Hevonen": "#12 S.G.Dacota", "Veikkaus_%": 1.0, "Bonus": 1.00, "Perustelu": "Paha paikka 12."},
-
-    # ==================== V85-8 / L12 (2640a) ====================
-    {"Kohde": "V85-8", "Lähtö": "L12", "Hevonen": "#1 Pure Games", "Veikkaus_%": 3.0, "Bonus": 1.10, "Perustelu": "🔥 SPETSBUD! Dante Kolgjini lataa ykkösestä keulaan."},
-    {"Kohde": "V85-8", "Lähtö": "L12", "Hevonen": "#2 Nanda Devi Cut", "Veikkaus_%": 5.0, "Bonus": 1.15, "Perustelu": "💥 HUIPPUIDEANOSTO! Ekaa kertaa rycktussar, 3/4 voittanut keulasta."},
-    {"Kohde": "V85-8", "Lähtö": "L12", "Hevonen": "#3 Mahzarin W.", "Veikkaus_%": 25.0, "Bonus": 1.02, "Perustelu": "Suosikkeja, tehnyt teräviä kirejä."},
-    {"Kohde": "V85-8", "Lähtö": "L12", "Hevonen": "#4 Long Night Out", "Veikkaus_%": 1.0, "Bonus": 1.06, "Perustelu": "Carl Johan Jepson vahvisteena."},
-    {"Kohde": "V85-8", "Lähtö": "L12", "Hevonen": "#5 Vulcan Tile", "Veikkaus_%": 2.0, "Bonus": 1.08, "Perustelu": "Ensimmäistä kertaa barfota runt om."},
-    {"Kohde": "V85-8", "Lähtö": "L12", "Hevonen": "#6 Ready for Boarding", "Veikkaus_%": 2.0, "Bonus": 1.08, "Perustelu": "💥 E3-VOITTAJA ELOKUULTA!"},
-    {"Kohde": "V85-8", "Lähtö": "L12", "Hevonen": "#7 Ideal Kronos", "Veikkaus_%": 9.0, "Bonus": 1.12, "Perustelu": "🔥 MAXADE ÄNDRINGAR! Ekaa kertaa rycktussar + amerikansk vagn."},
-    {"Kohde": "V85-8", "Lähtö": "L12", "Hevonen": "#8 Turner Ale", "Veikkaus_%": 3.0, "Bonus": 1.04, "Perustelu": "Första barfota bak."},
-    {"Kohde": "V85-8", "Lähtö": "L12", "Hevonen": "#9 Campitj", "Veikkaus_%": 12.0, "Bonus": 1.00, "Perustelu": "Haastava paikka takarivissä."},
-    {"Kohde": "V85-8", "Lähtö": "L12", "Hevonen": "#10 Pepper Creation", "Veikkaus_%": 4.0, "Bonus": 1.10, "Perustelu": "STARK OCH FORMSTOPPAD! Voittanut 2/3 barfota runt om."},
-    {"Kohde": "V85-8", "Lähtö": "L12", "Hevonen": "#11 Evert Palema", "Veikkaus_%": 35.0, "Bonus": 1.06, "Perustelu": "Suosikki takarivistä."},
-    {"Kohde": "V85-8", "Lähtö": "L12", "Hevonen": "#12 Intro", "Veikkaus_%": 0.0, "Bonus": 1.10, "Perustelu": "Klassinen suosikki, spår 12 takia jäänyt täysin ilman peliä."}
+    # ==================== V5-5 / L12 (2640a - Kriterium-karsinta) ====================
+    {"Kohde": "V5-5", "Lähtö": "L12", "Hevonen": "#1 Pure Games", "Veikkaus_%": 3.0, "Bonus": 1.10, "Perustelu": "🔥 SPETSBUD! Dante Kolgjini lataa ykkösestä keulaan."},
+    {"Kohde": "V5-5", "Lähtö": "L12", "Hevonen": "#2 Nanda Devi Cut", "Veikkaus_%": 5.0, "Bonus": 1.15, "Perustelu": "💥 HUIPPUIDEANOSTO! Ekaa kertaa rycktussar, 3/4 voittanut keulasta."},
+    {"Kohde": "V5-5", "Lähtö": "L12", "Hevonen": "#3 Mahzarin W.", "Veikkaus_%": 25.0, "Bonus": 1.02, "Perustelu": "Suosikkeja, tehnyt teräviä kirejä."},
+    {"Kohde": "V5-5", "Lähtö": "L12", "Hevonen": "#4 Long Night Out", "Veikkaus_%": 1.0, "Bonus": 1.06, "Perustelu": "Carl Johan Jepson vahvisteena."},
+    {"Kohde": "V5-5", "Lähtö": "L12", "Hevonen": "#5 Vulcan Tile", "Veikkaus_%": 2.0, "Bonus": 1.08, "Perustelu": "Ensimmäistä kertaa barfota runt om."},
+    {"Kohde": "V5-5", "Lähtö": "L12", "Hevonen": "#6 Ready for Boarding", "Veikkaus_%": 2.0, "Bonus": 1.08, "Perustelu": "💥 E3-VOITTAJA ELOKUULTA!"},
+    {"Kohde": "V5-5", "Lähtö": "L12", "Hevonen": "#7 Ideal Kronos", "Veikkaus_%": 9.0, "Bonus": 1.12, "Perustelu": "🔥 MAXADE ÄNDRINGAR! Ekaa kertaa rycktussar + amerikansk vagn."},
+    {"Kohde": "V5-5", "Lähtö": "L12", "Hevonen": "#8 Turner Ale", "Veikkaus_%": 3.0, "Bonus": 1.04, "Perustelu": "Första barfota bak."},
+    {"Kohde": "V5-5", "Lähtö": "L12", "Hevonen": "#9 Campitj", "Veikkaus_%": 12.0, "Bonus": 1.00, "Perustelu": "Haastava paikka takarivissä."},
+    {"Kohde": "V5-5", "Lähtö": "L12", "Hevonen": "#10 Pepper Creation", "Veikkaus_%": 4.0, "Bonus": 1.10, "Perustelu": "STARK OCH FORMSTOPPAD! Voittanut 2/3 barfota runt om."},
+    {"Kohde": "V5-5", "Lähtö": "L12", "Hevonen": "#11 Evert Palema", "Veikkaus_%": 35.0, "Bonus": 1.06, "Perustelu": "Suosikki takarivistä."},
+    {"Kohde": "V5-5", "Lähtö": "L12", "Hevonen": "#12 Intro", "Veikkaus_%": 0.0, "Bonus": 1.10, "Perustelu": "Klassinen suosikki, spår 12 takia jäänyt täysin ilman peliä."}
 ]
 
 df = pd.DataFrame(data)
 
-# 1. Suhteellisen todennäköisyyden laskenta
+# 1. Suhteellisen todennäköisyyden laskenta V5-kohteissa
 df['Painotettu_Osuus'] = df['Veikkaus_%'] * df['Bonus']
 df['Arvioitu_Prob_%'] = df.groupby('Kohde')['Painotettu_Osuus'].transform(lambda x: (x / x.sum()) * 100 if x.sum() > 0 else 0)
 df['Ero_%'] = df['Arvioitu_Prob_%'] - df['Veikkaus_%']
@@ -152,23 +110,23 @@ st.markdown("---")
 col_a, col_b = st.columns(2)
 
 with col_a:
-    st.subheader("💥 Simulaation 3 Varminta Pankkia")
+    st.subheader("💥 V5-Pelin Varmimmat Pankit (Bankerit)")
     top_bankers = df.sort_values(by='Simuloitu_Voitto_%', ascending=False).groupby('Kohde').first().reset_index()
     top_bankers = top_bankers.sort_values(by='Simuloitu_Voitto_%', ascending=False).head(3)
     for _, r in top_bankers.iterrows():
-        st.success(f"**[{r['Kohde']}] {r['Hevonen']}** | Simuloitu voitto: **{r['Simuloitu_Voitto_%']:.1f}%** (Veikkaus: {r['Veikkaus_%']}%)")
+        st.success(f"**[{r['Kohde']} / {r['Lähtö']}] {r['Hevonen']}** | Simuloitu voitto: **{r['Simuloitu_Voitto_%']:.1f}%** (Veikkaus: {r['Veikkaus_%']}%)")
 
 with col_b:
-    st.subheader("💣 3 Kuuminta Alipelattua Jätti-Ideaa")
+    st.subheader("💣 V5-Pelin Kuumimmat Alipelatut Jätti-Ideat")
     top_underdogs = df[df['Veikkaus_%'] < 10.0].sort_values(by='Ero_%', ascending=False).head(3)
     for _, r in top_underdogs.iterrows():
-        st.warning(f"🔥 **[{r['Kohde']}] {r['Hevonen']}** | Pelattu: **{r['Veikkaus_%']:.1f}%** ➔ Simulaatio: **{r['Simuloitu_Voitto_%']:.1f}%** (+{r['Ero_%']:.1f}%)\n\n_{r['Perustelu']}_")
+        st.warning(f"🔥 **[{r['Kohde']} / {r['Lähtö']}] {r['Hevonen']}** | Pelattu: **{r['Veikkaus_%']:.1f}%** ➔ Simulaatio: **{r['Simuloitu_Voitto_%']:.1f}%** (+{r['Ero_%']:.1f}%)\n\n_{r['Perustelu']}_")
 
 st.markdown("---")
-st.header("📊 V85-Kohteet (Täysin Korjatuilla Lähtölistoilla)")
+st.header("📊 V5-Kohteet (Lähdöt L8 – L12)")
 
-tabs = st.tabs(["V85-1 (L5)", "V85-2 (L6)", "V85-3 (L7)", "V85-4 (L8)", "V85-5 (L9)", "V85-6 (L10)", "V85-7 (L11)", "V85-8 (L12)"])
-kohteet_list = ["V85-1", "V85-2", "V85-3", "V85-4", "V85-5", "V85-6", "V85-7", "V85-8"]
+tabs = st.tabs(["V5-1 (L8)", "V5-2 (L9)", "V5-3 (L10)", "V5-4 (L11)", "V5-5 (L12)"])
+kohteet_list = ["V5-1", "V5-2", "V5-3", "V5-4", "V5-5"]
 
 for tab, kohde_code in zip(tabs, kohteet_list):
     with tab:
