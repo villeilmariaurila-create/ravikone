@@ -78,7 +78,7 @@ data = [
     {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#9 Zeebreeze", "Veikkaus_%": 0.0, "Bonus": 1.00, "Perustelu": "Vaikea tehtävä."},
     {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#10 Navy Cut", "Veikkaus_%": 3.0, "Bonus": 1.02, "Perustelu": "Hyvä kiri alla keskinäisissä vauhdeissa."},
     {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#11 Mellby Orkide", "Veikkaus_%": 24.0, "Bonus": 1.18, "Perustelu": "💥 JÄTTI-VARUSTEBONUS! Redén riisuu kengät ekaa kertaa (barfota runt om) + Kihlström."},
-    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#12 Klara Godiva", "Veikkaus_%": 0.0, "Bonus": 1.08, "Perustelu": "🔥 TAULUAAN PAREMPI! Laukkasi varman voiton viime metreillä."},
+    {"Kohde": "V85-5", "Lähtö": "L9", "Hevonen": "#12 Klara Godiva", "Veikkaus_%": 0.0, "Bonus": 1.08, "Perustelu": "🔥 TAULUAAN MUCH PAREMPI! Laukkasi varman voiton viime metreillä."},
 
     # ==================== V85-6 / L10 (2640a - Kriterium-karsinta) ====================
     {"Kohde": "V85-6", "Lähtö": "L10", "Hevonen": "#1 In Fine Fettle", "Veikkaus_%": 4.0, "Bonus": 1.04, "Perustelu": "Kengättä edestä & jenkit."},
@@ -137,23 +137,19 @@ run_sim = st.sidebar.button("🎲 Suorita Lopullinen Simulaatio", type="primary"
 
 if run_sim or 'sim_done' not in st.session_state:
     st.session_state['sim_done'] = True
-    # Monte Carlo -simulaatio jokaiselle lähdölle
     sim_results = {}
     for kohde, group in df.groupby('Kohde'):
         probs = group['Arvioitu_Prob_%'].values / 100.0
-        probs = probs / probs.sum()  # Varmistetaan summaksi 1
+        probs = probs / probs.sum()
         winners = np.random.choice(group['Hevonen'].values, size=n_simulations, p=probs)
         unique, counts = np.unique(winners, return_counts=True)
         counts_dict = dict(zip(unique, counts))
         sim_results[kohde] = {h: (counts_dict.get(h, 0) / n_simulations) * 100 for h in group['Hevonen'].values}
     
-    # Liitetään simulaation voittotodennäköisyydet
     df['Simuloitu_Voitto_%'] = df.apply(lambda r: sim_results[r['Kohde']][r['Hevonen']], axis=1)
 
-# --- SIVUN PÄÄVALIKKO: YHTEENVETO VS KOHTEET ---
+# --- YHTEENVETO & SUOSITUS ---
 st.markdown("---")
-
-# Yhteenvetonostot
 col_a, col_b = st.columns(2)
 
 with col_a:
@@ -184,17 +180,19 @@ for tab, kohde_code in zip(tabs, kohteet_list):
         lahto_nimi = k_df['Lähtö'].iloc[0]
         st.subheader(f"Lähtö {lahto_nimi} ({kohde_code}) - Lopulliset Simulaatiotulokset")
         
-        # Luodaan nätti taulukko
+        # Puhdas ja luotettava taulukko ilman matplotlib-riippuvuuksia
         disp_df = k_df[['Hevonen', 'Veikkaus_%', 'Bonus', 'Simuloitu_Voitto_%', 'Ero_%']].copy()
         disp_df.columns = ['Hevonen', 'Veikkaus %', 'Varuste/H2H Kerroin', 'Simulaatio Voitto %', 'Peliarvo (Ero %)']
         
+        # Streamlitin oma sisäänrakennettu muotoilu
         st.dataframe(
-            disp_df.style.format({
-                'Veikkaus %': '{:.1f}%',
-                'Varuste/H2H Kerroin': '{:.2f}',
-                'Simulaatio Voitto %': '{:.1f}%',
-                'Peliarvo (Ero %)': '{:+.1f}%'
-            }).background_gradient(subset=['Simulaatio Voitto %'], cmap='Blues'),
+            disp_df,
+            column_config={
+                "Veikkaus %": st.column_config.NumberColumn(format="%.1f %%"),
+                "Varuste/H2H Kerroin": st.column_config.NumberColumn(format="%.2f"),
+                "Simulaatio Voitto %": st.column_config.NumberColumn(format="%.1f %%"),
+                "Peliarvo (Ero %)": st.column_config.NumberColumn(format="%+.1f %%"),
+            },
             use_container_width=True
         )
         
