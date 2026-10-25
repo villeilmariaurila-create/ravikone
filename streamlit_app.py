@@ -1,5 +1,4 @@
 import datetime
-import requests
 import pandas as pd
 import streamlit as st
 
@@ -101,7 +100,7 @@ run_sim = st.sidebar.button("🚀 Suorita Stella-simulaatio", type="primary", us
 # 4. SIMULAATIOMOOTTORI & PÄÄSISÄLTÖ
 # ==========================================================
 if run_sim:
-    st.success(f"Simulaatio käynnistetty radalle **{rata_nimi}** päivälle **{valittu_pvm}** kaikkien syötteiden pohjalta!")
+    st.success(f"Simulaatio käynnistetty radalle **{rata_nimi}** päivälle **{valittu_pvm}** manuaalisesti syötettyjen tietojen pohjalta!")
     
     # Esimerkkidatat simulaatiolle
     simuloidut_lahdot = [
