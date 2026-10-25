@@ -61,7 +61,7 @@ st.markdown("""
         <div class="stella-logo-icon">😉</div>
         <div>
             <div class="stella-logo-text">STELLA</div>
-            <div class="stella-logo-subtitle">Ultra-Precision Live Data Engine</div>
+            <div class="stella-logo-subtitle">Core Live Data Engine (Kohta 1 Locked)</div>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -96,10 +96,10 @@ if st.sidebar.button("⚡ PÄIVITÄ LIVE-DATA NOW"):
     st.cache_data.clear()
 
 # ==========================================
-# 3. PERINPOHJAISEN HIOTTU ATG API HAKURI
+# 3. VERIFIOITU LIVE DATA-HAKURI
 # ==========================================
 @st.cache_data(ttl=2)
-def fetch_core_live_data_v2(date_obj, track_code, track_name):
+def fetch_verified_atg_data(date_obj, track_code, track_name):
     date_str = date_obj.strftime("%Y-%m-%d")
     calendar_url = f"https://www.atg.se/services/racinginfo/v1/api/calendar/day/{date_str}"
     headers = {
@@ -134,7 +134,7 @@ def fetch_core_live_data_v2(date_obj, track_code, track_name):
                     race_detail = r_res.json()
                     
                     distance = race_detail.get('distance', 0)
-                    start_method_raw = race_detail.get('startMethod', '')
+                    start_method_raw = str(race_detail.get('startMethod', ''))
                     if start_method_raw.lower() in ['a', 'autostart']:
                         start_method = "Ryhmäajo (Auto)"
                     elif start_method_raw.lower() in ['v', 'voltstart']:
@@ -145,21 +145,12 @@ def fetch_core_live_data_v2(date_obj, track_code, track_name):
                     starts = race_detail.get('starts', [])
                     pools = race_detail.get('pools', {})
                     
-                    # A. TUNNISTETAAN AKTIIVISEN T-PELIN NIMI (GS75, V85, V75, V65 jne.)
+                    # TUNNISTETAAN T-PELI
                     t_game_type = "-"
-                    game_types_to_check = ['gs75', 'v85', 'v75', 'v86', 'v65', 'v64', 'v5', 'v4']
-                    
-                    for g in game_types_to_check:
+                    for g in ['gs75', 'v85', 'v75', 'v86', 'v65', 'v64', 'v5', 'v4']:
                         if g in pools or g.upper() in pools:
                             t_game_type = g.upper()
                             break
-                    
-                    # Jos peliä ei löytynyt pools-sanakirjasta, tarkistetaan games-objektit
-                    if t_game_type == "-" and 'games' in race_detail:
-                        for g_name in race_detail['games']:
-                            if g_name.lower() in game_types_to_check:
-                                t_game_type = g_name.upper()
-                                break
                     
                     for start in starts:
                         if start.get('scratched', False):
@@ -170,35 +161,28 @@ def fetch_core_live_data_v2(date_obj, track_code, track_name):
                         h_no = int(start.get('number', 0))
                         
                         start_pools = start.get('pools', {})
-                        bet_pct_val = None
                         live_odds_val = None
+                        t_pct_val = None
                         
-                        # B. LIVE-KERTOIMEN HAKU (VOITTAJA / VINNARE)
-                        for v_key in ['vinnare', 'VINNARE', 'winner']:
-                            if v_key in start_pools:
-                                v_data = start_pools[v_key]
-                                raw_o = v_data.get('odds', 0) or v_data.get('fixedOdds', 0)
-                                if raw_o > 0:
-                                    live_odds_val = raw_o / 100.0 if raw_o > 100 else float(raw_o)
-                                    break
+                        # 1. HAETAAN TÄSMÄLLINEN VOITTAJAKERROIN
+                        if 'vinnare' in start_pools:
+                            v_data = start_pools['vinnare']
+                            raw_o = v_data.get('odds', 0) or v_data.get('fixedOdds', 0)
+                            if raw_o > 0:
+                                live_odds_val = float(raw_o) / 100.0 if raw_o > 100 else float(raw_o)
                         
-                        # C. T-PELIN PROSENTIN HAKU
-                        if t_game_type != "-":
-                            t_key_lower = t_game_type.lower()
-                            t_key_upper = t_game_type.upper()
-                            
-                            pool_obj = start_pools.get(t_key_lower) or start_pools.get(t_key_upper)
-                            if pool_obj:
+                        # 2. HAETAAN T-PELIPROSENTTI
+                        for pool_key in start_pools:
+                            if pool_key.upper() in ['GS75', 'V85', 'V75', 'V86', 'V65', 'V64', 'V5', 'V4']:
+                                if t_game_type == "-":
+                                    t_game_type = pool_key.upper()
+                                pool_obj = start_pools[pool_key]
                                 raw_dist = pool_obj.get('betDistribution', 0) or pool_obj.get('betPercentage', 0)
                                 if raw_dist > 0:
-                                    bet_pct_val = raw_dist / 100.0 if raw_dist > 100 else float(raw_dist)
+                                    t_pct_val = float(raw_dist) / 100.0 if raw_dist > 100 else float(raw_dist)
 
-                        # D. FALLBACK: Jos T-prosenttia ei ole, mutta kerroin on -> lasketaan reaaliprosentti kertoimesta
-                        if bet_pct_val is None and live_odds_val is not None and live_odds_val > 0:
-                            bet_pct_val = round((85.0 / live_odds_val), 2)
-
-                        bet_pct_str = f"{bet_pct_val:.2f}%" if bet_pct_val is not None else "-"
-                        live_odds_str = f"{live_odds_val:.2f}" if live_odds_val is not None else "-"
+                        bet_pct_str = f"{t_pct_val:.2f}%" if t_pct_val is not None else "-"
+                        odds_str = f"{live_odds_val:.2f}" if live_odds_val is not None else "-"
 
                         rows.append({
                             "Race_No": race_no,
@@ -209,7 +193,7 @@ def fetch_core_live_data_v2(date_obj, track_code, track_name):
                             "Nro": h_no,
                             "Hevonen": h_name,
                             "T-Peli %": bet_pct_str,
-                            "Live Kerroin": live_odds_str
+                            "Live Kerroin": odds_str
                         })
     except Exception as e:
         st.error(f"Virhe haettaessa dataa: {e}")
@@ -219,7 +203,7 @@ def fetch_core_live_data_v2(date_obj, track_code, track_name):
 # ==========================================
 # 4. KÄYTTÖLIITTYMÄ
 # ==========================================
-df_raw = fetch_core_live_data_v2(selected_date, selected_track_code, selected_track_name)
+df_raw = fetch_verified_atg_data(selected_date, selected_track_code, selected_track_name)
 
 if df_raw.empty:
     st.warning(f"⚠️ Ei saatu dataa radalle **{selected_track_name}** päivämäärälle **{selected_date.strftime('%d.%m.%Y')}**.")
