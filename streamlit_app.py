@@ -7,7 +7,7 @@ import streamlit as st
 # --- SIVUN ASETUKSET ---
 st.set_page_config(page_title="Stella", layout="wide", initial_sidebar_state="expanded")
 
-# --- VISUAALINEN ILME & HYMYILEVÄ LOGO ---
+# --- LOGO & VISUAALINEN ILME ---
 st.markdown("""
     <style>
     .stella-logo-container {
@@ -61,7 +61,7 @@ st.markdown("""
         <div class="stella-logo-icon">😊</div>
         <div>
             <div class="stella-logo-text">STELLA</div>
-            <div class="stella-logo-subtitle">Aito Faktapohjainen Quant Racing Engine</div>
+            <div class="stella-logo-subtitle">Realtime Quant Racing Engine</div>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -107,8 +107,8 @@ search_term = f"{selected_track_name} {selected_date.strftime('%d.%m.%Y')} vihje
 google_url = f"https://www.google.com/search?q={search_term.replace(' ', '+')}"
 st.sidebar.markdown(f"🔗 [Google-haku: **{selected_track_name}**]({google_url})")
 
-# --- PUHDAS DATAHAKU ATG:N REALIAIKAISESTA RAJAPINNASTA ---
-@st.cache_data(ttl=60)
+# --- SUORA REAALIAIKAINEN ATG LIVE DATA & KERROINHAKU ---
+@st.cache_data(ttl=30)  # Paivittyy 30 sekunnin välein
 def fetch_factual_atg_data(date_obj, track_keyword):
     date_str = date_obj.strftime("%Y-%m-%d")
     calendar_url = f"https://www.atg.se/services/racinginfo/v1/api/calendar/day/{date_str}"
@@ -138,16 +138,16 @@ def fetch_factual_atg_data(date_obj, track_keyword):
                             starts = race_detail.get('starts', [])
                             pools = race_detail.get('pools', {})
                             
+                            # Etsitään kaikki mahdolliset poolit (V85, V75, V86, V65, V64, V5, V4, GS75)
                             t_game_type = None
-                            for g_key in ['v85', 'v75', 'v86', 'v65', 'v64', 'gs75', 'v4', 'v5']:
+                            for g_key in ['v85', 'v75', 'v86', 'v65', 'v64', 'gs75', 'v5', 'v4']:
                                 if g_key in pools:
                                     t_game_type = g_key.upper()
                                     break
                             
-                            game_label = f"{t_game_type}" if t_game_type else "Voittaja"
+                            game_label = t_game_type if t_game_type else "Voittaja"
                             
                             for start in starts:
-                                # Poisjääneet hevoset suodatetaan
                                 if start.get('scratched', False):
                                     continue
 
@@ -158,19 +158,20 @@ def fetch_factual_atg_data(date_obj, track_keyword):
                                 bet_pct = 0.0
                                 unibet_odds = None
                                 
+                                # 1. HAETAAN PELIPROSENTTI T-PELISTÄ (Jos kuuluu T-peliin)
                                 if t_game_type and t_game_type.lower() in start_pools:
                                     bet_pct = start_pools[t_game_type.lower()].get('betDistribution', 0) / 100.0
                                 
+                                # 2. HAETAAN VOITTAJAPOOLIN LIVERY-KERROIN (Vinnare)
                                 if 'vinnare' in start_pools:
                                     odds_raw = start_pools['vinnare'].get('odds', 0) / 100.0
                                     if odds_raw > 0:
                                         unibet_odds = round(odds_raw, 2)
+                                        # Jos ei T-peliä, muunnetaan voittajakerroin todelliseksi peliprosentiksi
                                         if bet_pct <= 0:
-                                            bet_pct = round(100.0 / odds_raw, 2)
+                                            bet_pct = round((100.0 / odds_raw) * 0.85, 2)  # Palautusprosentti ~85%
                                 
-                                if bet_pct <= 0:
-                                    bet_pct = round(100.0 / max(len(starts), 1), 2)
-                                
+                                # 3. VARUSTEMETSÄSTYS FAKTOISTA
                                 bonus = 1.00
                                 shoe_info = start.get('horse', {}).get('shoes', {})
                                 if shoe_info.get('front') == False and shoe_info.get('back') == False:
@@ -207,16 +208,15 @@ if df_raw.empty:
 else:
     st.success(f"📍 Rata: **{selected_track_name}** | 📅 Päivämäärä: **{selected_date.strftime('%d.%m.%Y')}** | 🏇 Haetut hevoset: **{len(df_raw)} kpl**")
 
-# --- TURVALLINEN MONTE CARLO -SIMULAATTORI ---
+# --- SIMULAATTORI ---
 def run_simulation(df, n_sims, spets):
     df_calc = df.copy()
     
-    # Lasketaan raakavoima
-    df_calc['Raw_Score'] = df_calc['Veikkaus_%'] * df_calc['Bonus'] * spets
+    # Jos peliprosentti on 0 (peli ei auki), asetetaan turvallinen raakapaino
+    df_calc['Raw_Score'] = np.where(df_calc['Veikkaus_%'] > 0, df_calc['Veikkaus_%'] * df_calc['Bonus'] * spets, 1.0)
     
     results = []
     for kohde, group in df_calc.groupby('Kohde'):
-        # Normalisoidaan todennäköisyydet ja varmistetaan, että summa on täsmälleen 1.0
         raw_scores = group['Raw_Score'].values.astype(float)
         tot_score = np.sum(raw_scores)
         
@@ -225,11 +225,9 @@ def run_simulation(df, n_sims, spets):
         else:
             probs = np.ones(len(raw_scores)) / len(raw_scores)
             
-        # Varmistetaan float64 tarkkuus ja normaali summa
         probs = probs / np.sum(probs)
         nros = group['Nro'].values
         
-        # Suoritetaan turvallinen Monte Carlo -arvonta
         draws = np.random.choice(nros, size=n_sims, p=probs)
         unique, counts = np.unique(draws, return_counts=True)
         win_counts = dict(zip(unique, counts))
@@ -264,19 +262,21 @@ def run_simulation(df, n_sims, spets):
             else:
                 tila = "❌ Ylipelattu"
 
+            peli_pct_str = f"{peli_pct:.2f}%" if peli_pct > 0 else "Ei auki"
+
             results.append({
                 "Race_No": row['Race_No'],
                 "Kohde": row['Kohde'],
                 "Pelimuoto": row['Pelimuoto'],
                 "Nro": int(row['Nro']),
                 "Hevonen": row['Hevonen'],
-                "Peli %": f"{row['Veikkaus_%']:.2f}%",
+                "Peli %": peli_pct_str,
                 "Simu %": f"{sim_pct:.2f}%",
                 "Raja-K": f"{raja_k:.2f}",
-                "EV-Pooli": f"{ev_pool:.2f}",
+                "EV-Pooli": f"{ev_pool:.2f}" if peli_pct > 0 else "-",
                 "Unibet K": unibet_k_str,
                 "EV-Unibet": ev_unibet_str,
-                "Tila": tila,
+                "Tila": tila if peli_pct > 0 else "⚪ Ei peliä",
                 "Travronden": row['Travronden']
             })
             
@@ -291,7 +291,7 @@ if not df_raw.empty:
         
         col1, col2, col3 = st.columns(3)
         col1.metric("Simulaatioajot", f"{n_simulations:,}".replace(",", " "))
-        col2.metric("Pooli EV+ kohteet", len(df_res[df_res["EV-Pooli"].astype(float) >= 1.05]))
+        col2.metric("Pooli EV+ kohteet", len(df_res[df_res["EV-Pooli"] != "-"]))
         if use_unibet:
             valid_unibet = df_res[df_res["EV-Unibet"] != "-"]
             col3.metric("Unibet ylikertoimet", len(valid_unibet[valid_unibet["EV-Unibet"].astype(float) >= 1.05]))
