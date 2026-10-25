@@ -7,7 +7,7 @@ import streamlit as st
 # --- SIVUN ASETUKSET ---
 st.set_page_config(page_title="Stella", layout="wide", initial_sidebar_state="expanded")
 
-# --- VISUAALINEN ILME ---
+# --- VISUAALINEN ILME & HYMYILEVÄ LOGO ---
 st.markdown("""
     <style>
     .stella-logo-container {
@@ -147,6 +147,10 @@ def fetch_factual_atg_data(date_obj, track_keyword):
                             game_label = f"{t_game_type}" if t_game_type else "Voittaja"
                             
                             for start in starts:
+                                # Poisjääneet hevoset suodatetaan
+                                if start.get('scratched', False):
+                                    continue
+
                                 h_name = start.get('horse', {}).get('name', '')
                                 h_no = int(start.get('number', 0))
                                 start_pools = start.get('pools', {})
@@ -154,20 +158,19 @@ def fetch_factual_atg_data(date_obj, track_keyword):
                                 bet_pct = 0.0
                                 unibet_odds = None
                                 
-                                # 1. HAETAAN T-PELIN PROSENTTI
                                 if t_game_type and t_game_type.lower() in start_pools:
                                     bet_pct = start_pools[t_game_type.lower()].get('betDistribution', 0) / 100.0
                                 
-                                # 2. JOS EI T-PELIÄ, HAETAAN VOITTAJAPOOLIN KERROIN/PROSENTTI
                                 if 'vinnare' in start_pools:
                                     odds_raw = start_pools['vinnare'].get('odds', 0) / 100.0
                                     if odds_raw > 0:
                                         unibet_odds = round(odds_raw, 2)
                                         if bet_pct <= 0:
-                                            # Muunnetaan kerroin todennäköisyydeksi
                                             bet_pct = round(100.0 / odds_raw, 2)
                                 
-                                # 3. VARUSTEMETSÄSTYS FAKTOISTA (Kengät / Kärryt)
+                                if bet_pct <= 0:
+                                    bet_pct = round(100.0 / max(len(starts), 1), 2)
+                                
                                 bonus = 1.00
                                 shoe_info = start.get('horse', {}).get('shoes', {})
                                 if shoe_info.get('front') == False and shoe_info.get('back') == False:
@@ -204,22 +207,29 @@ if df_raw.empty:
 else:
     st.success(f"📍 Rata: **{selected_track_name}** | 📅 Päivämäärä: **{selected_date.strftime('%d.%m.%Y')}** | 🏇 Haetut hevoset: **{len(df_raw)} kpl**")
 
-# --- PUHDAS MONTE CARLO -SIMULAATTORI ---
+# --- TURVALLINEN MONTE CARLO -SIMULAATTORI ---
 def run_simulation(df, n_sims, spets):
     df_calc = df.copy()
     
-    # Raw Score perustuu Vain Faktoihin: Peliprosentti * Varustebonus * Spets-kerroin
+    # Lasketaan raakavoima
     df_calc['Raw_Score'] = df_calc['Veikkaus_%'] * df_calc['Bonus'] * spets
-    
-    # Normalisoidaan lähdöittäin (Summa = 100%)
-    df_calc['Prob'] = df_calc.groupby('Kohde')['Raw_Score'].transform(lambda x: x / x.sum())
     
     results = []
     for kohde, group in df_calc.groupby('Kohde'):
-        probs = group['Prob'].values
+        # Normalisoidaan todennäköisyydet ja varmistetaan, että summa on täsmälleen 1.0
+        raw_scores = group['Raw_Score'].values.astype(float)
+        tot_score = np.sum(raw_scores)
+        
+        if tot_score > 0:
+            probs = raw_scores / tot_score
+        else:
+            probs = np.ones(len(raw_scores)) / len(raw_scores)
+            
+        # Varmistetaan float64 tarkkuus ja normaali summa
+        probs = probs / np.sum(probs)
         nros = group['Nro'].values
         
-        # Simulaatio ilman mielivaltaisuutta
+        # Suoritetaan turvallinen Monte Carlo -arvonta
         draws = np.random.choice(nros, size=n_sims, p=probs)
         unique, counts = np.unique(draws, return_counts=True)
         win_counts = dict(zip(unique, counts))
