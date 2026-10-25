@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 
 # ==========================================
-# 1. SIVUN ASETUKSET & VISUAALINEN ILME
+# 1. SIVUN ASETUKSET & VISUAALINEN TYYLI
 # ==========================================
 st.set_page_config(page_title="Stella Data Engine", layout="wide", initial_sidebar_state="expanded")
 
@@ -61,10 +61,13 @@ st.markdown("""
         <div class="stella-logo-icon">😉</div>
         <div>
             <div class="stella-logo-text">STELLA</div>
-            <div class="stella-logo-subtitle">Core Live Data Engine (Ruotsin Ravit)</div>
+            <div class="stella-logo-subtitle">Ultra-Precision Live Data Engine</div>
         </div>
     </div>
 """, unsafe_allow_html=True)
+
+if "winners" not in st.session_state:
+    st.session_state["winners"] = {}
 
 # ==========================================
 # 2. VALIKOT (PÄIVÄMÄÄRÄ & RATA)
@@ -93,14 +96,14 @@ if st.sidebar.button("⚡ PÄIVITÄ LIVE-DATA NOW"):
     st.cache_data.clear()
 
 # ==========================================
-# 3. BOMMINVARMA LIVE DATA-HAKURI (ATG API)
+# 3. PERINPOHJAISEN HIOTTU ATG API HAKURI
 # ==========================================
-@st.cache_data(ttl=5)
-def fetch_core_live_data(date_obj, track_code, track_name):
+@st.cache_data(ttl=2)
+def fetch_core_live_data_v2(date_obj, track_code, track_name):
     date_str = date_obj.strftime("%Y-%m-%d")
     calendar_url = f"https://www.atg.se/services/racinginfo/v1/api/calendar/day/{date_str}"
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         "Accept": "application/json"
     }
     
@@ -110,7 +113,6 @@ def fetch_core_live_data(date_obj, track_code, track_name):
         if res.status_code == 200:
             cal_data = res.json()
             
-            # Etsitään haluttu rata
             target_races = []
             for track in cal_data.get('tracks', []):
                 t_id = str(track.get('id', '')).lower()
@@ -125,14 +127,12 @@ def fetch_core_live_data(date_obj, track_code, track_name):
                 race_no = int(race.get('number', 1))
                 kohde_str = f"Lähtö {race_no}"
                 
-                # Suora kutsu lähdön raakatilastoihin
                 race_url = f"https://www.atg.se/services/racinginfo/v1/api/races/{race_id}"
                 r_res = requests.get(race_url, headers=headers, timeout=5)
                 
                 if r_res.status_code == 200:
                     race_detail = r_res.json()
                     
-                    # 1. JUOSTAVA MATKA JA LÄHTÖTAPA
                     distance = race_detail.get('distance', 0)
                     start_method_raw = race_detail.get('startMethod', '')
                     if start_method_raw.lower() in ['a', 'autostart']:
@@ -145,12 +145,21 @@ def fetch_core_live_data(date_obj, track_code, track_name):
                     starts = race_detail.get('starts', [])
                     pools = race_detail.get('pools', {})
                     
-                    # 2. TUNNISTETAAN T-PELI (GS75, V85, V75, V65, V64, V5, V4)
+                    # A. TUNNISTETAAN AKTIIVISEN T-PELIN NIMI (GS75, V85, V75, V65 jne.)
                     t_game_type = "-"
-                    for g_key in ['gs75', 'v85', 'v75', 'v86', 'v65', 'v64', 'v5', 'v4']:
-                        if g_key in pools:
-                            t_game_type = g_key.upper()
+                    game_types_to_check = ['gs75', 'v85', 'v75', 'v86', 'v65', 'v64', 'v5', 'v4']
+                    
+                    for g in game_types_to_check:
+                        if g in pools or g.upper() in pools:
+                            t_game_type = g.upper()
                             break
+                    
+                    # Jos peliä ei löytynyt pools-sanakirjasta, tarkistetaan games-objektit
+                    if t_game_type == "-" and 'games' in race_detail:
+                        for g_name in race_detail['games']:
+                            if g_name.lower() in game_types_to_check:
+                                t_game_type = g_name.upper()
+                                break
                     
                     for start in starts:
                         if start.get('scratched', False):
@@ -161,22 +170,35 @@ def fetch_core_live_data(date_obj, track_code, track_name):
                         h_no = int(start.get('number', 0))
                         
                         start_pools = start.get('pools', {})
-                        bet_pct_str = "-"
-                        live_odds_str = "-"
+                        bet_pct_val = None
+                        live_odds_val = None
                         
-                        # 3. LUE LIVE-VOITTAJAKERROIN (Vinnare)
-                        if 'vinnare' in start_pools:
-                            v_info = start_pools['vinnare']
-                            raw_o = v_info.get('odds', 0)
-                            if raw_o > 0:
-                                odds_val = raw_o / 100.0 if raw_o > 100 else float(raw_o)
-                                live_odds_str = f"{odds_val:.2f}"
+                        # B. LIVE-KERTOIMEN HAKU (VOITTAJA / VINNARE)
+                        for v_key in ['vinnare', 'VINNARE', 'winner']:
+                            if v_key in start_pools:
+                                v_data = start_pools[v_key]
+                                raw_o = v_data.get('odds', 0) or v_data.get('fixedOdds', 0)
+                                if raw_o > 0:
+                                    live_odds_val = raw_o / 100.0 if raw_o > 100 else float(raw_o)
+                                    break
                         
-                        # 4. LUE T-PELIN PROSENTTI
-                        if t_game_type != "-" and t_game_type.lower() in start_pools:
-                            t_pct = start_pools[t_game_type.lower()].get('betDistribution', 0) / 100.0
-                            if t_pct > 0:
-                                bet_pct_str = f"{t_pct:.2f}%"
+                        # C. T-PELIN PROSENTIN HAKU
+                        if t_game_type != "-":
+                            t_key_lower = t_game_type.lower()
+                            t_key_upper = t_game_type.upper()
+                            
+                            pool_obj = start_pools.get(t_key_lower) or start_pools.get(t_key_upper)
+                            if pool_obj:
+                                raw_dist = pool_obj.get('betDistribution', 0) or pool_obj.get('betPercentage', 0)
+                                if raw_dist > 0:
+                                    bet_pct_val = raw_dist / 100.0 if raw_dist > 100 else float(raw_dist)
+
+                        # D. FALLBACK: Jos T-prosenttia ei ole, mutta kerroin on -> lasketaan reaaliprosentti kertoimesta
+                        if bet_pct_val is None and live_odds_val is not None and live_odds_val > 0:
+                            bet_pct_val = round((85.0 / live_odds_val), 2)
+
+                        bet_pct_str = f"{bet_pct_val:.2f}%" if bet_pct_val is not None else "-"
+                        live_odds_str = f"{live_odds_val:.2f}" if live_odds_val is not None else "-"
 
                         rows.append({
                             "Race_No": race_no,
@@ -195,9 +217,9 @@ def fetch_core_live_data(date_obj, track_code, track_name):
     return pd.DataFrame(rows)
 
 # ==========================================
-# 4. KÄYTTÖLIITTYMÄ NÄKYMÄ
+# 4. KÄYTTÖLIITTYMÄ
 # ==========================================
-df_raw = fetch_core_live_data(selected_date, selected_track_code, selected_track_name)
+df_raw = fetch_core_live_data_v2(selected_date, selected_track_code, selected_track_name)
 
 if df_raw.empty:
     st.warning(f"⚠️ Ei saatu dataa radalle **{selected_track_name}** päivämäärälle **{selected_date.strftime('%d.%m.%Y')}**.")
@@ -211,20 +233,44 @@ else:
 
     # KAIKKI LÄHDÖT
     with tabs[0]:
-        cols = ["Kohde", "Matka", "Lähtötapa", "T-Peli", "Nro", "Hevonen", "T-Peli %", "Live Kerroin"]
-        st.dataframe(df_raw[cols], use_container_width=True, height=550, hide_index=True)
+        df_all = df_raw.copy()
+        df_all["Tulos / Voittaja"] = df_all.apply(
+            lambda r: "🏆 VOITTAJA" if st.session_state["winners"].get(r["Kohde"]) == r["Nro"] else "-", axis=1
+        )
+        cols = ["Kohde", "Matka", "Lähtötapa", "T-Peli", "Nro", "Hevonen", "T-Peli %", "Live Kerroin", "Tulos / Voittaja"]
+        st.dataframe(df_all[cols], use_container_width=True, height=550, hide_index=True)
 
     # LÄHDÖITTÄIN
     for i, race_name in enumerate(unique_races, start=1):
         with tabs[i]:
-            df_single = df_raw[df_raw["Kohde"] == race_name].sort_values(by="Nro")
+            df_single = df_raw[df_raw["Kohde"] == race_name].sort_values(by="Nro").copy()
             
-            # Näytetään lähdön perustiedot (Matka ja Lähtötapa) yläpalkissa
             if not df_single.empty:
                 m_info = df_single.iloc[0]["Matka"]
                 l_info = df_single.iloc[0]["Lähtötapa"]
                 t_info = df_single.iloc[0]["T-Peli"]
-                st.info(f"📏 Matka: **{m_info}** | 🚦 Lähtötapa: **{l_info}** | 🏆 Pelimuoto: **{t_info}**")
+                
+                col_info, col_win = st.columns([2, 1])
+                with col_info:
+                    st.info(f"📏 Matka: **{m_info}** | 🚦 Lähtötapa: **{l_info}** | 🏆 Pelimuoto: **{t_info}**")
+                
+                with col_win:
+                    horse_options = [0] + df_single["Nro"].tolist()
+                    current_win = st.session_state["winners"].get(race_name, 0)
+                    
+                    selected_win = st.selectbox(
+                        f"Merkitse voittaja ({race_name})",
+                        options=horse_options,
+                        format_func=lambda x: "Ei tulosta" if x == 0 else f"Nro {x} - {df_single[df_single['Nro']==x]['Hevonen'].values[0]}",
+                        index=horse_options.index(current_win) if current_win in horse_options else 0,
+                        key=f"win_select_{race_name}"
+                    )
+                    st.session_state["winners"][race_name] = selected_win
+
+            df_single["Tulos / Voittaja"] = df_single["Nro"].apply(
+                lambda nro: "🏆 VOITTAJA" if st.session_state["winners"].get(race_name) == nro else "-"
+            )
             
-            cols_single = ["Nro", "Hevonen", "T-Peli %", "Live Kerroin"]
+            cols_single = ["Nro", "Hevonen", "T-Peli %", "Live Kerroin", "Tulos / Voittaja"]
             st.dataframe(df_single[cols_single], use_container_width=True, hide_index=True)
+
