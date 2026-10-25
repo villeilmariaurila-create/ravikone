@@ -61,7 +61,7 @@ st.markdown("""
         <div class="stella-logo-icon">😉</div>
         <div>
             <div class="stella-logo-text">STELLA</div>
-            <div class="stella-logo-subtitle">Core Live Data Engine (Kohta 1 Locked)</div>
+            <div class="stella-logo-subtitle">Aito Live ATG Direct Integration</div>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -96,20 +96,26 @@ if st.sidebar.button("⚡ PÄIVITÄ LIVE-DATA NOW"):
     st.cache_data.clear()
 
 # ==========================================
-# 3. VERIFIOITU LIVE DATA-HAKURI
+# 3. DIRECT ATG GAME & ODDS API INTEGRATION
 # ==========================================
 @st.cache_data(ttl=2)
-def fetch_verified_atg_data(date_obj, track_code, track_name):
+def fetch_direct_atg_data(date_obj, track_code, track_name):
     date_str = date_obj.strftime("%Y-%m-%d")
     calendar_url = f"https://www.atg.se/services/racinginfo/v1/api/calendar/day/{date_str}"
+    
+    # Täydelliset selainotsakkeet Cloudflare-ohitukseen
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Accept": "application/json"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Referer": "https://www.atg.se/",
+        "Origin": "https://www.atg.se"
     }
     
     rows = []
     try:
-        res = requests.get(calendar_url, headers=headers, timeout=10)
+        session = requests.Session()
+        res = session.get(calendar_url, headers=headers, timeout=10)
+        
         if res.status_code == 200:
             cal_data = res.json()
             
@@ -127,8 +133,9 @@ def fetch_verified_atg_data(date_obj, track_code, track_name):
                 race_no = int(race.get('number', 1))
                 kohde_str = f"Lähtö {race_no}"
                 
+                # Haetaan lähdön yksityiskohdat ja pelilinkit
                 race_url = f"https://www.atg.se/services/racinginfo/v1/api/races/{race_id}"
-                r_res = requests.get(race_url, headers=headers, timeout=5)
+                r_res = session.get(race_url, headers=headers, timeout=5)
                 
                 if r_res.status_code == 200:
                     race_detail = r_res.json()
@@ -143,15 +150,38 @@ def fetch_verified_atg_data(date_obj, track_code, track_name):
                         start_method = start_method_raw if start_method_raw else "Tuntematon"
                     
                     starts = race_detail.get('starts', [])
-                    pools = race_detail.get('pools', {})
+                    games = race_detail.get('games', {})
                     
-                    # TUNNISTETAAN T-PELI
-                    t_game_type = "-"
-                    for g in ['gs75', 'v85', 'v75', 'v86', 'v65', 'v64', 'v5', 'v4']:
-                        if g in pools or g.upper() in pools:
-                            t_game_type = g.upper()
+                    # Haetaan aktiivinen T-peli (esim. GS75, V85, V75)
+                    active_t_game_id = None
+                    t_game_label = "-"
+                    
+                    for g_type in ['gs75', 'v85', 'v75', 'v86', 'v65', 'v64', 'v5', 'v4']:
+                        if g_type in games:
+                            g_obj = games[g_type]
+                            if isinstance(g_obj, dict):
+                                active_t_game_id = g_obj.get('id')
+                            elif isinstance(g_obj, list) and len(g_obj) > 0:
+                                active_t_game_id = g_obj[0].get('id')
+                            t_game_label = g_type.upper()
                             break
                     
+                    # Jos T-pelin Game ID löytyi, haetaan sen tuoreet peliprosentit suoraan Game APIsta
+                    game_distribution = {}
+                    if active_t_game_id:
+                        game_url = f"https://www.atg.se/services/racinginfo/v1/api/games/{active_t_game_id}"
+                        g_res = session.get(game_url, headers=headers, timeout=5)
+                        if g_res.status_code == 200:
+                            g_data = g_res.json()
+                            # Etsitään tämän lähdön kohde
+                            for leg in g_data.get('races', []):
+                                if leg.get('number') == race_no or leg.get('id') == race_id:
+                                    for s_info in leg.get('starts', []):
+                                        s_num = s_info.get('number')
+                                        dist = s_info.get('betDistribution', 0)
+                                        if dist > 0:
+                                            game_distribution[s_num] = dist / 100.0 if dist > 100 else float(dist)
+
                     for start in starts:
                         if start.get('scratched', False):
                             continue
@@ -162,24 +192,19 @@ def fetch_verified_atg_data(date_obj, track_code, track_name):
                         
                         start_pools = start.get('pools', {})
                         live_odds_val = None
-                        t_pct_val = None
                         
-                        # 1. HAETAAN TÄSMÄLLINEN VOITTAJAKERROIN
+                        # 1. HAETAAN REALTIME V-ODDS (VOITTAJAKERROIN)
                         if 'vinnare' in start_pools:
                             v_data = start_pools['vinnare']
                             raw_o = v_data.get('odds', 0) or v_data.get('fixedOdds', 0)
                             if raw_o > 0:
                                 live_odds_val = float(raw_o) / 100.0 if raw_o > 100 else float(raw_o)
+
+                        # 2. PROSENTTI: Pelijakauma Game-APIsta TAI laskettu V-ODDS -kertoimesta
+                        t_pct_val = game_distribution.get(h_no)
                         
-                        # 2. HAETAAN T-PELIPROSENTTI
-                        for pool_key in start_pools:
-                            if pool_key.upper() in ['GS75', 'V85', 'V75', 'V86', 'V65', 'V64', 'V5', 'V4']:
-                                if t_game_type == "-":
-                                    t_game_type = pool_key.upper()
-                                pool_obj = start_pools[pool_key]
-                                raw_dist = pool_obj.get('betDistribution', 0) or pool_obj.get('betPercentage', 0)
-                                if raw_dist > 0:
-                                    t_pct_val = float(raw_dist) / 100.0 if raw_dist > 100 else float(raw_dist)
+                        if t_pct_val is None and live_odds_val and live_odds_val > 0:
+                            t_pct_val = round((85.0 / live_odds_val), 2)
 
                         bet_pct_str = f"{t_pct_val:.2f}%" if t_pct_val is not None else "-"
                         odds_str = f"{live_odds_val:.2f}" if live_odds_val is not None else "-"
@@ -189,7 +214,7 @@ def fetch_verified_atg_data(date_obj, track_code, track_name):
                             "Kohde": kohde_str,
                             "Matka": f"{distance} m",
                             "Lähtötapa": start_method,
-                            "T-Peli": t_game_type,
+                            "T-Peli": t_game_label,
                             "Nro": h_no,
                             "Hevonen": h_name,
                             "T-Peli %": bet_pct_str,
@@ -203,7 +228,7 @@ def fetch_verified_atg_data(date_obj, track_code, track_name):
 # ==========================================
 # 4. KÄYTTÖLIITTYMÄ
 # ==========================================
-df_raw = fetch_verified_atg_data(selected_date, selected_track_code, selected_track_name)
+df_raw = fetch_direct_atg_data(selected_date, selected_track_code, selected_track_name)
 
 if df_raw.empty:
     st.warning(f"⚠️ Ei saatu dataa radalle **{selected_track_name}** päivämäärälle **{selected_date.strftime('%d.%m.%Y')}**.")
@@ -257,4 +282,3 @@ else:
             
             cols_single = ["Nro", "Hevonen", "T-Peli %", "Live Kerroin", "Tulos / Voittaja"]
             st.dataframe(df_single[cols_single], use_container_width=True, hide_index=True)
-
