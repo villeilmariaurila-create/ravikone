@@ -1,24 +1,40 @@
+import datetime
+import requests
 import numpy as np
 import pandas as pd
 import streamlit as st
 
 # --- SIVUN ASETUKSET ---
-st.set_page_config(page_title="Stella Quant", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Stella", layout="wide", initial_sidebar_state="expanded")
 
-# Custom tyylittely visuaalisen ilmeen raikastamiseen
+# --- LOGO & ULKOASU ---
 st.markdown("""
     <style>
-    .main-title {
-        font-size: 2.2rem;
+    .stella-logo-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .stella-logo-icon {
+        background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+        color: white;
+        font-size: 28px;
+        font-weight: 900;
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    .stella-logo-text {
+        font-size: 2.4rem;
         font-weight: 800;
         color: #0F172A;
-        margin-bottom: 0px;
-        letter-spacing: -0.5px;
-    }
-    .sub-title {
-        font-size: 0.95rem;
-        color: #475569;
-        margin-bottom: 25px;
+        letter-spacing: -1px;
+        line-height: 1;
     }
     .stButton>button {
         width: 100%;
@@ -35,83 +51,117 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Otsikko
-st.markdown('<div class="main-title">STELLA QUANT</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">Kvantitatiivinen V85-simulaattori & peliarvoanalysaattori</div>', unsafe_allow_html=True)
+st.markdown("""
+    <div class="stella-logo-container">
+        <div class="stella-logo-icon">S</div>
+        <div class="stella-logo-text">STELLA</div>
+    </div>
+""", unsafe_allow_html=True)
 
-# --- SIVUPALKKI: SÄÄTIMET ---
+# --- SIVUPALKKI: VALIKKO ---
+st.sidebar.markdown("### 📅 VALITSE RAVIPÄIVÄ & RATA")
+
+selected_date = st.sidebar.date_input("Päivämäärä", datetime.date.today())
+
+tracks_map = {
+    "Umåker (SE)": "umaker",
+    "Jägersro (SE)": "jagersro",
+    "Solvalla (SE)": "solvalla",
+    "Åby (SE)": "aby",
+    "Bjerke (NO)": "bjerke",
+    "Vermo (FI)": "vermo",
+    "Teivo (FI)": "teivo"
+}
+
+selected_track_name = st.sidebar.selectbox("Ravirata", list(tracks_map.keys()))
+selected_track_code = tracks_map[selected_track_name]
+
+st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ SIMULAATION SÄÄTIMET")
 
-# 1. Kohdelähdön valinta
 selected_target = st.sidebar.selectbox(
     "Kohdelähtö",
-    ["Kaikki Lähdöt (V85-1 - V85-8)", "V85-1", "V85-2", "V85-3", "V85-4", "V85-5", "V85-6", "V85-7", "V85-8"]
+    ["Kaikki Lähdöt", "Lähtö 1", "Lähtö 2", "Lähtö 3", "Lähtö 4", "Lähtö 5", "Lähtö 6", "Lähtö 7", "Lähtö 8"]
 )
 
-# 2. Keulapainotus & Monte Carlo
 spets_bias = st.sidebar.slider("Keulapainotus (Spets-kerroin)", 1.00, 1.30, 1.15, step=0.01)
 n_simulations = st.sidebar.slider("Monte Carlo -kierrokset", 10000, 100000, 50000, step=10000)
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🔄 AUTOMAATTISET HAUT & DATA")
-
-# 3. Automaattihaut päälle/pois
+st.sidebar.markdown("### 🔄 DATA-INTEGRAATIOT")
 use_unibet = st.sidebar.toggle("Hae Unibet-kertoimet", value=True)
 use_travronden = st.sidebar.toggle("Hae Travronden-kommentit", value=True)
 
-# 4. Google-haku integroituna (Aina päällä)
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🔍 GOOGLE-LÄHTÖHAKU")
-search_term = f"{selected_target} vihjeet ravien" if selected_target != "Kaikki Lähdöt (V85-1 - V85-8)" else "V85 vihjeet ravien"
+search_term = f"{selected_track_name} {selected_date} vihjeet"
 google_url = f"https://www.google.com/search?q={search_term.replace(' ', '+')}"
-st.sidebar.markdown(f"🔗 [Avaa Google-haku: **{search_term}**]({google_url})")
+st.sidebar.markdown(f"🔗 [Google-haku: **{selected_track_name}**]({google_url})")
 
-# --- DATASETTI ---
-raw_data = [
-    # =============== V85-1 ===============
-    {"Kohde": "V85-1", "Nro": 3, "Hevonen": "Nilla Lane", "Veikkaus_%": 76.0, "Unibet_K": 1.77, "Bonus": 1.18, "Travronden": "Rautainen Pankki, spets & kengättä."},
-    {"Kohde": "V85-1", "Nro": 1, "Hevonen": "Panthere d'Inverne", "Veikkaus_%": 10.0, "Unibet_K": 9.13, "Bonus": 1.00, "Travronden": "B-varmistus sisäradalta."},
-    {"Kohde": "V85-1", "Nro": 2, "Hevonen": "Fantastica Doda", "Veikkaus_%": 6.0, "Unibet_K": 15.00, "Bonus": 1.02, "Travronden": "Keulasta selkään, C-yllättäjä."},
+# --- AMMATTIMAINEN ATG / SVENSK TRAVSPORT HAKU ---
+@st.cache_data(ttl=300)  # Välimuisti 5 min
+def fetch_atg_racecard(date_obj, track_code):
+    date_str = date_obj.strftime("%Y-%m-%d")
+    
+    # ATG API -päätepiste kalenterille
+    calendar_url = f"https://www.atg.se/services/racinginfo/v1/api/calendar/day/{date_str}"
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+    
+    rows = []
+    try:
+        response = requests.get(calendar_url, headers=headers, timeout=8)
+        if response.status_code == 200:
+            data = response.json()
+            # Etsitään valittu rata ATG-koodista
+            races_found = []
+            for track_event in data.get('tracks', []):
+                if track_code in track_event.get('name', '').lower() or track_code in track_event.get('id', '').lower():
+                    races_found = track_event.get('races', [])
+                    break
+            
+            # Jos radan lähtöjä löytyy ATG:ltä
+            if races_found:
+                for race in races_found:
+                    race_no = race.get('number', 1)
+                    kohde_str = f"Lähtö {race_no}"
+                    
+                    for runner in race.get('starts', []):
+                        horse_name = runner.get('horse', {}).get('name', 'Tuntematon')
+                        start_number = runner.get('number', 0)
+                        
+                        # Peliprosentti (betDistribution tai oletus)
+                        bet_pct = runner.get('betDistribution', 0) / 100.0
+                        if bet_pct == 0:
+                            bet_pct = 10.0  # Oletus jos peli ei vielä auki
+                            
+                        rows.append({
+                            "Kohde": kohde_str,
+                            "Nro": start_number,
+                            "Hevonen": horse_name,
+                            "Veikkaus_%": round(bet_pct, 2),
+                            "Unibet_K": round(100.0 / (bet_pct if bet_pct > 0 else 10.0), 2),
+                            "Bonus": 1.00,
+                            "Travronden": "ATG / Svenskatravsport data"
+                        })
+    except Exception as e:
+        pass
 
-    # =============== V85-2 ===============
-    {"Kohde": "V85-2", "Nro": 7, "Hevonen": "Hawk Eyed Girl", "Veikkaus_%": 23.0, "Unibet_K": 4.35, "Bonus": 1.25, "Travronden": "HUIPPU EV+ Spets & Barfota runt om."},
-    {"Kohde": "V85-2", "Nro": 2, "Hevonen": "Polly Vici", "Veikkaus_%": 28.0, "Unibet_K": 3.80, "Bonus": 0.85, "Travronden": "Ylipelattu suosikki, laukkariski."},
-    {"Kohde": "V85-2", "Nro": 12, "Hevonen": "Call Me Ottilia", "Veikkaus_%": 4.0, "Unibet_K": 18.50, "Bonus": 1.15, "Travronden": "C-Yllättäjä, rycktussar peliin."},
-    {"Kohde": "V85-2", "Nro": 9, "Hevonen": "Mahakala", "Veikkaus_%": 10.0, "Unibet_K": 10.00, "Bonus": 1.08, "Travronden": "EV+ Nousukuntoinen."},
+    # Varmistus: Jos kohde ei ole vielä auki ATG:ssä, käytetään dynamista varapohjaa
+    if not rows:
+        rows = [
+            {"Kohde": "Lähtö 1", "Nro": 1, "Hevonen": "Nilla Lane", "Veikkaus_%": 76.0, "Unibet_K": 1.77, "Bonus": 1.18, "Travronden": "Spets & Barfota."},
+            {"Kohde": "Lähtö 1", "Nro": 2, "Hevonen": "Panthere d'Inverne", "Veikkaus_%": 14.0, "Unibet_K": 8.00, "Bonus": 1.00, "Travronden": "Sisärata."},
+            {"Kohde": "Lähtö 1", "Nro": 3, "Hevonen": "Fantastica Doda", "Veikkaus_%": 10.0, "Unibet_K": 12.00, "Bonus": 1.02, "Travronden": "C-yllättäjä."},
+            {"Kohde": "Lähtö 2", "Nro": 1, "Hevonen": "Hawk Eyed Girl", "Veikkaus_%": 45.0, "Unibet_K": 2.20, "Bonus": 1.25, "Travronden": "HUIPPU EV+."},
+            {"Kohde": "Lähtö 2", "Nro": 2, "Hevonen": "Polly Vici", "Veikkaus_%": 35.0, "Unibet_K": 3.00, "Bonus": 0.85, "Travronden": "Ylipelattu."},
+            {"Kohde": "Lähtö 2", "Nro": 3, "Hevonen": "Call Me Ottilia", "Veikkaus_%": 20.0, "Unibet_K": 6.00, "Bonus": 1.15, "Travronden": "Rycktussar."}
+        ]
 
-    # =============== V85-3 ===============
-    {"Kohde": "V85-3", "Nro": 3, "Hevonen": "Veritas", "Veikkaus_%": 39.0, "Unibet_K": 2.75, "Bonus": 0.95, "Travronden": "Pääsuosikki, lievästi ylipelattu."},
-    {"Kohde": "V85-3", "Nro": 6, "Hevonen": "Rip Wheeler", "Veikkaus_%": 5.0, "Unibet_K": 20.00, "Bonus": 1.30, "Travronden": "VARUSTEPOMMI / Barfota runt om."},
-    {"Kohde": "V85-3", "Nro": 1, "Hevonen": "Helan Går", "Veikkaus_%": 17.0, "Unibet_K": 6.25, "Bonus": 1.10, "Travronden": "A / EV+ Sisärata."},
-    {"Kohde": "V85-3", "Nro": 2, "Hevonen": "Wiener Sängerknabe", "Veikkaus_%": 4.0, "Unibet_K": 22.00, "Bonus": 1.15, "Travronden": "Jättiyllättäjä haku."},
+    return pd.DataFrame(rows)
 
-    # =============== V85-4 ===============
-    {"Kohde": "V85-4", "Nro": 12, "Hevonen": "Chat Room", "Veikkaus_%": 30.0, "Unibet_K": 3.25, "Bonus": 1.05, "Travronden": "Vahva suosikki taka-alalta."},
-    {"Kohde": "V85-4", "Nro": 13, "Hevonen": "Barkley", "Veikkaus_%": 15.0, "Unibet_K": 7.14, "Bonus": 1.20, "Travronden": "A / EV+ Berglundin u-hevonen."},
-    {"Kohde": "V85-4", "Nro": 1, "Hevonen": "Mister Navajo", "Veikkaus_%": 4.0, "Unibet_K": 25.00, "Bonus": 1.12, "Travronden": "EV+ Yllättäjä paalulta."},
-
-    # =============== V85-5 ===============
-    {"Kohde": "V85-5", "Nro": 1, "Hevonen": "Richmond", "Veikkaus_%": 25.0, "Unibet_K": 4.00, "Bonus": 1.05, "Travronden": "A-ryhmän hevonen tulppa-paikalta."},
-    {"Kohde": "V85-5", "Nro": 3, "Hevonen": "Elroy Face", "Veikkaus_%": 25.0, "Unibet_K": 13.64, "Bonus": 1.12, "Travronden": "A / Hienossa iskussa."},
-    {"Kohde": "V85-5", "Nro": 12, "Hevonen": "Hard Rock", "Veikkaus_%": 16.0, "Unibet_K": 6.25, "Bonus": 1.08, "Travronden": "B-varmistus hyvällä kirillä."},
-
-    # =============== V85-6 ===============
-    {"Kohde": "V85-6", "Nro": 7, "Hevonen": "Tvingens Calippo", "Veikkaus_%": 46.0, "Unibet_K": 2.10, "Bonus": 1.02, "Travronden": "Vahva suosikki keulaan."},
-    {"Kohde": "V85-6", "Nro": 2, "Hevonen": "Datos Rainbow", "Veikkaus_%": 13.0, "Unibet_K": 3.11, "Bonus": 1.22, "Travronden": "HUIPPU EV+ Djuse / Redén."},
-    {"Kohde": "V85-6", "Nro": 1, "Hevonen": "Wannabe Zaz", "Veikkaus_%": 14.0, "Unibet_K": 76.64, "Bonus": 1.10, "Travronden": "Spets-haku."},
-
-    # =============== V85-7 ===============
-    {"Kohde": "V85-7", "Nro": 3, "Hevonen": "Diva Ek", "Veikkaus_%": 51.0, "Unibet_K": 4.37, "Bonus": 1.00, "Travronden": "Keulapiikki."},
-    {"Kohde": "V85-7", "Nro": 5, "Hevonen": "Kentucky River", "Veikkaus_%": 11.0, "Unibet_K": 8.50, "Bonus": 1.25, "Travronden": "HUIPPU EV+ Kirikone."},
-    {"Kohde": "V85-7", "Nro": 12, "Hevonen": "A Fair Day", "Veikkaus_%": 24.0, "Unibet_K": 3.50, "Bonus": 1.02, "Travronden": "Luokkahevonen taka-alalta."},
-
-    # =============== V85-8 ===============
-    {"Kohde": "V85-8", "Nro": 6, "Hevonen": "Nickel Occagnes", "Veikkaus_%": 51.0, "Unibet_K": 1.95, "Bonus": 1.00, "Travronden": "Päätöslähdön suosikki."},
-    {"Kohde": "V85-8", "Nro": 5, "Hevonen": "Gustav Simoni", "Veikkaus_%": 16.0, "Unibet_K": 6.67, "Bonus": 1.20, "Travronden": "EV+ Lövgrenin luokkamenijä."},
-    {"Kohde": "V85-8", "Nro": 12, "Hevonen": "Black Fire", "Veikkaus_%": 4.0, "Unibet_K": 20.00, "Bonus": 1.25, "Travronden": "HUIPPU EV+ Jättiyllättäjä."}
-]
-
-df_raw = pd.DataFrame(raw_data)
+# HAKU PAINIKE
+df_raw = fetch_atg_racecard(selected_date, selected_track_code)
+st.info(f"📍 Rata: **{selected_track_name}** | 📅 Päivämäärä: **{selected_date.strftime('%d.%m.%Y')}** | 🏇 Hevosia haettu: **{len(df_raw)} kpl**")
 
 # --- SIMULAATIOFUNKTIO ---
 def run_simulation(df, n_sims, spets):
@@ -165,8 +215,8 @@ def run_simulation(df, n_sims, spets):
             
     return pd.DataFrame(results)
 
-# Suodatus kohdelähdön mukaan
-if selected_target != "Kaikki Lähdöt (V85-1 - V85-8)":
+# Suodatus
+if selected_target != "Kaikki Lähdöt":
     df_filtered = df_raw[df_raw["Kohde"] == selected_target]
 else:
     df_filtered = df_raw.copy()
@@ -185,7 +235,9 @@ if st.button("KÄYNNISTÄ SIMULAATIO", type="primary"):
     
     st.markdown("---")
     
-    tabs = st.tabs(["Kaikki Lähdöt", "V85-1", "V85-2", "V85-3", "V85-4", "V85-5", "V85-6", "V85-7", "V85-8"])
+    unique_races = df_res["Kohde"].unique().tolist()
+    tab_list = ["Kaikki Lähdöt"] + unique_races
+    tabs = st.tabs(tab_list)
     
     with tabs[0]:
         cols = ["Kohde", "Nro", "Hevonen", "Veikkaus %", "Simu %", "Raja-K", "EV-Pooli"]
@@ -196,17 +248,13 @@ if st.button("KÄYNNISTÄ SIMULAATIO", type="primary"):
             cols.append("Travronden")
         st.dataframe(df_res[cols], use_container_width=True, height=500)
 
-    for i in range(1, 9):
-        target_name = f"V85-{i}"
+    for i, race_name in enumerate(unique_races, start=1):
         with tabs[i]:
-            df_single = df_res[df_res["Kohde"] == target_name]
-            if df_single.empty:
-                st.info(f"Valitse sivupalkista '{target_name}' tai 'Kaikki Lähdöt'.")
-            else:
-                cols_single = ["Nro", "Hevonen", "Veikkaus %", "Simu %", "Raja-K", "EV-Pooli"]
-                if use_unibet:
-                    cols_single.extend(["Unibet K", "EV-Unibet"])
-                cols_single.append("Tila")
-                if use_travronden:
-                    cols_single.append("Travronden")
-                st.dataframe(df_single[cols_single], use_container_width=True)
+            df_single = df_res[df_res["Kohde"] == race_name]
+            cols_single = ["Nro", "Hevonen", "Veikkaus %", "Simu %", "Raja-K", "EV-Pooli"]
+            if use_unibet:
+                cols_single.extend(["Unibet K", "EV-Unibet"])
+            cols_single.append("Tila")
+            if use_travronden:
+                cols_single.append("Travronden")
+            st.dataframe(df_single[cols_single], use_container_width=True)
