@@ -3,106 +3,107 @@ import pandas as pd
 import streamlit as st
 
 # ==========================================================
-# 1. SIVUN ASETUKSET & VISUAALINEN TYYLI (LOGO & NELIAPILA)
+# 1. SIVUN ASETUKSET & PUHDAS, MODERNISOIETTU TYYLI
 # ==========================================================
 st.set_page_config(page_title="Stella Ravisimulaattori", layout="wide", initial_sidebar_state="expanded")
 
 st.markdown("""
 <style>
-    .stella-logo-container {
+    /* Pääotsikko ja logo-osio ilman häiritseviä taustalaatikoita */
+    .stella-header {
         display: flex;
         align-items: center;
         gap: 16px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #E5E7EB;
         margin-bottom: 24px;
-        background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-        padding: 16px 20px;
-        border-radius: 12px;
-        border: 1px solid #BFDBFE;
     }
-    .stella-clover-icon {
-        font-size: 40px;
-        background: #1E3A8A;
-        width: 65px;
-        height: 65px;
+    .stella-clover {
+        font-size: 38px;
+        background: #0F172A;
+        color: #34D399;
+        width: 60px;
+        height: 60px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 14px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
-    .stella-title {
-        font-size: 30px;
+    .stella-title-text h1 {
+        font-size: 32px;
         font-weight: 800;
-        color: #1E3A8A;
+        color: #0F172A;
         margin: 0;
-        line-height: 1.2;
+        letter-spacing: -0.5px;
     }
-    .stella-subtitle {
+    .stella-title-text p {
         font-size: 14px;
-        color: #4B5563;
-        margin-top: 4px;
+        color: #64748B;
+        margin: 4px 0 0 0;
     }
-    .card-box {
-        background-color: #F8FAFC;
+    
+    /* Tuloskortit */
+    .result-card {
+        background-color: #FFFFFF;
         border: 1px solid #E2E8F0;
-        padding: 16px;
-        border-radius: 10px;
-        margin-bottom: 12px;
+        border-left: 5px solid #0F172A;
+        padding: 18px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .yllattaja-card {
+        background-color: #FFFBEB;
+        border: 1px solid #FDE68A;
+        border-left: 5px solid #F59E0B;
+        padding: 18px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================================
-# 2. SIVUN YLÄOSA JA LOGO
+# 2. YLÄOSA (LOGO & OTSIKKO)
 # ==========================================================
 st.markdown("""
-<div class="stella-logo-container">
-    <div class="stella-clover-icon">🍀</div>
-    <div>
-        <div class="stella-title">Stella</div>
-        <div class="stella-subtitle">Älykäs ravianalyysi, peliprosentit, valmentajakommentit ja asiantuntijavihjeet</div>
+<div class="stella-header">
+    <div class="stella-clover">🍀</div>
+    <div class="stella-title-text">
+        <h1>Stella</h1>
+        <p>Älykäs ravianalyysi, peliprosentit, valmentajakommentit ja asiantuntijavihjeet</p>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 # ==========================================================
-# 3. SIVUPALKKI (SIDEBAR) & DATAN SYÖTTÖLOKEROT
+# 3. SIVUPALKKI (SIDEBAR) & DATAN SYÖTTÖ
 # ==========================================================
-st.sidebar.header("⚙️ Simulaation asetukset")
-valittu_pvm = st.sidebar.date_input("Valitse kilpailupäivä", datetime.date.today())
-rata_nimi = st.sidebar.selectbox("Valitse ravirata", ["Umåker", "Solvalla", "Jägersro", "Bergsåker", "Bollnäs", "Gävle"])
+st.sidebar.header("⚙️ Asetukset")
+valittu_pvm = st.sidebar.date_input("Kilpailupäivä", datetime.date.today())
+rata_nimi = st.sidebar.selectbox("Ravirata", ["Umåker", "Solvalla", "Jägersro", "Bergsåker", "Bollnäs", "Gävle"])
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("📥 Datan syöttö")
+st.sidebar.subheader("📥 Tiedostot & Kuvat")
 
-# 1. PDF-käsiohjelma
-pdf_käsiohjelma = st.sidebar.file_uploader("Lataa PDF-käsiohjelma", type=["pdf"])
-
-# 2. Perjantain peliprosentit
+pdf_käsiohjelma = st.sidebar.file_uploader("PDF-käsiohjelma", type=["pdf"])
 perjantai_kuva = st.sidebar.file_uploader("Perjantain peliprosentit (kuva)", type=["png", "jpg", "jpeg"])
-
-# 3. Lauantain varusteet / muutokset
-lauantai_kuva = st.sidebar.file_uploader("Lauantain varusteet / muutokset (kuva)", type=["png", "jpg", "jpeg"])
-
-# 4. Travronden valmentajakommentit (lähdöittäin kuvakaappaus)
-travroden_kuva = st.sidebar.file_uploader("Travronden valmentajakommentit (kuvakaappaus)", type=["png", "jpg", "jpeg"])
-
-# 5. Jensin vihjeet
-jens_kuva = st.sidebar.file_uploader("Jensin vihjeet (kuva / tiedosto)", type=["png", "jpg", "jpeg", "txt"])
-
-# 6. Danielin vihjeet
-daniel_kuva = st.sidebar.file_uploader("Danielin vihjeet (kuva / tiedosto)", type=["png", "jpg", "jpeg", "txt"])
+lauantai_kuva = st.sidebar.file_uploader("Lauantain varusteet (kuva)", type=["png", "jpg", "jpeg"])
+travroden_kuva = st.sidebar.file_uploader("Travronden kommentit (kuva)", type=["png", "jpg", "jpeg"])
+jens_kuva = st.sidebar.file_uploader("Jensin vihjeet (kuva/tiedosto)", type=["png", "jpg", "jpeg", "txt"])
+daniel_kuva = st.sidebar.file_uploader("Danielin vihjeet (kuva/tiedosto)", type=["png", "jpg", "jpeg", "txt"])
 
 st.sidebar.markdown("---")
 run_sim = st.sidebar.button("🚀 Suorita Stella-simulaatio", type="primary", use_container_width=True)
 
 # ==========================================================
-# 4. SIMULAATIOMOOTTORI & PÄÄSISÄLTÖ
+# 4. SIMULAATIOMOOTTORI & NÄKYMÄ
 # ==========================================================
 if run_sim:
-    st.success(f"Simulaatio käynnistetty radalle **{rata_nimi}** päivälle **{valittu_pvm}** manuaalisesti syötettyjen tietojen pohjalta!")
+    st.success(f"Simulaatio valmiina radalle **{rata_nimi}** ({valittu_pvm})!")
     
-    # Esimerkkidatat simulaatiolle
     simuloidut_lahdot = [
         {
             "lahto": 1,
@@ -135,37 +136,37 @@ if run_sim:
     ]
 
     for l in simuloidut_lahdot:
-        with st.container():
-            st.markdown(f"### 🔹 Lähtö {l['lahto']} — {l['matka']}")
+        st.markdown(f"### Lähtö {l['lahto']} — {l['matka']}")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown(f"""
+            <div class="result-card">
+                <div style="font-weight: 700; color: #0F172A; margin-bottom: 8px;">👑 KÄRKI & HAASTAJAT</div>
+                <div><b>Suosikki:</b> {l['suosikki']['nimi']} ({l['suosikki']['ohjastaja']})</div>
+                <div style="font-size: 13px; color: #475569; margin-bottom: 8px;">Voittoprosentti: <b>{l['suosikki']['prosentti']}%</b> | Raja-kerroin: <b>{l['suosikki']['raja']}</b></div>
+                <hr style="margin: 8px 0; border: none; border-top: 1px solid #E2E8F0;">
+                <div style="font-size: 13px;"><b>Haastajat:</b></div>
+                <div style="font-size: 13px; color: #475569;">• {l['haastajat'][0]['nimi']} ({l['haastajat'][0]['prosentti']}%, Raja: {l['haastajat'][0]['raja']})</div>
+                <div style="font-size: 13px; color: #475569;">• {l['haastajat'][1]['nimi']} ({l['haastajat'][1]['prosentti']}%, Raja: {l['haastajat'][1]['raja']})</div>
+            </div>
+            """, unsafe_allow_html=True)
             
-            col1, col2 = st.columns([2, 1])
-            
-            with col1:
-                st.markdown(f"""
-                <div class="card-box">
-                    <b>👑 VOITTAJAEHDOKAS / SUOSIKKI:</b><br>
-                    • <b>{l['suosikki']['nimi']}</b> ({l['suosikki']['ohjastaja']})<br>
-                    • Simulaation voittoprosentti: <b>{l['suosikki']['prosentti']}%</b> | Raja-kerroin: <b>{l['suosikki']['raja']}</b><br><br>
-                    <b>⚔️ HAASTAJAT:</b><br>
-                    • {l['haastajat'][0]['nimi']} ({l['haastajat'][0]['ohjastaja']}) — {l['haastajat'][0]['prosentti']}% (Raja: {l['haastajat'][0]['raja']})<br>
-                    • {l['haastajat'][1]['nimi']} ({l['haastajat'][1]['ohjastaja']}) — {l['haastajat'][1]['prosentti']}% (Raja: {l['haastajat'][1]['raja']})
-                </div>
-                """, unsafe_allow_html=True)
-                
-            with col2:
-                st.markdown(f"""
-                <div class="card-box" style="background-color: #FEF3C7; border-color: #F59E0B;">
-                    <b>⭐ PARAS YLLÄTTÄJÄ (<10%):</b><br>
-                    • <b>{l['yllattaja']['nimi']}</b> ({l['yllattaja']['ohjastaja']})<br>
-                    • Prosentti: <b>{l['yllattaja']['prosentti']}%</b> | Raja: <b>{l['yllattaja']['raja']}</b><br><br>
-                    <b>💡 Perustelu:</b><br>
-                    <span style="font-size: 13px;">{l['yllattaja']['perustelu']}</span>
-                </div>
-                """, unsafe_allow_html=True)
+        with col2:
+            st.markdown(f"""
+            <div class="yllattaja-card">
+                <div style="font-weight: 700; color: #B45309; margin-bottom: 8px;">⭐ PARAS YLLÄTTÄJÄ (< 10%)</div>
+                <div><b>{l['yllattaja']['nimi']}</b> ({l['yllattaja']['ohjastaja']})</div>
+                <div style="font-size: 13px; color: #78350F; margin-bottom: 8px;">Prosentti: <b>{l['yllattaja']['prosentti']}%</b> | Raja-kerroin: <b>{l['yllattaja']['raja']}</b></div>
+                <hr style="margin: 8px 0; border: none; border-top: 1px solid #FDE68A;">
+                <div style="font-size: 13px; color: #78350F;"><b>Perustelu:</b> {l['yllattaja']['perustelu']}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
 else:
-    st.info("👈 Lataa tarvittavat tiedostot ja kuvat sivupalkista (mukaan lukien Travronden sekä Jensin & Danielin vihjeet) ja paina **Suorita Stella-simulaatio**.")
+    st.info("Lataa tarvittavat tiedostot ja kuvat vasemmasta valikosta ja paina **Suorita Stella-simulaatio**.")
 
 # Alatunniste
 st.markdown("---")
-st.markdown("<div style='text-align: center; color: #9CA3AF; font-size: 12px;'>Stella Data Engine 🍀 • Kaikki oikeudet pidätetään</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #94A3B8; font-size: 12px;'>Stella Data Engine 🍀</div>", unsafe_allow_html=True)
