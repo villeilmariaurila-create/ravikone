@@ -7,7 +7,7 @@ import streamlit as st
 # --- SIVUN ASETUKSET ---
 st.set_page_config(page_title="Stella", layout="wide", initial_sidebar_state="expanded")
 
-# --- LOGO & VISUAALINEN TYYLI (SILMÄÄ ISKEVÄ HMIÖ 😉) ---
+# --- LOGO & TYYLI (SILMÄÄ ISKEVÄ HMIÖ 😉) ---
 st.markdown("""
     <style>
     .stella-logo-container {
@@ -107,8 +107,8 @@ search_term = f"{selected_track_name} {selected_date.strftime('%d.%m.%Y')} vihje
 google_url = f"https://www.google.com/search?q={search_term.replace(' ', '+')}"
 st.sidebar.markdown(f"🔗 [Google-haku: **{selected_track_name}**]({google_url})")
 
-# --- SUORA REALTIME KERTOIMIEN HAKU ATG:N APISTA ---
-@st.cache_data(ttl=10) # Paivittyy 10 sekunnin välein
+# --- SUORA REALTIME KERTOIMIEN & TIPSKOMMENTAR HAKU ATG:STÄ ---
+@st.cache_data(ttl=10)
 def fetch_realtime_atg_data(date_obj, track_keyword):
     date_str = date_obj.strftime("%Y-%m-%d")
     calendar_url = f"https://www.atg.se/services/racinginfo/v1/api/calendar/day/{date_str}"
@@ -154,25 +154,23 @@ def fetch_realtime_atg_data(date_obj, track_keyword):
                                 
                                 start_pools = start.get('pools', {})
                                 bet_pct = 0.0
-                                unibet_odds = None
+                                live_odds = None
                                 
-                                # 1. LUE VOITTAJAPOOLIN KERROIN (Vinnare)
+                                # 1. LUE EXACT V-ODDS (VOITTAJAKERROIN)
                                 if 'vinnare' in start_pools:
-                                    vinnare_data = start_pools['vinnare']
-                                    odds_raw = vinnare_data.get('odds', 0)
-                                    if odds_raw > 0:
-                                        # ATG ilmoittaa kertoimet sadasosina (esim. 250 = 2.50)
-                                        real_odds = odds_raw / 100.0 if odds_raw > 50 else float(odds_raw)
-                                        unibet_odds = round(real_odds, 2)
-                                        bet_pct = round((100.0 / real_odds) * 0.85, 2)
+                                    v_data = start_pools['vinnare']
+                                    raw_o = v_data.get('odds', 0)
+                                    if raw_o > 0:
+                                        live_odds = raw_o / 100.0 if raw_o > 100 else float(raw_o)
+                                        bet_pct = (85.0 / live_odds)
                                 
-                                # 2. LUE T-PELIN PROSENTTI JOS SAATAVILLA
+                                # 2. LUE GS75 / V85 / T-PELI PROSENTTI
                                 if t_game_type and t_game_type.lower() in start_pools:
-                                    t_pct = start_pools[t_game_type.lower()].get('betDistribution', 0) / 100.0
-                                    if t_pct > 0:
-                                        bet_pct = round(t_pct, 2)
+                                    t_dist = start_pools[t_game_type.lower()].get('betDistribution', 0) / 100.0
+                                    if t_dist > 0:
+                                        bet_pct = t_dist
 
-                                # 3. VARUSTEBONUS
+                                # 3. VARUSTEBONUKSET (Kengät SKOR / Kärryt VAGN)
                                 bonus = 1.00
                                 shoe_info = horse_data.get('shoes', {})
                                 if shoe_info.get('front') == False and shoe_info.get('back') == False:
@@ -184,20 +182,20 @@ def fetch_realtime_atg_data(date_obj, track_keyword):
                                 if sulky_info.get('type', {}).get('text') == 'Amerikansk':
                                     bonus += 0.10
 
-                                # 4. TAUSTAVOIMA (Aina varalla)
-                                post_bonus = 1.20 if 1 <= h_no <= 3 else (1.10 if 4 <= h_no <= 5 else 0.90)
-                                base_power = (10.0 * post_bonus * bonus)
+                                # 4. TIPSKOMMENTAR (Travronden / ATG Vihjekommentti)
+                                comment = start.get('text', '')
+                                if not comment:
+                                    comment = horse_data.get('text', '')
 
                                 rows.append({
                                     "Race_No": race_no,
                                     "Kohde": kohde_str,
                                     "Nro": h_no,
                                     "Hevonen": h_name,
-                                    "Veikkaus_%": bet_pct,
-                                    "Base_Power": base_power,
-                                    "Unibet_K": unibet_odds if unibet_odds else "-",
+                                    "Veikkaus_%": round(bet_pct, 2),
+                                    "Unibet_K": round(live_odds, 2) if live_odds else "-",
                                     "Bonus": bonus,
-                                    "Travronden": f"Varustebonus: {bonus:.2f}"
+                                    "Travronden": comment
                                 })
                     break
     except Exception as e:
@@ -211,18 +209,14 @@ df_raw = fetch_realtime_atg_data(selected_date, selected_track_code)
 if df_raw.empty:
     st.warning(f"⚠️ Ei vahvistettua dataa radalle **{selected_track_name}** päivämäärälle **{selected_date.strftime('%d.%m.%Y')}**.")
 else:
-    st.success(f"📍 Rata: **{selected_track_name}** | 📅 Päivämäärä: **{selected_date.strftime('%d.%m.%Y')}** | 🏇 Haetut hevoset: **{len(df_raw)} kpl** (Päivittyy lennosta)")
+    st.success(f"📍 Rata: **{selected_track_name}** | 📅 Päivämäärä: **{selected_date.strftime('%d.%m.%Y')}** | 🏇 Haetut hevoset: **{len(df_raw)} kpl** (Aito V-ODDS live-data kytketty)")
 
 # --- SIMULAATIO MOOTTORI ---
 def run_simulation(df, n_sims, spets):
     df_calc = df.copy()
     
-    # Käytetään live-peliprosenttia jos saatu, muuten taustavoimaa
-    df_calc['Raw_Score'] = np.where(
-        df_calc['Veikkaus_%'] > 0,
-        df_calc['Veikkaus_%'] * df_calc['Bonus'] * spets,
-        df_calc['Base_Power'] * spets
-    )
+    # Suora matemaattinen voiman jako aitojen kertoimien & prosenttien perusteella
+    df_calc['Raw_Score'] = df_calc['Veikkaus_%'] * df_calc['Bonus'] * spets
     
     results = []
     for kohde, group in df_calc.groupby('Kohde'):
@@ -267,7 +261,7 @@ def run_simulation(df, n_sims, spets):
             else:
                 tila = "❌ Ylipelattu"
 
-            peli_pct_str = f"{peli_pct:.2f}%" if peli_pct > 0 else "Arvioitu"
+            peli_pct_str = f"{peli_pct:.2f}%" if peli_pct > 0 else "-"
 
             results.append({
                 "Race_No": row['Race_No'],
