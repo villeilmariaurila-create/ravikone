@@ -8,38 +8,48 @@ st.set_page_config(page_title="Stella Ravisimulaattori", layout="wide", initial_
 
 st.markdown("""
 <style>
-    /* Pääotsikko ja logo-osio ilman häiritseviä taustalaatikoita */
+    /* Pääotsikko ja logo-osio */
     .stella-header {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 20px;
         padding-bottom: 20px;
         border-bottom: 2px solid #E5E7EB;
         margin-bottom: 24px;
     }
-    .stella-clover {
-        font-size: 38px;
-        background: #0F172A;
+    .stella-diamond-logo {
+        font-size: 34px;
+        background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
         color: #34D399;
-        width: 60px;
-        height: 60px;
+        width: 70px;
+        height: 70px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border-radius: 18px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
+        border: 2px solid #34D399;
     }
     .stella-title-text h1 {
-        font-size: 32px;
+        font-size: 36px;
         font-weight: 800;
         color: #0F172A;
         margin: 0;
         letter-spacing: -0.5px;
     }
-    .stella-title-text p {
-        font-size: 14px;
+    .stella-slogan-fi {
+        font-size: 16px;
+        font-weight: 700;
+        color: #059669;
+        margin: 4px 0 2px 0;
+        letter-spacing: 0.2px;
+    }
+    .stella-slogan-se {
+        font-size: 13px;
+        font-weight: 500;
         color: #64748B;
-        margin: 4px 0 0 0;
+        font-style: italic;
+        margin: 0;
     }
     
     /* Tuloskortit */
@@ -65,14 +75,15 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================================
-# 2. YLÄOSA (LOGO & OTSIKKO)
+# 2. YLÄOSA (TIMANTTINEN LOGO & SLOGAN SUOMEKSI JA RUOTSIKSI)
 # ==========================================================
 st.markdown("""
 <div class="stella-header">
-    <div class="stella-clover">🍀</div>
+    <div class="stella-diamond-logo">💎🍀</div>
     <div class="stella-title-text">
         <h1>Stella</h1>
-        <p>Älykäs ravianalyysi, peliprosentit, valmentajakommentit ja asiantuntijavihjeet</p>
+        <div class="stella-slogan-fi">Hyvä päivä olla minä – ai että ai että!</div>
+        <div class="stella-slogan-se">Vilken härlig dag – åh gosse åh gosse!</div>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -164,4 +175,4 @@ else:
 
 # Alatunniste
 st.markdown("---")
-st.markdown("<div style='text-align: center; color: #94A3B8; font-size: 12px;'>Stella Data Engine 🍀</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #94A3B8; font-size: 12px;'>Stella Data Engine 💎🍀</div>", unsafe_allow_html=True)
