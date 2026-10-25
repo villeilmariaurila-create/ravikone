@@ -1,4 +1,3 @@
-import datetime
 import pandas as pd
 import streamlit as st
 
@@ -82,11 +81,6 @@ st.markdown("""
 # 3. SIVUPALKKI (SIDEBAR) & DATAN SYÖTTÖ
 # ==========================================================
 st.sidebar.header("⚙️ Asetukset")
-valittu_pvm = st.sidebar.date_input("Kilpailupäivä", datetime.date.today())
-rata_nimi = st.sidebar.selectbox("Ravirata", ["Umåker", "Solvalla", "Jägersro", "Bergsåker", "Bollnäs", "Gävle"])
-
-st.sidebar.markdown("---")
-st.sidebar.subheader("📥 Tiedostot & Kuvat")
 
 pdf_käsiohjelma = st.sidebar.file_uploader("PDF-käsiohjelma", type=["pdf"])
 unibet_tiedosto = st.sidebar.file_uploader("Unibet kiinteät kertoimet (tiedosto/kuva)", type=["png", "jpg", "jpeg", "txt", "csv"])
@@ -103,7 +97,7 @@ run_sim = st.sidebar.button("🚀 Suorita Stella-simulaatio", type="primary", us
 # 4. SIMULAATIOMOOTTORI & NÄKYMÄ
 # ==========================================================
 if run_sim:
-    st.success(f"Simulaatio valmiina radalle **{rata_nimi}** ({valittu_pvm}) syötettyjen tietojen ja kertoimien pohjalta!")
+    st.success("Simulaatio suoritettu onnistuneesti annettujen tietojen pohjalta!")
     
     simuloidut_lahdot = [
         {
@@ -117,7 +111,7 @@ if run_sim:
             "yllattaja": {
                 "nimi": "Lucy Leejs", "ohjastaja": "Hanna Olofsson", 
                 "prosentti": 9, "raja": 11.11, 
-                "perustelu": "Pirteät otteet kokeissa. Unibetin kertoimet ja vihjeet tukevat yllätyssaumaa."
+                "perustelu": "Pirteät otteet kokeissa. Syötetyt tiedot ja vihjeet tukevat yllätyssaumaa."
             }
         },
         {
@@ -166,7 +160,7 @@ if run_sim:
             """, unsafe_allow_html=True)
 
 else:
-    st.info("Lataa tarvittavat tiedostot, kertoimet ja kuvat vasemmasta valikosta ja paina **Suorita Stella-simulaatio**.")
+    st.info("Lataa tarvittavat tiedostot ja kuvat vasemmasta valikosta ja paina **Suorita Stella-simulaatio**.")
 
 # Alatunniste
 st.markdown("---")
