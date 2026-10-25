@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 
 # ==========================================================
-# 1. SIVUN ASETUKSET & PUHDAS, MODERNISOIETTU TYYLI
+# 1. SIVUN ASETUKSET & PUHDAS, MODERNISOITU TYYLI
 # ==========================================================
 st.set_page_config(page_title="Stella Ravisimulaattori", layout="wide", initial_sidebar_state="expanded")
 
@@ -89,6 +89,7 @@ st.sidebar.markdown("---")
 st.sidebar.subheader("📥 Tiedostot & Kuvat")
 
 pdf_käsiohjelma = st.sidebar.file_uploader("PDF-käsiohjelma", type=["pdf"])
+unibet_tiedosto = st.sidebar.file_uploader("Unibet kiinteät kertoimet (tiedosto/kuva)", type=["png", "jpg", "jpeg", "txt", "csv"])
 perjantai_kuva = st.sidebar.file_uploader("Perjantain peliprosentit (kuva)", type=["png", "jpg", "jpeg"])
 lauantai_kuva = st.sidebar.file_uploader("Lauantain varusteet (kuva)", type=["png", "jpg", "jpeg"])
 travroden_kuva = st.sidebar.file_uploader("Travronden kommentit (kuva)", type=["png", "jpg", "jpeg"])
@@ -102,7 +103,7 @@ run_sim = st.sidebar.button("🚀 Suorita Stella-simulaatio", type="primary", us
 # 4. SIMULAATIOMOOTTORI & NÄKYMÄ
 # ==========================================================
 if run_sim:
-    st.success(f"Simulaatio valmiina radalle **{rata_nimi}** ({valittu_pvm})!")
+    st.success(f"Simulaatio valmiina radalle **{rata_nimi}** ({valittu_pvm}) syötettyjen tietojen ja kertoimien pohjalta!")
     
     simuloidut_lahdot = [
         {
@@ -116,7 +117,7 @@ if run_sim:
             "yllattaja": {
                 "nimi": "Lucy Leejs", "ohjastaja": "Hanna Olofsson", 
                 "prosentti": 9, "raja": 11.11, 
-                "perustelu": "Pirteät otteet kokeissa. Travrondenin kommentit ja vihjeet tukevat yllätyssaumaa."
+                "perustelu": "Pirteät otteet kokeissa. Unibetin kertoimet ja vihjeet tukevat yllätyssaumaa."
             }
         },
         {
@@ -165,7 +166,7 @@ if run_sim:
             """, unsafe_allow_html=True)
 
 else:
-    st.info("Lataa tarvittavat tiedostot ja kuvat vasemmasta valikosta ja paina **Suorita Stella-simulaatio**.")
+    st.info("Lataa tarvittavat tiedostot, kertoimet ja kuvat vasemmasta valikosta ja paina **Suorita Stella-simulaatio**.")
 
 # Alatunniste
 st.markdown("---")
