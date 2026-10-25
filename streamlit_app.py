@@ -107,7 +107,7 @@ search_term = f"{selected_track_name} {selected_date.strftime('%d.%m.%Y')} vihje
 google_url = f"https://www.google.com/search?q={search_term.replace(' ', '+')}"
 st.sidebar.markdown(f"🔗 [Google-haku: **{selected_track_name}**]({google_url})")
 
-# --- ATG DATAINTEGRAATIO BAYESILAISELLA KORJAUKSELLA ---
+# --- ATG DATAINTEGRAATIO ---
 @st.cache_data(ttl=60)
 def fetch_advanced_atg_data(date_obj, track_keyword):
     date_str = date_obj.strftime("%Y-%m-%d")
@@ -152,7 +152,6 @@ def fetch_advanced_atg_data(date_obj, track_keyword):
                                 h_name = horse_data.get('name', 'Tuntematon')
                                 h_no = int(start.get('number', 0))
                                 
-                                # 1. BAYESILAINEN TAASTA-ARVIO (Ei koskaan absoluuttista nollaa)
                                 stats = horse_data.get('statistics', {}).get('years', {})
                                 total_starts = 0
                                 total_wins = 0
@@ -160,14 +159,11 @@ def fetch_advanced_atg_data(date_obj, track_keyword):
                                     total_starts += y_data.get('starts', 0)
                                     total_wins += y_data.get('firstPlaces', 0)
                                 
-                                # Minimikynnnys 8.0 % kaikille hevosille estämään 0 % simulaatiot
                                 raw_win_rate = (total_wins / total_starts) if total_starts > 0 else 0.12
                                 adjusted_win_rate = max(raw_win_rate, 0.08)
                                 
-                                # 2. LÄHTÖRATA-PAINO
                                 post_bonus = 1.08 if 1 <= h_no <= 5 else 0.95
                                 
-                                # 3. VARUSTEBONUKSET
                                 bonus = 1.00
                                 shoe_info = horse_data.get('shoes', {})
                                 if shoe_info.get('front') == False and shoe_info.get('back') == False:
@@ -179,7 +175,6 @@ def fetch_advanced_atg_data(date_obj, track_keyword):
                                 if sulky_info.get('type', {}).get('text') == 'Amerikansk':
                                     bonus += 0.08
 
-                                # 4. PELIPROSENTTI / KINNTÄT KERTOIMET
                                 start_pools = start.get('pools', {})
                                 bet_pct = 0.0
                                 unibet_odds = None
@@ -225,7 +220,6 @@ else:
 def run_simulation(df, n_sims, spets):
     df_calc = df.copy()
     
-    # Käytetään peliprosenttia jos auki, muuten Bayesilaista pohja-arviota!
     df_calc['Raw_Score'] = np.where(
         df_calc['Veikkaus_%'] > 0,
         df_calc['Veikkaus_%'] * df_calc['Bonus'] * spets,
@@ -241,7 +235,6 @@ def run_simulation(df, n_sims, spets):
         probs = probs / np.sum(probs)
         nros = group['Nro'].values
         
-        # Monte Carlo
         draws = np.random.choice(nros, size=n_sims, p=probs)
         unique, counts = np.unique(draws, return_counts=True)
         win_counts = dict(zip(unique, counts))
@@ -294,6 +287,7 @@ def run_simulation(df, n_sims, spets):
             })
             
     df_res = pd.DataFrame(results)
+    # LAJITELLAAN LÄHDÖITTÄIN JA HEVOSEN LÄHTÖNUMERON MUKAAN (1, 2, 3...)
     df_res = df_res.sort_values(by=["Race_No", "Nro"]).reset_index(drop=True)
     return df_res
 
@@ -318,7 +312,6 @@ if not df_raw.empty:
         tab_list = ["Kaikki Lähdöt"] + unique_races
         tabs = st.tabs(tab_list)
         
-        # PÄÄSARAKKEET: Voitontodennäköisyys (%) Ensimmäisenä
         with tabs[0]:
             cols = ["Kohde", "Nro", "Hevonen", "Voitontodennäköisyys (%)", "Peli %", "Raja-K", "EV-Pooli"]
             if use_unibet:
@@ -330,7 +323,10 @@ if not df_raw.empty:
 
         for i, race_name in enumerate(unique_races, start=1):
             with tabs[i]:
-                df_single = df_res[df_res["Kohde"] == race_name]
+                # Suodatetaan kyseisen lähdön hevoset, järjestetään numeron mukaan ja nollataan rivi-indeksi (1, 2, 3...)
+                df_single = df_res[df_res["Kohde"] == race_name].sort_values(by="Nro").reset_index(drop=True)
+                df_single.index = df_single.index + 1  # Indeksi alkamaan numero 1:stä
+                
                 cols_single = ["Nro", "Hevonen", "Voitontodennäköisyys (%)", "Peli %", "Raja-K", "EV-Pooli"]
                 if use_unibet:
                     cols_single.extend(["Unibet K", "EV-Unibet"])
